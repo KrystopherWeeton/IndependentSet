@@ -4,10 +4,12 @@ import itertools
 import numpy as np
 
 
-# Returns a random 'headstart' set with k nodes inside the independence set
-def getOverlapSet(k: int, g: nx.graph, planted_key: str):
-    planted = nx.get_node_attributes(g, planted_key)
-
+# Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
+def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
+    planted: list = nx.get_node_attributes(g, planted_key)
+    intersection: list = random.sample(planted, k)
+    disjoint = random.sample(set(nx.nodes(g)).difference(intersection))
+    return disjoint + intersection
 
 # Generates an erdos_renyi graph with the provided # of vertices
 # and edge probabilities.
@@ -27,7 +29,7 @@ def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int,
     #? Generate internal and external graph and then join them.
     g: nx.Graph = nx.erdos_renyi_graph(n - planted_size, p)
     g: nx.Graph = nx.erdos_renyi_graph(n, p)
-    planted: list = random.sample(g.nodes(), planted_size)
+    planted: list = random.sample(nx.nodes(g), planted_size)
     
     # Remove edges from the planted set
     planted_edges: list = list(itertools.combinations(planted, 2))
