@@ -26,17 +26,16 @@ def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int,
     if planted_size > n:
         raise RuntimeError(f"Attempt to generate a planted subset graph with {planted_size} vertices planted in a graph of size {n}")
 
-    #? Generate internal and external graph and then join them.
-    g: nx.Graph = nx.erdos_renyi_graph(n - planted_size, p)
+    #? Generate original graph and sample planted set from nodes
     g: nx.Graph = nx.erdos_renyi_graph(n, p)
     planted: list = random.sample(nx.nodes(g), planted_size)
     
-    # Remove edges from the planted set
+    #? Remove edges from the planted set
     planted_edges: list = list(itertools.combinations(planted, 2))
     g.remove_edges_from(planted_edges)
     nx.set_node_attributes(g, dict.fromkeys(planted, planted_key))
     
-    # Put back the edges with probability q
+    #? Put back the edges with probability q
     g.add_edges_from(list(np.random.choice(planted_edges, p = [q] * len(planted_edges))))
 
     return g
