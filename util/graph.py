@@ -1,5 +1,12 @@
 import networkx as nx
 import random
+import itertools
+import numpy as np
+
+
+# Returns a random 'headstart' set with k nodes inside the independence set
+def getOverlapSet(k: int, g: nx.graph, planted_key: str):
+    planted = nx.get_node_attributes(g, planted_key)
 
 
 # Generates an erdos_renyi graph with the provided # of vertices
@@ -12,27 +19,24 @@ def generate_erdos_renyi_graph(n: int, p: float) -> nx.Graph:
 # and edge probabilities (p), with a planted subset of vertices
 # that has the preovided edge probabilities (q). The vertices within
 # the planted subset have key 'planted_key' attached to them.
-def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int, planted_key: str) -> nx.Graph: 
+def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int, planted_key: str)-> nx.Graph: 
     #? Perform initial checking to validate input
     if planted_size > n:
         raise RuntimeError(f"Attempt to generate a planted subset graph with {planted_size} vertices planted in a graph of size {n}")
 
     #? Generate internal and external graph and then join them.
     g: nx.Graph = nx.erdos_renyi_graph(n - planted_size, p)
-    first_planted: int = n - planted_size + 1
-    for i in range(first_planted, n):
-        #TODO: Need to make it so the last 'planted_size' nodes are the planted ones
-        g.add_node(i, attr=planted_key)
-        # Add edges between planted and other portion
-        for j in range(0, first_planted):
-            if random.random() < p:
-                g.add_edge(i, j)
-
-        # Add edges within planted portion
-        for j in range(first_planted, n):
-            if random.random() < q:
-                g.add_edge(i, j)
+    g: nx.Graph = nx.erdos_renyi_graph(n, p)
+    planted: list = random.sample(g.nodes(), planted_size)
     
+    # Remove edges from the planted set
+    planted_edges: list = list(itertools.combinations(planted, 2))
+    g.remove_edges_from(planted_edges)
+    nx.set_node_attributes(g, dict.fromkeys(planted, planted_key))
+    
+    # Put back the edges with probability q
+    g.add_edges_from(list(np.random.choice(planted_edges, p = [q] * len(planted_edges))))
+
     return g
 
 
