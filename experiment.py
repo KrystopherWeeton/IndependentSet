@@ -9,3 +9,4 @@ def run():
 @run.command()
 @click.option("-n", required=True, type=int, )
 def generate_p_graph():
+    pass

@@ -2,12 +2,17 @@ import networkx as nx
 import numpy as np
 import random
 
-def metropolis_step(g: nx.Graph, temp: float, currState: list) -> list:
+# Right now very simple, just return a random vertex (unless we start with hint)
+def get_init_state(g: nx.Graph, ) -> set:
+    return set(random.choice(nx.nodes(g)))
+
+
+def metropolis_step(g: nx.Graph, temp: float, currState: set) -> set:
     # Choose a random vertex in V
     v_p = random.choice(nx.nodes(g))
 
     if v_p in currState:
-        return currState if random.random() < (temp ** -1) else currState.pop(currState.index(v_p))
+        return currState if random.random() < (temp ** -1) else currState.discard(v_p)
     else:
         make_bigger = True
         # Check if adding v gets a bigger independence set
@@ -16,4 +21,6 @@ def metropolis_step(g: nx.Graph, temp: float, currState: list) -> list:
                 make_bigger = False
                 break
         # If we can make the independent set bigger, do so.
-        return currState + [v_p] if make_bigger else currState 
+        if make_bigger:
+            currState.add(v_p)
+        return currState
