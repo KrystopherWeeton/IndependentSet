@@ -21,7 +21,7 @@ def generate_erdos_renyi_graph(n: int, p: float) -> nx.Graph:
 # and edge probabilities (p), with a planted subset of vertices
 # that has the preovided edge probabilities (q). The vertices within
 # the planted subset have key 'planted_key' attached to them.
-def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int, planted_key: str)-> nx.Graph: 
+def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int, planted_key: str)-> (nx.Graph, list): 
     #? Perform initial checking to validate input
     if planted_size > n:
         raise RuntimeError(f"Attempt to generate a planted subset graph with {planted_size} vertices planted in a graph of size {n}")
@@ -33,15 +33,16 @@ def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int,
     #? Remove edges from the planted set
     planted_edges: list = list(itertools.combinations(planted, 2))
     g.remove_edges_from(planted_edges)
-    nx.set_node_attributes(g, dict.fromkeys(planted, planted_key))
+    # print(g, dict.fromkeys(planted, planted_key))
+    # nx.set_node_attributes(g, dict.fromkeys(planted, planted_key))
     
     #? Put back the edges with probability q
     g.add_edges_from(list(np.random.choice(planted_edges, p = [q] * len(planted_edges))))
 
-    return g
+    return g, planted
 
 
 # Generates a planted independent set graph, similarly to the planted subset
 # graph but with 0 edge probabilities within the planted subset
-def generate_planted_independent_set_graph(n: int, p: float, planted_size: int, planted_key: str) -> nx.Graph:
+def generate_planted_independent_set_graph(n: int, p: float, planted_size: int, planted_key: str) -> (nx.Graph, list):
     return generate_planted_subset_graph(n, p, 0, planted_size, planted_key)
