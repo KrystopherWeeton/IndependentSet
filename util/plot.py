@@ -29,6 +29,7 @@ class PlotArgs:
         self.title: str = ""
         self.series: [Series] = []
         self.file_name: str = ""
+        self.directory: str = ""
 
         for k, v in kwargs.items():
             setattr(self, k, v)
@@ -50,10 +51,13 @@ class PlotArgs:
             plt.plot(series.x_values, series.y_values,
                      series.color, label=series.name)
 
-        if len(series) > 1:
+        if len(self.series) > 1:
             plt.legend()
 
-        plt.savefig(self.file_name + ".png")
+        if self.directory:
+            plt.savefig(f"{self.directory}/{self.file_name}.png")
+        else:
+            plt.savefig(f"{self.file_name}.png")
 
 
 class CSVRow:
