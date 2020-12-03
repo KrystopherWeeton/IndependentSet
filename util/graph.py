@@ -34,10 +34,12 @@ def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int,
     planted_edges: list = list(itertools.combinations(planted, 2))
     g.remove_edges_from(planted_edges)
     # print(g, dict.fromkeys(planted, planted_key))
-    # nx.set_node_attributes(g, dict.fromkeys(planted, planted_key))
+    # nx.set_node_attributes(g, dict.fromkeys(planted, {planted_key}))
     
     #? Put back the edges with probability q
-    g.add_edges_from(list(np.random.choice(planted_edges, p = [q] * len(planted_edges))))
+    for e in planted_edges:
+        if random.random() < q:
+            g.add_edge(e)
 
     return g, planted
 

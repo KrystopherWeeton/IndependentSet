@@ -93,7 +93,7 @@ def test_local_search(n: [int], num_trials):
 
         for t in range(num_trials):
             # Generate a graph of size n with a planted independent set of a specified size
-            (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, PLANTED_KEY)
+            (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, "key")
 
             # Pre-process some data out of G
             erdos_nodes: [int] = set(G.nodes).difference(B)
