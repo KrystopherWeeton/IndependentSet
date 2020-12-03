@@ -27,7 +27,7 @@ def planted_intersection_sizes(n: int) -> (int, int):
 
 # This is the number of 'extra' nodes to include in the initial subset
 def planted_non_intersection_sizes(n: int) -> (int, int):
-    return (10, math.ceil(math.sqrt(n)))
+    return (10, 2 * math.ceil(math.sqrt(n)))
 
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
@@ -60,7 +60,21 @@ class Results:
         if l not in self.results[n][k]:
             self.results[n][k][l] = [None] * self.num_trials
         self.results[n][k][l][t] = intersection_size 
+
+
+    def get_average(self, n: int, k: int, l: int) -> float:
+        return sum(self.results[n][k][l]) / self.num_trials
     
+
+    def get_list(self, n: int, k: int):
+        l_values: [int] = []
+        average: [float] = []
+
+        data: dict = self.results[n][k]
+        for l in data.keys():
+            l_values.append(l)
+            average.append(self.get_average(n, k, l))
+        return (l_values, average)
 
     def __str__(self):
         return str(self.results)
@@ -80,7 +94,6 @@ def test_local_search(n: [int], num_trials):
     random.seed(0)      # TODO: Swap out for randomly seeded randomness when testing is complete
     results: Results = Results(num_trials)
 
-    results: dict = {}
 
     #? Loop over the different values of n which should be tested
     for n_value in n:
@@ -100,6 +113,10 @@ def test_local_search(n: [int], num_trials):
 
             for k in range(k_init, k_final, STEP_SIZE):
                 for l in range(l_init, l_final, STEP_SIZE):
+                    if len(B) < l:
+                        raise RuntimeError("The planted size is smaller than the requested subset size.")
+                    if len(erdos_nodes) < l:
+                        raise RuntimeError("There are not enough non-planted vertices to pull from.")
                     # Generate an initial subset of the graph that has a provided intersection size
                     init_set: set = set(random.sample(erdos_nodes, k=l) + random.sample(B, k=k))
 
@@ -107,7 +124,8 @@ def test_local_search(n: [int], num_trials):
                     final_subset: set = local_optimizer.optimize(initial=init_set, G=G, max_steps = MAX_OPTIMIZER_STEPS)
                     intersection_size: int = len(final_subset.intersection(B))
                     results.add_results(n_value, t, k, l, intersection_size)
-    print("RESULTS:", results)
+
+    print("RESULTS:", results.get_list(200, 40))
 
 
 if __name__ == "__main__":
