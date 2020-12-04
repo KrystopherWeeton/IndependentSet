@@ -42,7 +42,7 @@ PLANTED_KEY: str = "beta"
 # The step size for k and l
 STEP_SIZE: int = 10
 # The maximum number of steps an optimizer can run before we stop it
-MAX_OPTIMIZER_STEPS: int = 999
+MAX_OPTIMIZER_STEPS: int = 100
 # The local optimizer used to solve the instance provided
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
