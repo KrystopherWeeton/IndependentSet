@@ -55,6 +55,7 @@ class PlotArgs:
             plt.legend()
 
         if self.directory:
+            print(self.directory, self.file_name)
             plt.savefig(f"{self.directory}/{self.file_name}.png")
         else:
             plt.savefig(f"{self.file_name}.png")
@@ -95,7 +96,7 @@ def store_graph(g: nx.Graph, file_name: str, with_labels: bool = False):
 
 
 # Creates a directory if it doesn't already exists
-def create_dir(name: str):
+def create_dir(name: str) -> str:
     number = 0
     directory = name
     if os.path.isdir(directory):
@@ -106,3 +107,4 @@ def create_dir(name: str):
         number += 1
         directory = f"{name}({number})"
     os.mkdir(directory)
+    return directory

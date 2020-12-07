@@ -33,16 +33,18 @@ def planted_intersection_sizes(n: int) -> (int, int):
 
 # This is the number of 'extra' nodes to include in the initial subset
 def planted_subset_sizes(n: int) -> (int, int):
-    return (10, 10 * math.ceil(math.sqrt(n)))
+    return (10 * math.ceil(math.sqrt(n)) - 10, 10 * math.ceil(math.sqrt(n)))
 
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
 # Key provided to every node which is part of the planted independent subset
 PLANTED_KEY: str = "beta"
 # The step size for k and l
-STEP_SIZE: int = 10
+STEP_SIZE: int = 20
 # The maximum number of steps an optimizer can run before we stop it
-MAX_OPTIMIZER_STEPS: int = 100
+MAX_OPTIMIZER_STEPS: int = 200
+# Print debug statements to track what is going on
+PRINT_DEBUG: bool = True
 # The local optimizer used to solve the instance provided
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
@@ -124,6 +126,8 @@ def test_local_search(n: [int], num_trials):
         # Generate metadata about the trial
         planted_size: int = planted_ind_set_size(n_value)
         planted_size = planted_size if planted_size < n_value else n_value
+        if (PRINT_DEBUG):
+            print(f"Running experiments for n={n_value} with planted_size={planted_size}")
 
         k_init, k_final = planted_intersection_sizes(n_value)       # k is the size of the intersection
         l_init, l_final = planted_subset_sizes(n_value)             # l is the size of the headstart set in total
@@ -135,8 +139,12 @@ def test_local_search(n: [int], num_trials):
             # Pre-process some data out of G
             erdos_nodes: [int] = set(G.nodes).difference(B)
 
+            if PRINT_DEBUG:
+                print(f'l_init={l_init}, l_final={l_final}, k_init={k_init}, k_final={k_final}')
             for l in range(l_init, l_final, STEP_SIZE):
                 for k in range(k_init, min(k_final, l), STEP_SIZE):
+                    if PRINT_DEBUG:
+                        print(f"Running l={l}, k={k}")
                     # TODO: Fix bound issues on runs with less than ~500 nodes
                     if len(B) < k:
                         raise RuntimeError("The planted size is smaller than the requested subset size.")
@@ -154,7 +162,7 @@ def test_local_search(n: [int], num_trials):
     #? Results have been collected. Create dir and plot results
     for n_value in n:
         dir_name: str = generate_results_directory(n_value, num_trials)
-        create_dir(dir_name)
+        dir_name = create_dir(dir_name)
         # For now, just pull the largest l value
         l_value = results.get_largest_l(n_value)
         
@@ -172,3 +180,8 @@ def test_local_search(n: [int], num_trials):
 
 if __name__ == "__main__":
     run()
+
+"""
+SHORTCUTS
+./experiment.py test-local-search -n 500
+"""
