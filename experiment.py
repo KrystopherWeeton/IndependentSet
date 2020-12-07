@@ -29,11 +29,11 @@ def planted_ind_set_size(n: int) -> int:
 
 # This is the maximum size that we want for the initial intersection size
 def planted_intersection_sizes(n: int) -> (int, int):
-    return (5, math.ceil(math.log(n)) * 10)
+    return (5, math.ceil(math.log(n)) * 5)
 
 # This is the number of 'extra' nodes to include in the initial subset
 def planted_subset_sizes(n: int) -> (int, int):
-    return (10 * math.ceil(math.sqrt(n)) - 10, 10 * math.ceil(math.sqrt(n)))
+    return (10 * math.ceil(math.sqrt(n)) - 20, 10 * math.ceil(math.sqrt(n)))
 
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
@@ -45,6 +45,8 @@ STEP_SIZE: int = 20
 MAX_OPTIMIZER_STEPS: int = 200
 # Print debug statements to track what is going on
 PRINT_DEBUG: bool = True
+# The percent to accomplish between each print statement
+PERCENT_INCREMENT: float = 0.05
 # The local optimizer used to solve the instance provided
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
@@ -53,27 +55,50 @@ local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 ##########################################
 
 class Results:
-    def __init__(self, num_trials: int):
+    def __init__(self, num_trials: int, n_values: [int]):
+        self.ranges = {}
         self.results = {}
+        self.n_values = n_values
         self.num_trials = num_trials
-        pass
-
-
-    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int):
-        # Initialize what needs to be initialized
-        if n not in self.results:
+        self.total_results = 0
+        self.collected_results = 0
+        for n in n_values:
+            self.ranges[n] = {}
             self.results[n] = {}
-        if l not in self.results[n]:
-            self.results[n][l] = {}
-        if k not in self.results[n][l]:
-            self.results[n][l][k] = [None] * self.num_trials
-        self.results[n][l][k][t] = intersection_size 
+            k_init, k_final = planted_intersection_sizes(n)       # k is the size of the intersection
+            l_init, l_final = planted_subset_sizes(n)             # l is the size of the headstart set in total
+            k_values = list(range(k_init, k_final, STEP_SIZE))
+            l_values = list(range(l_init, l_final, STEP_SIZE))
+            self.ranges[n]['k'] = k_values
+            self.ranges[n]['l'] = l_values
+            for k in k_values:
+                for l in l_values:
+                    self.results[n][(l, k)] = [None] * num_trials
+                    self.total_results += num_trials
 
 
+    # Gets the ranges to be used for a specific experiment
+    def get_ranges(self, n: int) -> ([int], [int]):
+        if n not in self.ranges:
+            raise RuntimeError(f"Attempt to access range for {n}, which has not been initialized in ranges.")
+        return (self.ranges[n]['k'], self.ranges[n]['l'])
+
+
+    # Adds results for a trial
+    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int):
+        self.results[n][(l, k)][t] = intersection_size
+        self.collected_results += 1
+
+    # Gets the average for a specific experiment across trials
     def get_average(self, n: int, k: int, l: int) -> float:
-        return sum(self.results[n][l][k]) / self.num_trials
+        return sum(self.results[n][(l, k)]) / self.num_trials
 
-    
+
+    # Gets the % of total results which have been collected
+    def get_percent_complete(self) -> float:
+        return self.collected_results / self.total_results
+
+
     def get_largest_l(self, n: int) -> int:
         return max(self.results[n].keys())
 
@@ -82,7 +107,10 @@ class Results:
         k_values: [int] = []
         avg_intersection_size: [float] = []
 
-        for k in self.results[n][l].keys():
+        for (l_value, k) in self.results[n].keys():
+            if l != l_value:
+                continue
+
             k_values.append(k)
             avg_intersection_size.append(self.get_average(n, k, l))
 
@@ -101,6 +129,18 @@ class Results:
         
         return (l_values, results)
 
+    # Runs tests and asserts that bounds work out, so we get an early failure if there is an issue
+    def verify_bounds(self):
+        # Assert all keys exist
+        assert(all([n in self.results and n in self.ranges for n in self.n_values]))
+
+        for n in self.n_values:
+            l_values: [int] = self.ranges[n]['l']
+            k_values: [int] = self.ranges[n]['k']
+            for i in range(len(l_values)):
+                # Assert that we have a larger subset than the intersection size
+                assert(l_values[i] >= k_values[i])
+
 
     def __str__(self):
         return str(self.results)
@@ -110,7 +150,7 @@ class Results:
 @click.option("-n", required=True, multiple=True, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 def test_local_search(n: [int], num_trials):
-    # TODO: Need to add printing statements which show progress of the algorithm
+    #? Verify command line arguments make sense
     if len(n) == 0:      # Initial argument checking
         click.secho("At least one value for n must be provided", fg="red")
     if any([x <= 0 for x in n]):
@@ -118,7 +158,11 @@ def test_local_search(n: [int], num_trials):
 
     #? Initialization
     random.seed(0)      # TODO: Swap out for randomly seeded randomness when testing is complete
-    results: Results = Results(num_trials)
+    results: Results = Results(num_trials, n)
+    percent_done: float = 0
+    results.verify_bounds()                         # Run initial tests just to verify bounds work out
+    if PRINT_DEBUG:
+        print(f"Verification of k and l values has passed. Starting...")
 
 
     #? Loop over the different values of n which should be tested
@@ -128,9 +172,8 @@ def test_local_search(n: [int], num_trials):
         planted_size = planted_size if planted_size < n_value else n_value
         if (PRINT_DEBUG):
             print(f"Running experiments for n={n_value} with planted_size={planted_size}")
-
-        k_init, k_final = planted_intersection_sizes(n_value)       # k is the size of the intersection
-        l_init, l_final = planted_subset_sizes(n_value)             # l is the size of the headstart set in total
+        
+        k_values, l_values = results.get_ranges(n_value)
 
         for t in range(num_trials):
             # Generate a graph of size n with a planted independent set of a specified size
@@ -139,24 +182,28 @@ def test_local_search(n: [int], num_trials):
             # Pre-process some data out of G
             erdos_nodes: [int] = set(G.nodes).difference(B)
 
-            if PRINT_DEBUG:
-                print(f'l_init={l_init}, l_final={l_final}, k_init={k_init}, k_final={k_final}')
-            for l in range(l_init, l_final, STEP_SIZE):
-                for k in range(k_init, min(k_final, l), STEP_SIZE):
+            for l in l_values:
+                for k in k_values:
+                    # TODO: Fix bound issues on runs with less than ~500 nodes
                     if PRINT_DEBUG:
                         print(f"Running l={l}, k={k}")
-                    # TODO: Fix bound issues on runs with less than ~500 nodes
                     if len(B) < k:
                         raise RuntimeError("The planted size is smaller than the requested subset size.")
                     if len(erdos_nodes) < l - k:
                         raise RuntimeError(f"Cannot pull {l - k} vertices from {len(erdos_nodes)} vertices.")
+                    if l < k:
+                        raise RuntimeError(f"Cannot run experiment with l={l} < k={k}")
+
                     # Generate an initial subset of the graph that has a provided intersection size
-                    init_set: set = set(random.sample(erdos_nodes, k=l - k) + random.sample(B, k=k))
+                    init_set: set = set(random.sample(erdos_nodes, k=l-k) + random.sample(B, k=k))
 
                     # Run the local optimizer and collect results
                     final_subset: set = local_optimizer.optimize(initial=init_set, G=G, max_steps = MAX_OPTIMIZER_STEPS)
                     intersection_size: int = len(final_subset.intersection(B))
                     results.add_results(n_value, t, k, l, intersection_size)
+                    if results.get_percent_complete() > percent_done + PERCENT_INCREMENT:
+                        percent_done = results.get_percent_complete()
+                        print(f"{int(percent_done * 100)}% Complete")
 
 
     #? Results have been collected. Create dir and plot results
@@ -183,5 +230,5 @@ if __name__ == "__main__":
 
 """
 SHORTCUTS
-./experiment.py test-local-search -n 500
+./experiment.py test-local-search -n 200
 """
