@@ -44,7 +44,7 @@ STEP_SIZE: int = 20
 # The maximum number of steps an optimizer can run before we stop it
 MAX_OPTIMIZER_STEPS: int = 200
 # Print debug statements to track what is going on
-PRINT_DEBUG: bool = True
+PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 # The local optimizer used to solve the instance provided
@@ -100,7 +100,7 @@ class Results:
 
 
     def get_largest_l(self, n: int) -> int:
-        return max(self.results[n].keys())
+        return max(self.results[n].keys(), key=lambda x : x[0])[0]
 
 
     def get_values(self, n: int, l: int) -> Tuple[List[int], List[int]]:
@@ -204,6 +204,9 @@ def test_local_search(n: [int], num_trials):
                     if results.get_percent_complete() > percent_done + PERCENT_INCREMENT:
                         percent_done = results.get_percent_complete()
                         print(f"{int(percent_done * 100)}% Complete")
+    
+    if PRINT_DEBUG:
+        print(f"Ranges: {results.ranges}")
 
 
     #? Results have been collected. Create dir and plot results

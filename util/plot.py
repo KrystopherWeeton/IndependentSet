@@ -49,16 +49,16 @@ class PlotArgs:
 
         for series in self.series:
             plt.plot(series.x_values, series.y_values,
-                     series.color, label=series.name)
+                     series.color, label=series.name, marker="o")
 
         if len(self.series) > 1:
             plt.legend()
 
         if self.directory:
             print(self.directory, self.file_name)
-            plt.savefig(f"{self.directory}/{self.file_name}.png")
+            plt.savefig(f"results/{self.directory}/{self.file_name}.png")
         else:
-            plt.savefig(f"{self.file_name}.png")
+            plt.savefig(f"results/{self.file_name}.png")
 
 
 class CSVRow:
