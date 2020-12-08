@@ -6,6 +6,7 @@ import networkx as nx
 from util.graph import generate_planted_independent_set_graph
 from util.local_optimization import LocalOptimizer, BasicLocalOptimizer
 from typing import Tuple, List
+import util.plot as plot
 from util.plot import PlotArgs, create_dir, Series
 import random
 
@@ -25,15 +26,18 @@ def generate_results_directory(n: int, num_trials: int) -> str:
 
 # This is the size of the planted independent set in terms of n
 def planted_ind_set_size(n: int) -> int:
-    return math.ceil(math.sqrt(n)) * 5
+    return math.ceil(math.sqrt(n)) * 4
 
-# This is the maximum size that we want for the initial intersection size
-def planted_intersection_sizes(n: int) -> (int, int):
-    return (5, math.ceil(math.log(n)) * 5)
 
 # This is the number of 'extra' nodes to include in the initial subset
 def planted_subset_sizes(n: int) -> (int, int):
-    return (10 * math.ceil(math.sqrt(n)) - 20, 10 * math.ceil(math.sqrt(n)))
+    return (math.ceil(math.log(n)) * 10,  10 * math.ceil(math.sqrt(n)))
+
+
+# This is the maximum size that we want for the initial intersection size
+def planted_intersection_sizes(n: int) -> (int, int):
+    return (5, math.ceil(math.log(n)) * 10)
+
 
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
@@ -58,6 +62,7 @@ class Results:
     def __init__(self, num_trials: int, n_values: [int]):
         self.ranges = {}
         self.results = {}
+        self.planted_sizes = {}
         self.n_values = n_values
         self.num_trials = num_trials
         self.total_results = 0
@@ -65,6 +70,7 @@ class Results:
         for n in n_values:
             self.ranges[n] = {}
             self.results[n] = {}
+            self.planted_sizes[n] = planted_ind_set_size(n)
             k_init, k_final = planted_intersection_sizes(n)       # k is the size of the intersection
             l_init, l_final = planted_subset_sizes(n)             # l is the size of the headstart set in total
             k_values = list(range(k_init, k_final, STEP_SIZE))
@@ -99,35 +105,20 @@ class Results:
         return self.collected_results / self.total_results
 
 
-    def get_largest_l(self, n: int) -> int:
-        return max(self.results[n].keys(), key=lambda x : x[0])[0]
+    # Returns l_values, k_values, intersection sizes
+    def get_results(self, n: int) -> ([int], [int], [[int]]):
+        # Pull the l and k values that we want to graph
+        l_values: [int] = self.ranges[n]['l']
+        k_values: [int]  = self.ranges[n]['k']
 
-
-    def get_values(self, n: int, l: int) -> Tuple[List[int], List[int]]:
-        k_values: [int] = []
-        avg_intersection_size: [float] = []
-
-        for (l_value, k) in self.results[n].keys():
-            if l != l_value:
-                continue
-
-            k_values.append(k)
-            avg_intersection_size.append(self.get_average(n, k, l))
-
-        return (k_values, avg_intersection_size)
-    
-
-    def get_value_for_size(self, n: int) -> Tuple[List[int], List[Tuple[List[int], List[int]]]]:
-        l_values: [int] = []
-        results: List[Tuple[List[int], List[int]]] = []
-
-
-        for n in self.results.keys():
-            for l in self.results[n].keys():
-                l_values.append(l)
-                results.append(self.get_values(n, l))
+        # Pull the heights that we want as a 2d array
+        heights: [[int]] = []
+        for k in k_values:
+            row: [int] = [self.get_average(n, k, l) for l in l_values]
+            heights.append(row)
         
-        return (l_values, results)
+        return l_values, k_values, heights
+
 
     # Runs tests and asserts that bounds work out, so we get an early failure if there is an issue
     def verify_bounds(self):
@@ -135,11 +126,24 @@ class Results:
         assert(all([n in self.results and n in self.ranges for n in self.n_values]))
 
         for n in self.n_values:
+            # Check l and k are alright
             l_values: [int] = self.ranges[n]['l']
             k_values: [int] = self.ranges[n]['k']
-            for i in range(len(l_values)):
-                # Assert that we have a larger subset than the intersection size
-                assert(l_values[i] >= k_values[i])
+            for l in l_values:
+                for k in k_values:
+                    if l < k:
+                        raise RuntimeError(f"l={l} < k={k}")
+
+
+            # Check that we have enough nodes to pull from
+            num_planted: int = planted_ind_set_size(n)
+            not_planted: int = n - num_planted
+            max_not_planted: int = max(l_values) - min(k_values)
+
+            if num_planted < max(k_values):
+                raise RuntimeError(f"Max k value of {max(k_values)} for n={n} doesn't work with only {num_planted}.")
+            if not_planted < max_not_planted:
+                raise RuntimeError(f"Will not be able to pull {max_not_planted} values from {not_planted}.")
 
 
     def __str__(self):
@@ -212,21 +216,22 @@ def test_local_search(n: [int], num_trials):
     #? Results have been collected. Create dir and plot results
     for n_value in n:
         dir_name: str = generate_results_directory(n_value, num_trials)
-        dir_name = create_dir(dir_name)
-        # For now, just pull the largest l value
-        l_value = results.get_largest_l(n_value)
-        
-        # Access results from the result object and plot
-        k_values, int_size = results.get_values(n_value, l_value)
-        args: PlotArgs = PlotArgs(
-            x_title="Headstart Independent Set Size (k)", 
-            y_title="Resulting Independent Set Size",
-            directory=dir_name,
-            title=f"Local Search Performance with headstart (n={n_value}, l={l_value})",
-            file_name=f"local-search-results({n_value}, {l_value})",
-            series=[Series(x_values = k_values, y_values=int_size, color="r")])
-        args.plot()
+        dir_name = create_dir(dir_name, agressive=True)
 
+        # Code block to show 3d map of results
+        l_values, k_values, z = results.get_results(n_value)
+        plot.graph_heatmap(
+            x=l_values,
+            y=k_values,
+            z=z,
+            directory=dir_name,
+            file_name="heatmap",
+            min="0",
+            max=str(results.planted_sizes[n_value]),
+            title="Size of Intersection with Planted Independent Set \n after Local Optimization on Headstart Set",
+            x_axis_title="Size of Headstart Set (l)",
+            y_axis_title="Size of Intersection in Headstart Set (k)"
+        )
 
 if __name__ == "__main__":
     run()
