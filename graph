@@ -3,7 +3,34 @@
 import click
 
 from util.storage import load
+from experiment import Results
 import util.plot as plot
+
+
+def __generate_file_name(base_name: str, n: int) -> str:
+    return f"n={n}: {base_name}"
+
+
+def __generate_intersection_heatmap(results: Results, directory: str, n: int):
+    file_name: str = __generate_file_name("intersection-heatmap", n)
+
+    l_values, k_values, z = results.get_results(n)
+    plot.graph_heatmap(
+        x=l_values,
+        y=k_values,
+        z=z,
+        directory=directory,
+        file_name="heatmap",
+        min="0",
+        max=str(results.planted_sizes[n]),
+        title=f"Size of Intersection with Planted Independent Set (n={n_value}, size={planted_ind_set_size(n_value)}) \n after Local Optimization on Headstart Set",
+        x_axis_title="Size of Headstart Set (l)",
+        y_axis_title="Size of Intersection in Headstart Set (k)"
+    )
+    
+
+def __generate_density_heatmap(results: Results, directory: str, n: int):
+    pass
 
 
 @click.group()
@@ -12,31 +39,31 @@ def run():
 
 
 @run.command()
-@click.option("-n", required=True, multiple=True, type=int)
-@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-@click.option("--file-name", required=False, multiple=False, type=str)
-def test_local_search(n: [int], num_trials, file_name):
-    """
-        #? Results have been collected. Create dir and plot results
-    for n_value in n:
-        dir_name: str = generate_results_directory(n_value, num_trials)
-        dir_name = create_dir(dir_name, agressive=True)
+@click.option("--intersection-heatmap", required=False, is_flag=True, default=False)
+@click.option("--density-heatmap", required=False, is_flag=True, default=False)
+def graph_results(intersection_heatmap: bool, density_heatmap: bool):
+    #? Collect file name from user
+    pickle_name = click.prompt('Please enter the file for the results. The results must be in the results directory.', type=str)
+    if not pickle_name:
+        click.secho("A file name must be provided", err=True)
 
-        # Code block to show 3d map of results
-        l_values, k_values, z = results.get_results(n_value)
-        plot.graph_heatmap(
-            x=l_values,
-            y=k_values,
-            z=z,
-            directory=dir_name,
-            file_name="heatmap",
-            min="0",
-            max=str(results.planted_sizes[n_value]),
-            title=f"Size of Intersection with Planted Independent Set (n={n_value}, size={planted_ind_set_size(n_value)}) \n after Local Optimization on Headstart Set",
-            x_axis_title="Size of Headstart Set (l)",
-            y_axis_title="Size of Intersection in Headstart Set (k)"
-        )
-    """
+    #? Load results information, error if we got weird loading
+    results: Results = load(pickle_name, directory="results")
+    if not results:
+        click.secho("Could not load results.", err=True)
+
+    #? Prompt the user for the directory to store the graphs in
+    # TODO: Move all these stupid prompts into arguments for testing / repeated usage
+    results_directory = click.prompt("Please enter a directory to store the graphs in.", type=str)
+
+    #? Go through and graph the results
+    for n in results.n_values:
+        if intersection_heatmap:
+            __generate_intersection_heatmap(results, results_directory,  n)
+        if density_heatmap:
+            __generate_density_heatmap(results, results_directory,  n)
+
+
    
 
 
