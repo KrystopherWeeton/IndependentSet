@@ -82,7 +82,7 @@ def graph_heatmap(
     y_axis_title: str = "y_axis"
 ):
     # Generate plot and set ticks
-    plt.imshow(z, cmap=cmap.summer, vmin=min, vmax=max)
+    plt.imshow(z, cmap=cmap.YIGn, vmin=min, vmax=max)
     ax: Axes = plt.gca()
     ax.set_xticks(np.arange(len(x)))
     ax.set_yticks(np.arange(len(y)))
@@ -98,6 +98,8 @@ def graph_heatmap(
     plt.title(title)
     plt.xlabel(x_axis_title)
     plt.ylabel(y_axis_title)
+
+    plt.colorbar()
 
     # Save the plot to a figure
     plt.savefig(f"{directory}/{file_name}.png")

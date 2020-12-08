@@ -228,7 +228,7 @@ def test_local_search(n: [int], num_trials):
             file_name="heatmap",
             min="0",
             max=str(results.planted_sizes[n_value]),
-            title="Size of Intersection with Planted Independent Set \n after Local Optimization on Headstart Set",
+            title=f"Size of Intersection with Planted Independent Set (n={n_value}, size={planted_ind_set_size(n_value)}) \n after Local Optimization on Headstart Set",
             x_axis_title="Size of Headstart Set (l)",
             y_axis_title="Size of Intersection in Headstart Set (k)"
         )
