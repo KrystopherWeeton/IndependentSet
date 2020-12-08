@@ -83,8 +83,8 @@ class Results:
 
 
     # Generates a name that is good for a file for this object
-    def generate_file_name(self) -> str:
-        return f"results-{date.today()}"
+    def generate_file_name(self, override_name: str = None) -> str:
+        return f"results-{date.today()}" if not override_name else override_name
 
 
     # Gets the ranges to be used for a specific experiment
@@ -157,7 +157,8 @@ class Results:
 @run.command()
 @click.option("-n", required=True, multiple=True, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-def test_local_search(n: [int], num_trials):
+@click.option("--file-name", required=False, multiple=False, type=str)
+def test_local_search(n: [int], num_trials, file_name):
     #? Verify command line arguments make sense
     if len(n) == 0:      # Initial argument checking
         click.secho("At least one value for n must be provided", fg="red")
@@ -212,13 +213,11 @@ def test_local_search(n: [int], num_trials):
                     if results.get_percent_complete() > percent_done + PERCENT_INCREMENT:
                         percent_done = results.get_percent_complete()
                         print(f"{int(percent_done * 100)}% Complete")
-    
     if PRINT_DEBUG:
         print(f"Ranges: {results.ranges}")
 
-
     #? Results have been collected. Pickle them into a file for storage so they can be reused
-    store(obj=results, file_name=results.generate_file_name(), directory="results")
+    store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
 
 
 if __name__ == "__main__":
