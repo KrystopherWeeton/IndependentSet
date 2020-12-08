@@ -24,11 +24,12 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int):
         z=z,
         directory=directory,
         file_name=file_name,
-        min="0",
-        max=str(results.planted_sizes[n]),
+        min=0,
+        max=results.planted_sizes[n],
         title=f"Size of Intersection with Planted Independent Set (n={n}, size={results.planted_sizes[n]}) \n after Local Optimization on Headstart Set",
         x_axis_title="Size of Headstart Set (l)",
-        y_axis_title="Size of Intersection in Headstart Set (k)"
+        y_axis_title="Size of Intersection in Headstart Set (k)",
+        color=plot.HeatMapColor.YELLOW_GREEN,
     )
     
 
@@ -45,11 +46,12 @@ def __generate_density_heatmap(results: Results, directory: str, n: int):
         z=z,
         directory=directory,
         file_name=file_name,
-        min="0",
-        max=str(results.planted_sizes[n]),
+        min=0,
+        max=1,
         title=f"Density of set after local optimization (n={n}, size={results.planted_sizes[n]})",
         x_axis_title="Size of Headstart Set (l)",
-        y_axis_title="Size of Intersection in Headstart Set (k)"
+        y_axis_title="Size of Intersection in Headstart Set (k)",
+        color=plot.HeatMapColor.REDS,
     )
 
 

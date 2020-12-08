@@ -8,6 +8,7 @@ from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.cm as cmap        # Used for heatmaps
 from matplotlib.axes import Axes    # Used for advanced plotting things (heatmaps)
+from enum import Enum
 
 import networkx.drawing as nx_draw
 from networkx.drawing.nx_agraph import write_dot
@@ -66,6 +67,12 @@ class PlotArgs:
             plt.savefig(f"{self.file_name}.png")
             plt.clf()
 
+
+class HeatMapColor(Enum):
+    REDS=cmap.Reds
+    YELLOW_GREEN=cmap.YlGn
+
+
 """
 Draws a heatmap of results.
 """
@@ -79,10 +86,11 @@ def graph_heatmap(
     max: int = None, 
     title: str = "Title", 
     x_axis_title: str = "x_axis", 
-    y_axis_title: str = "y_axis"
+    y_axis_title: str = "y_axis",
+    color: HeatMapColor = HeatMapColor.REDS
 ):
     # Generate plot and set ticks
-    plt.imshow(z, cmap=cmap.YlGn, vmin=min, vmax=max)
+    plt.imshow(z, color.value, vmin=min, vmax=max)
     ax: Axes = plt.gca()
     ax.set_xticks(np.arange(len(x)))
     ax.set_yticks(np.arange(len(y)))
