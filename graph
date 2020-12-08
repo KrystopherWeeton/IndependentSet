@@ -1,4 +1,23 @@
-    #? Results have been collected. Create dir and plot results
+#!env/bin/python3
+
+import click
+
+from util.storage import load
+import util.plot as plot
+
+
+@click.group()
+def run():
+    pass
+
+
+@run.command()
+@click.option("-n", required=True, multiple=True, type=int)
+@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
+@click.option("--file-name", required=False, multiple=False, type=str)
+def test_local_search(n: [int], num_trials, file_name):
+    """
+        #? Results have been collected. Create dir and plot results
     for n_value in n:
         dir_name: str = generate_results_directory(n_value, num_trials)
         dir_name = create_dir(dir_name, agressive=True)
@@ -17,3 +36,9 @@
             x_axis_title="Size of Headstart Set (l)",
             y_axis_title="Size of Intersection in Headstart Set (k)"
         )
+    """
+   
+
+
+if __name__ == "__main__":
+    run()
