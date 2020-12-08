@@ -21,7 +21,9 @@ class Results:
             self.ranges[n]['l'] = l_values
             for k in k_values:
                 for l in l_values:
-                    self.results[n][(l, k)] = [None] * num_trials
+                    self.results[n][(l, k)] = {}
+                    self.results[n][(l, k)]['intersection_size'] = [None] * num_trials
+                    self.results[n][(l, k)]['density'] = [None] * num_trials
                     self.total_results += num_trials
 
 
@@ -38,13 +40,18 @@ class Results:
 
 
     # Adds results for a trial
-    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int):
-        self.results[n][(l, k)][t] = intersection_size
+    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int, density: float):
+        self.results[n][(l, k)]['intersection_size'][t] = intersection_size
+        self.results[n][(l, k)]['density'][t] = density
         self.collected_results += 1
 
     # Gets the average for a specific experiment across trials
-    def get_average(self, n: int, k: int, l: int) -> float:
-        return sum(self.results[n][(l, k)]) / self.num_trials
+    def get_average_intersection_size(self, n: int, k: int, l: int) -> float:
+        return sum(self.results[n][(l, k)]['intersection_size']) / self.num_trials
+
+    
+    def get_average_density(self, n: int, k: int, l: int) -> float:
+        return sum(self.results[n][(l, k)]['density']) / self.num_trials
 
 
     # Gets the % of total results which have been collected
@@ -53,7 +60,7 @@ class Results:
 
 
     # Returns l_values, k_values, intersection sizes
-    def get_results(self, n: int) -> ([int], [int], [[int]]):
+    def get_intersection_sizes(self, n: int) -> ([int], [int], [[int]]):
         # Pull the l and k values that we want to graph
         l_values: [int] = self.ranges[n]['l']
         k_values: [int]  = self.ranges[n]['k']
@@ -61,7 +68,21 @@ class Results:
         # Pull the heights that we want as a 2d array
         heights: [[int]] = []
         for k in k_values:
-            row: [int] = [self.get_average(n, k, l) for l in l_values]
+            row: [int] = [self.get_average_intersection_size(n, k, l) for l in l_values]
+            heights.append(row)
+        
+        return l_values, k_values, heights
+
+
+    def get_densities(self, n: int) -> ([int], [int], [[int]]):
+        # Pull the l and k values that we want to graph
+        l_values: [int] = self.ranges[n]['l']
+        k_values: [int]  = self.ranges[n]['k']
+
+        # Pull the heights that we want as a 2d array
+        heights: [[int]] = []
+        for k in k_values:
+            row: [int] = [self.get_average_density(n, k, l) for l in l_values]
             heights.append(row)
         
         return l_values, k_values, heights

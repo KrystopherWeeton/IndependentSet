@@ -6,6 +6,7 @@ import sys
 from util.storage import load
 from util.local_search_results import Results
 import util.plot as plot
+from util.misc import round_all_values
 
 
 def __generate_file_name(base_name: str, n: int) -> str:
@@ -14,15 +15,15 @@ def __generate_file_name(base_name: str, n: int) -> str:
 
 def __generate_intersection_heatmap(results: Results, directory: str, n: int):
     file_name: str = __generate_file_name("intersection-heatmap", n)
-    directory = plot.create_dir(directory)
+    directory = plot.create_dir(directory, agressive=True)
 
-    l_values, k_values, z = results.get_results(n)
+    l_values, k_values, z = results.get_intersection_sizes(n)
     plot.graph_heatmap(
         x=l_values,
         y=k_values,
         z=z,
         directory=directory,
-        file_name="heatmap",
+        file_name=file_name,
         min="0",
         max=str(results.planted_sizes[n]),
         title=f"Size of Intersection with Planted Independent Set (n={n}, size={results.planted_sizes[n]}) \n after Local Optimization on Headstart Set",
@@ -32,7 +33,24 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int):
     
 
 def __generate_density_heatmap(results: Results, directory: str, n: int):
-    pass
+    file_name: str = __generate_file_name("density-heatmap", n)
+    directory = plot.create_dir(directory, agressive=True)
+
+    l_values, k_values, z = results.get_densities(n)
+    z = round_all_values(M=z, num_points=2)     # Round to two decimal points to make it readable
+
+    plot.graph_heatmap(
+        x=l_values,
+        y=k_values,
+        z=z,
+        directory=directory,
+        file_name=file_name,
+        min="0",
+        max=str(results.planted_sizes[n]),
+        title=f"Size of Intersection with Planted Independent Set (n={n}, size={results.planted_sizes[n]}) \n after Local Optimization on Headstart Set",
+        x_axis_title="Size of Headstart Set (l)",
+        y_axis_title="Size of Intersection in Headstart Set (k)"
+    )
 
 
 @click.group()
@@ -55,12 +73,12 @@ def graph_results(intersection_heatmap: bool, density_heatmap: bool):
         click.secho("A file name must be provided", err=True)
         sys.exit(0)
 
-    if not os.path.isfile(f"results/{pickle_name}.pkl"):
-        click.secho("The file could not be found.", err=True)
+    if not os.path.isfile(f"{pickle_name}.pkl"):
+        click.secho(f"The file at {pickle_name}.pkl could not be found.", err=True)
         sys.exit(0)
     
     #? Load results information, error if we got weird loading
-    results: Results = load(pickle_name, directory="results")
+    results: Results = load(pickle_name)
     if not results:
         click.secho("Could not load results.", err=True)
         sys.exit(0)

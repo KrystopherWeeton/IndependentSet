@@ -112,8 +112,11 @@ def test_local_search(n: [int], num_trials, file_name):
 
                     # Run the local optimizer and collect results
                     final_subset: set = local_optimizer.optimize(initial=init_set, G=G, max_steps = MAX_OPTIMIZER_STEPS)
+
                     intersection_size: int = len(final_subset.intersection(B))
-                    results.add_results(n_value, t, k, l, intersection_size)
+                    density: float = nx.density(G.subgraph(final_subset))
+
+                    results.add_results(n_value, t, k, l, intersection_size, density)
                     if results.get_percent_complete() > percent_done + PERCENT_INCREMENT:
                         percent_done = results.get_percent_complete()
                         print(f"{int(percent_done * 100)}% Complete")

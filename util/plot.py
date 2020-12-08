@@ -103,7 +103,6 @@ def graph_heatmap(
     # plt.colorbar()
 
     # Save the plot to a figure
-    print(directory)
     plt.savefig(f"{directory}/{file_name}.png")
     plt.clf()
 
