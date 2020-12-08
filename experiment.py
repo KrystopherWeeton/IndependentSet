@@ -213,6 +213,10 @@ def test_local_search(n: [int], num_trials):
         print(f"Ranges: {results.ranges}")
 
 
+    #? Results have been collected. Pickle them into a file for storage so they can be reused
+
+
+
     #? Results have been collected. Create dir and plot results
     for n_value in n:
         dir_name: str = generate_results_directory(n_value, num_trials)
