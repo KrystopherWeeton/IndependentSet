@@ -1,15 +1,16 @@
 #!env/bin/python3
 
-import click
+from datetime import date         # Used for file naming
 import math
+from typing import Tuple, List
+import random
+
+import click
 import networkx as nx
+
 from util.graph import generate_planted_independent_set_graph
 from util.local_optimization import LocalOptimizer, BasicLocalOptimizer
-from typing import Tuple, List
-import util.plot as plot
-from util.plot import PlotArgs, create_dir, Series
-import random
-import pickle
+from util.storage import store
 
 
 @click.group()
@@ -21,9 +22,6 @@ def run():
 #       Configurations
 ##########################################
 
-# Used to generate directories for the results
-def generate_results_directory(n: int, num_trials: int) -> str:
-    return f"test-local-search-n={n}-t={num_trials}"
 
 # This is the size of the planted independent set in terms of n
 def planted_ind_set_size(n: int) -> int:
@@ -55,6 +53,7 @@ PERCENT_INCREMENT: float = 0.05
 # The local optimizer used to solve the instance provided
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
+
 ##########################################
 #       Experiments
 ##########################################
@@ -82,6 +81,11 @@ class Results:
                 for l in l_values:
                     self.results[n][(l, k)] = [None] * num_trials
                     self.total_results += num_trials
+
+
+    # Generates a name that is good for a file for this object
+    def generate_file_name(self) -> str:
+        return f"results-{date.today()}"
 
 
     # Gets the ranges to be used for a specific experiment
@@ -215,33 +219,8 @@ def test_local_search(n: [int], num_trials):
 
 
     #? Results have been collected. Pickle them into a file for storage so they can be reused
+    store(obj=results, file_name=results.generate_file_name(), directory="results")
 
-
-
-    #? Results have been collected. Create dir and plot results
-    for n_value in n:
-        dir_name: str = generate_results_directory(n_value, num_trials)
-        dir_name = create_dir(dir_name, agressive=True)
-
-        # Code block to show 3d map of results
-        l_values, k_values, z = results.get_results(n_value)
-        plot.graph_heatmap(
-            x=l_values,
-            y=k_values,
-            z=z,
-            directory=dir_name,
-            file_name="heatmap",
-            min="0",
-            max=str(results.planted_sizes[n_value]),
-            title=f"Size of Intersection with Planted Independent Set (n={n_value}, size={planted_ind_set_size(n_value)}) \n after Local Optimization on Headstart Set",
-            x_axis_title="Size of Headstart Set (l)",
-            y_axis_title="Size of Intersection in Headstart Set (k)"
-        )
 
 if __name__ == "__main__":
     run()
-
-"""
-SHORTCUTS
-./experiment.py test-local-search -n 200
-"""
