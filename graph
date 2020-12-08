@@ -1,9 +1,10 @@
 #!env/bin/python3
-
 import click
+import os
+import sys
 
 from util.storage import load
-from experiment import Results
+from util.local_search_results import Results
 import util.plot as plot
 
 
@@ -13,6 +14,7 @@ def __generate_file_name(base_name: str, n: int) -> str:
 
 def __generate_intersection_heatmap(results: Results, directory: str, n: int):
     file_name: str = __generate_file_name("intersection-heatmap", n)
+    directory = plot.create_dir(directory)
 
     l_values, k_values, z = results.get_results(n)
     plot.graph_heatmap(
@@ -23,7 +25,7 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int):
         file_name="heatmap",
         min="0",
         max=str(results.planted_sizes[n]),
-        title=f"Size of Intersection with Planted Independent Set (n={n_value}, size={planted_ind_set_size(n_value)}) \n after Local Optimization on Headstart Set",
+        title=f"Size of Intersection with Planted Independent Set (n={n}, size={results.planted_sizes[n]}) \n after Local Optimization on Headstart Set",
         x_axis_title="Size of Headstart Set (l)",
         y_axis_title="Size of Intersection in Headstart Set (k)"
     )
@@ -42,19 +44,31 @@ def run():
 @click.option("--intersection-heatmap", required=False, is_flag=True, default=False)
 @click.option("--density-heatmap", required=False, is_flag=True, default=False)
 def graph_results(intersection_heatmap: bool, density_heatmap: bool):
+    #? Verify the user has selected at least one graph
+    if not any([intersection_heatmap, density_heatmap]):
+        click.secho("There are no graphs selected. Please provide one as an argument.")
+        sys.exit(0)
+
     #? Collect file name from user
-    pickle_name = click.prompt('Please enter the file for the results. The results must be in the results directory.', type=str)
+    pickle_name = click.prompt('Please enter the file for the results. The results must be in the results directory', type=str)
     if not pickle_name:
         click.secho("A file name must be provided", err=True)
+        sys.exit(0)
 
+    if not os.path.isfile(f"results/{pickle_name}.pkl"):
+        click.secho("The file could not be found.", err=True)
+        sys.exit(0)
+    
     #? Load results information, error if we got weird loading
     results: Results = load(pickle_name, directory="results")
     if not results:
         click.secho("Could not load results.", err=True)
+        sys.exit(0)
 
     #? Prompt the user for the directory to store the graphs in
     # TODO: Move all these stupid prompts into arguments for testing / repeated usage
-    results_directory = click.prompt("Please enter a directory to store the graphs in.", type=str)
+    results_directory = click.prompt("Please enter a directory to store the graphs in", type=str)
+
 
     #? Go through and graph the results
     for n in results.n_values:
