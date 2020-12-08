@@ -23,21 +23,6 @@ def run():
 ##########################################
 
 
-# This is the size of the planted independent set in terms of n
-def planted_ind_set_size(n: int) -> int:
-    return math.ceil(math.sqrt(n)) * 4
-
-
-# This is the number of 'extra' nodes to include in the initial subset
-def planted_subset_sizes(n: int) -> (int, int):
-    return (math.ceil(math.log(n)) * 10,  10 * math.ceil(math.sqrt(n)))
-
-
-# This is the maximum size that we want for the initial intersection size
-def planted_intersection_sizes(n: int) -> (int, int):
-    return (5, math.ceil(math.log(n)) * 10)
-
-
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
 # Key provided to every node which is part of the planted independent subset
@@ -53,6 +38,22 @@ PERCENT_INCREMENT: float = 0.05
 # The local optimizer used to solve the instance provided
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
+
+# This is the size of the planted independent set in terms of n
+def planted_ind_set_size(n: int) -> int:
+    return math.ceil(math.sqrt(n)) * 4
+
+
+# This is the number of 'extra' nodes to include in the initial subset
+def l_range(n: int) -> [int]:
+    l_init, l_final = (math.ceil(math.log(n)) * 10,  10 * math.ceil(math.sqrt(n)))
+    return list(range(l_init, l_final, STEP_SIZE))
+
+
+# This is the maximum size that we want for the initial intersection size
+def k_range(n: int) -> [int]:
+    k_init, k_final = (5, math.ceil(math.log(n)) * 10)
+    return list(range(k_init, k_final, STEP_SIZE))
 
 ##########################################
 #       Experiments
@@ -71,10 +72,8 @@ class Results:
             self.ranges[n] = {}
             self.results[n] = {}
             self.planted_sizes[n] = planted_ind_set_size(n)
-            k_init, k_final = planted_intersection_sizes(n)       # k is the size of the intersection
-            l_init, l_final = planted_subset_sizes(n)             # l is the size of the headstart set in total
-            k_values = list(range(k_init, k_final, STEP_SIZE))
-            l_values = list(range(l_init, l_final, STEP_SIZE))
+            k_values = k_range(n)
+            l_values = l_range(n)
             self.ranges[n]['k'] = k_values
             self.ranges[n]['l'] = l_values
             for k in k_values:
