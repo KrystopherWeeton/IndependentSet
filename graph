@@ -13,7 +13,7 @@ def __generate_file_name(base_name: str, n: int) -> str:
     return f"n={n}: {base_name}"
 
 
-def __generate_intersection_heatmap(results: Results, directory: str, n: int):
+def __generate_intersection_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
     file_name: str = __generate_file_name("intersection-heatmap", n)
     directory = plot.create_dir(directory, agressive=True)
 
@@ -32,10 +32,11 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int):
         x_axis_title="Size of Headstart Set (l)",
         y_axis_title="Size of Intersection in Headstart Set (k)",
         color=plot.HeatMapColor.YELLOW_GREEN,
+        include_annotation=include_annotation,
     )
     
 
-def __generate_density_heatmap(results: Results, directory: str, n: int):
+def __generate_density_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
     file_name: str = __generate_file_name("density-heatmap", n)
     directory = plot.create_dir(directory, agressive=True)
 
@@ -54,6 +55,7 @@ def __generate_density_heatmap(results: Results, directory: str, n: int):
         x_axis_title="Size of Headstart Set (l)",
         y_axis_title="Size of Intersection in Headstart Set (k)",
         color=plot.HeatMapColor.REDS,
+        include_annotation=include_annotation,
     )
 
 
@@ -63,10 +65,13 @@ def run():
 
 
 @run.command()
+@click.option("--include-annotation", required=False, is_flag=True, default=False, help="Flag with whether or not to include annotations on the graph.")
 @click.option("--intersection-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of the final intersection size with planted ind set.")
 @click.option("--density-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of resulting density of set after local optimization.")
 @click.option("--all", required=False, is_flag=True, default=False, help="Flag to graph all possible graphs.")
-def graph_results(intersection_heatmap: bool, density_heatmap: bool, all: bool):
+def graph_results(include_annotation, intersection_heatmap: bool, density_heatmap: bool, all: bool):
+    # TODO: Fix graphing large values by showing a subset of the sizes rather than all of them
+    # TODO: Fix the title, etc. to be a bit quicker.
     #? Verify the user has selected at least one graph
     if not any([intersection_heatmap, density_heatmap, all]):
         click.secho("There are no graphs selected. Please provide one as an argument.")
@@ -101,9 +106,9 @@ def graph_results(intersection_heatmap: bool, density_heatmap: bool, all: bool):
     #? Go through and graph the results
     for n in results.n_values:
         if intersection_heatmap:
-            __generate_intersection_heatmap(results, results_directory,  n)
+            __generate_intersection_heatmap(results, results_directory,  n, include_annotation)
         if density_heatmap:
-            __generate_density_heatmap(results, results_directory,  n)
+            __generate_density_heatmap(results, results_directory,  n, include_annotation)
 
 
    

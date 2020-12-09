@@ -87,7 +87,8 @@ def graph_heatmap(
     title: str = "Title", 
     x_axis_title: str = "x_axis", 
     y_axis_title: str = "y_axis",
-    color: HeatMapColor = HeatMapColor.REDS
+    color: HeatMapColor = HeatMapColor.REDS,
+    include_annotation: bool = True
 ):
     # Generate plot and set ticks
     plt.imshow(z, color.value, vmin=min, vmax=max)
@@ -98,9 +99,12 @@ def graph_heatmap(
     ax.set_yticklabels(y)
 
     # Set annotation of the heatmap
-    for i in range(len(x)):
-        for j in range(len(y)):
-            ax.text(i, j, str(z[j][i]), ha="center", va="center", color="black")
+    if include_annotation:
+        for i in range(len(x)):
+            for j in range(len(y)):
+                ax.text(i, j, str(z[j][i]), ha="center", va="center", color="black")
+    else:
+        plt.colorbar()
 
     # Set title of the heatmap and axes
     plt.title(title)
