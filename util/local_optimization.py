@@ -1,7 +1,6 @@
 import networkx as nx
 import numpy as np
 
-PRINT_DEBUG: bool = False
 
 class LocalOptimizer:
     def __init__(self):
@@ -11,65 +10,85 @@ class LocalOptimizer:
         raise RuntimeError("This is an abstract class. Implement a subclass and call this function on that.")
 
 
-
 class BasicLocalOptimizer(LocalOptimizer):
     def __init__(self):
         pass
 
-    def __get_density(self, G: nx.Graph, subset: set) -> float:
-        return nx.density(nx.subgraph(G, subset))
+    def _get_density(self) -> float:
+        return nx.density(nx.subgraph(self.G, self.subset))
+
+
+    def _reset(self, G: nx.Graph, initial_subset: set):
+        # Reset G, cross edges, and subset
+        self.G = G
+        self.subset = initial_subset
+        self.density = self._get_density()
+        self.cross_edges = [sum((1 for i in nx.edge_boundary(G, set([v]), self.subset))) for v in G.nodes]
+
+
+    def _update_subset(self, node: int, adding: bool, new_density: float):
+        #? Update subset and cross edges
+        if adding:
+            if node in self.subset:
+                raise RuntimeError("ERROR: Added node in subset")
+            self.subset.add(node)
+            # Update cross edges
+            for neighbor in self.G.neighbors(node):
+                self.cross_edges[neighbor] += 1
+        else:
+            if node not in self.subset:
+                raise RuntimeError("ERROR: Removed node not in subset")
+            self.subset.remove(node)
+            for neighbor in self.G.neighbors(node):
+                self.cross_edges[neighbor] -= 1
+
+        #! Temporarily test whether cross_edges is accurate
+        """
+        temp: [int] = [sum((1 for i in nx.edge_boundary(self.G, set([v]), self.subset))) for v in self.G.nodes]
+        if temp != self.cross_edges:
+            raise RuntimeError(f"ERROR: temp != cross edges")
+        """
+        
+        #? Update density tracker
+        self.density = new_density
+
 
     def optimize(self, initial: set, G: nx.Graph, max_steps: int) -> set:
         # Pre-process and store some results
-        nodes: set = set(G.nodes)
-        subset: set = initial
+        self._reset(G, initial)
         
-        current_density = self.__get_density(G, subset)
         for i in range(max_steps):
-
             #? Get the best vertex to add / remove from the graph
-            k: int = len(subset)
-            # TODO: Optimize this portion down by storing 'edges into subset' for every vertex within the graph and updating as necessary
-            edge_boundary = [
-                sum((1 for i in nx.edge_boundary(
-                G,
-                set([v]),
-                subset)))
-                for v in nodes
-            ]
-            add_index = np.argmin([float('inf') if i in subset else edge_boundary[i] for i in nodes])
-            add_degree = edge_boundary[add_index]
+            k: int = len(self.subset)
+            # TODO: Triple check that optimize is actually working correctly
 
-            rem_index = np.argmax([-1 if i not in subset else edge_boundary[i] for i in nodes])
-            rem_degree = edge_boundary[rem_index]
+            # Get the best index to add to the subset
+            add_index = np.argmin([float('inf') if i in self.subset else self.cross_edges[i] for i in G.nodes])
+            add_degree = self.cross_edges[add_index] if i not in self.subset else float('inf')
 
-            add_density: float = (current_density * k * (k-1) + add_degree) / (k * (k+1))
-            rem_density: float = (current_density * k * (k - 1) - rem_degree) / ((k - 1) * (k - 2))
+            # Get the best index to remove from the subset
+            rem_index = np.argmax([-1 if i not in self.subset else self.cross_edges[i] for i in G.nodes])
+            rem_degree = self.cross_edges[rem_index] if i in self.subset else -1
 
-            if PRINT_DEBUG:
-                print(f"Densities: add={add_density}, sub={rem_density}, cur={self.__get_density(G, subset)}")
+            # Calculate new densities using closed form
+            # print(f"Density={self.density}, k={k}, add_degree={add_degree}, rem_degree={rem_degree}")
+            add_density: float = (self.density * k * (k-1) + add_degree) / (k * (k+1))
+            rem_density: float = (self.density * k * (k - 1) - rem_degree) / ((k - 1) * (k - 2))
 
-            # Split into cases based on density
-            if add_density >= current_density and rem_density >= current_density:
-                if PRINT_DEBUG:
-                    print(f"Found a local optimum with density {self.__get_density(G, subset)}")
-                return subset
+            #? Split into cases based on density and update subset
+            if add_density >= self.density and rem_density >= self.density:
+                # print(f"Found a local optimum with density {self._get_density()} with l={len(self.subset)} nodes out of {len(G.nodes)} total nodes.")
+                return self.subset
             else:
-                # One of them is smaller
-                if add_density < rem_density:
-                    subset.add(add_index)
-                    current_density = add_density
-                    if PRINT_DEBUG:
-                        print(f"Added {add_index} to set. New size is {len(subset)}. New density is {self.__get_density(G, subset)}")
+                if rem_density < add_density:
+                    node, density = rem_index, rem_density
                 else:
-                    subset.remove(rem_index)
-                    current_density = rem_density
-                    if PRINT_DEBUG:
-                        print(f"Removed {rem_index} from set. New size is {len(subset)}. New density is {self.__get_density(G, subset)}")
+                    node, density = add_index, add_density
+                self._update_subset(node, add_density < rem_density, density)
+                #print(f"Updated {node} to set. New size is {len(self.subset)}. New density is {self.__get_density(G, subset)}")
 
         # We ran out of steps, return what we have right now
-        if PRINT_DEBUG:
-            print(
-                f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
-                " Consider increasing the maximum number of steps to find local optimums.")
+        print(
+            f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
+            " Consider increasing the maximum number of steps to find local optimums.")
         return subset
