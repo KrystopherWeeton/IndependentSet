@@ -18,6 +18,8 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int):
     directory = plot.create_dir(directory, agressive=True)
 
     l_values, k_values, z = results.get_intersection_sizes(n)
+    z = round_all_values(M=z, num_points=1)
+
     plot.graph_heatmap(
         x=l_values,
         y=k_values,
@@ -64,7 +66,7 @@ def run():
 @click.option("--intersection-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of the final intersection size with planted ind set.")
 @click.option("--density-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of resulting density of set after local optimization.")
 @click.option("--all", required=False, is_flag=True, default=False, help="Flag to graph all possible graphs.")
-def graph_results(intersection_heatmap: bool, density_heatmap: bool):
+def graph_results(intersection_heatmap: bool, density_heatmap: bool, all: bool):
     #? Verify the user has selected at least one graph
     if not any([intersection_heatmap, density_heatmap, all]):
         click.secho("There are no graphs selected. Please provide one as an argument.")
