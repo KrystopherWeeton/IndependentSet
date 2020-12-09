@@ -149,7 +149,7 @@ def test_local_search(n: [int], num_trials, file_name):
 def profile_local_search(ctx):
     profiler = cProfile.Profile()
     profiler.enable()
-    ctx.invoke(test_local_search, n=[180], num_trials=1, file_name="profiling")
+    ctx.invoke(test_local_search, n=[500], num_trials=1, file_name="profiling")
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats('cumtime')
     stats.print_stats()
