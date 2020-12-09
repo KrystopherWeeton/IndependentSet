@@ -1,4 +1,6 @@
 #!env/bin/python3
+import cProfile, pstats
+import subprocess
 
 import math
 from typing import Tuple, List
@@ -114,7 +116,6 @@ def test_local_search(n: [int], num_trials, file_name):
 
             for l in l_values:
                 for k in k_values:
-                    # TODO: Fix bound issues on runs with less than ~500 nodes
                     if PRINT_DEBUG:
                         print(f"Running l={l}, k={k}")
                     if len(B) < k:
@@ -143,6 +144,15 @@ def test_local_search(n: [int], num_trials, file_name):
     #? Results have been collected. Pickle them into a file for storage so they can be reused
     store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
 
+@run.command()
+@click.pass_context
+def profile_local_search(ctx):
+    profiler = cProfile.Profile()
+    profiler.enable()
+    ctx.invoke(test_local_search, n=[180], num_trials=1, file_name="profiling")
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats('cumtime')
+    stats.print_stats()
 
 if __name__ == "__main__":
     run()
