@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-DEBUG_PRINT: bool = True
+PRINT_DEBUG: bool = False
 
 class LocalOptimizer:
     def __init__(self):
@@ -39,27 +39,35 @@ class BasicLocalOptimizer(LocalOptimizer):
             add_index = np.argmin([float('inf') if i in subset else edge_boundary[i] for i in nodes])
             add_degree = edge_boundary[add_index]
 
-            # TODO: Go through and make sure we are pulling from the correct vertices
             rem_index = np.argmax([-1 if i not in subset else edge_boundary[i] for i in nodes])
             rem_degree = edge_boundary[rem_index]
 
             add_density: float = (starting_density * k * (k-1) + add_degree) / (k * (k+1))
             rem_density: float = (starting_density * k * (k - 1) - rem_degree) / ((k - 1) * (k - 2))
 
+            if PRINT_DEBUG:
+                print(f"Densities: add={add_density}, sub={rem_density}, cur={self.__get_density(G, subset)}")
+
             # Split into cases based on density
             if add_density >= starting_density and rem_density >= starting_density:
                 # print('returned')
+                if PRINT_DEBUG:
+                    print(f"Found a local optimum with density {self.__get_density(G, subset)}")
                 return subset
             else:
                 # One of them is smaller
                 if add_density < rem_density:
                     subset.add(add_index)
+                    if PRINT_DEBUG:
+                        print(f"Added {add_index} to set. New size is {len(subset)}. New density is {self.__get_density(G, subset)}")
                 else:
                     # print("rem", rem_density, starting_density)
                     subset.remove(rem_index)
+                    if PRINT_DEBUG:
+                        print(f"Removed {rem_index} from set. New size is {len(subset)}. New density is {self.__get_density(G, subset)}")
 
         # We ran out of steps, return what we have right now
-        if DEBUG_PRINT:
+        if PRINT_DEBUG:
             print(
                 f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
                 " Consider increasing the maximum number of steps to find local optimums.")

@@ -29,14 +29,14 @@ PLANTED_KEY: str = "beta"
 # The step size for k and l
 STEP_SIZE: int = 20
 # The maximum number of steps an optimizer can run before we stop it
-MAX_OPTIMIZER_STEPS: int = 100
+MAX_OPTIMIZER_STEPS: int = 300
 # Print debug statements to track what is going on
 PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 local_optimizer: LocalOptimizer = BasicLocalOptimizer()
 
-
+# ACTUAL RESULTS BOUNDS
 # This is the size of the planted independent set in terms of n
 def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 4
@@ -53,6 +53,23 @@ def k_range(n: int) -> [int]:
     k_init, k_final = (5, math.ceil(math.log(n)) * 10)
     return list(range(k_init, k_final, STEP_SIZE))
 
+"""
+# TESTING LOCAL OPTIMIZATION
+# This is the size of the planted independent set in terms of n
+def planted_ind_set_size(n: int) -> int:
+    return math.ceil(math.sqrt(n)) * 4
+
+def l_range(n: int) -> [int]:
+    l_init, l_final = (30, 35)
+    return list(range(l_init, l_final, STEP_SIZE))
+
+
+# This is the maximum size that we want for the initial intersection size
+def k_range(n: int) -> [int]:
+    k_init, k_final = (5, 10)
+    return list(range(k_init, k_final, STEP_SIZE))
+
+"""
 
 ##########################################
 #       Experiments
