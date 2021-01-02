@@ -10,7 +10,9 @@ import click
 import networkx as nx
 
 from util.graph import generate_planted_independent_set_graph
-from util.local_optimization import LocalOptimizer, BasicLocalOptimizer
+from util.local_optimization.local_optimization import LocalOptimizer
+from util.local_optimization.basic_local_optimizer import BasicLocalOptimizer
+from util.local_optimization.all_local_optimizer import AllLocalOptimizer
 from util.storage import store
 from util.local_search_results import Results
 
@@ -36,7 +38,7 @@ MAX_OPTIMIZER_STEPS: int = 300
 PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
-local_optimizer: LocalOptimizer = BasicLocalOptimizer()
+local_optimizer: LocalOptimizer = AllLocalOptimizer()
 
 # ACTUAL RESULTS BOUNDS
 # This is the size of the planted independent set in terms of n
