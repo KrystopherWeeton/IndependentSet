@@ -97,4 +97,4 @@ class AllLocalOptimizer(LocalOptimizer):
         print(
             f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
             " Consider increasing the maximum number of steps to find local optimums.")
-        return subset
+        return self.subset

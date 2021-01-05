@@ -4,7 +4,7 @@ import numpy as np
 import random
 import math
 
-class AllLocalOptimizer(LocalOptimizer):
+class Metropolis(LocalOptimizer):
     def __init__(self, temperature):
         self.T = temperature
         pass
@@ -15,7 +15,10 @@ class AllLocalOptimizer(LocalOptimizer):
 
 
     def _calc_threshold(self, density: float) -> float:
-        return math.e**(-density / self.T)
+        threshold = math.e**(-density / self.T)
+        if threshold > 1:
+            raise Exception("Had a threshold that is later than 1", threshold)
+        return threshold
 
 
     def _reset(self, G: nx.Graph, initial_subset: set):
@@ -33,6 +36,7 @@ class AllLocalOptimizer(LocalOptimizer):
         # Update cross edges
         for neighbor in self.G.neighbors(node):
             self.cross_edges[neighbor] += 1
+        print('add', new_density)
 
 
     def _rem_from_subset(self, node: int, new_density: float):
@@ -44,7 +48,7 @@ class AllLocalOptimizer(LocalOptimizer):
 
         #? Update density tracker
         self.density = new_density
-        pass
+        print('rem', new_density)
     
 
     def optimize(self, initial: set, G: nx.Graph, max_steps: int) -> set:
@@ -55,7 +59,7 @@ class AllLocalOptimizer(LocalOptimizer):
             k: int = len(self.subset)
 
             #? Generate a candidate, calculate new density
-            node: int = random.choice(G.nodes)
+            node: int = random.choice(list(G.nodes))
             in_subset: bool = node in self.subset
             degree_in_subset: int = self.cross_edges[node]
             new_density: float = density_after_rem(self.density, k, degree_in_subset) if in_subset else density_after_add(self.density, k, degree_in_subset)
@@ -74,4 +78,4 @@ class AllLocalOptimizer(LocalOptimizer):
         print(
             f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
             " Consider increasing the maximum number of steps to find local optimums.")
-        return subset
+        return self.subset
