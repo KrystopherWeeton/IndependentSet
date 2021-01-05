@@ -41,7 +41,8 @@ MAX_OPTIMIZER_STEPS: int = 999
 PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
-local_optimizer: LocalOptimizer = Metropolis(temperature=1)
+# local_optimizer: LocalOptimizer = Metropolis(temperature=1)
+local_optimizer: LocalOptimizer = AllLocalOptimizer()
 
 # ACTUAL RESULTS BOUNDS
 # This is the size of the planted independent set in terms of n
