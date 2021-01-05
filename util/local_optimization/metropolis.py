@@ -36,7 +36,8 @@ class Metropolis(LocalOptimizer):
         # Update cross edges
         for neighbor in self.G.neighbors(node):
             self.cross_edges[neighbor] += 1
-        print('add', new_density)
+        if new_density != self._get_density():
+            print(f"Got bad density of {new_density} rather than {self._get_density()} when adding a node")
 
 
     def _rem_from_subset(self, node: int, new_density: float):
@@ -48,7 +49,8 @@ class Metropolis(LocalOptimizer):
 
         #? Update density tracker
         self.density = new_density
-        print('rem', new_density)
+        if new_density != self._get_density():
+            print(f"Got bad density of {new_density} rather than {self._get_density()} when removing a node")
     
 
     def optimize(self, initial: set, G: nx.Graph, max_steps: int) -> set:
