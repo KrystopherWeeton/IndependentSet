@@ -127,16 +127,6 @@ class CSVRow:
         self.data = data
 
 
-def write_to_csv(rows: List[CSVRow], file_name: str, directory: str = "", delim=','):
-    results = [[row.title] + row.data for row in rows]
-    results = zip(*results)
-    with open(f"{directory}/{file_name}" + ".csv", 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=delim,
-                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        for row in results:
-            writer.writerow(row)
-
-
 def write_2d_to_csv(row_headers, col_headers, M, file_name, delim=','):
     if len(row_headers) != len(M):
         raise Exception("Size mismatch when writing to csv file.")

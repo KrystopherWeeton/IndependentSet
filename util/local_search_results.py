@@ -24,6 +24,7 @@ class Results:
                     self.results[n][(l, k)] = {}
                     self.results[n][(l, k)]['intersection_size'] = [None] * num_trials
                     self.results[n][(l, k)]['density'] = [None] * num_trials
+                    self.resutls[n][(l, k)]['subset_size'] = [None] * num_trials
                     self.total_results += num_trials
 
 
@@ -40,9 +41,10 @@ class Results:
 
 
     # Adds results for a trial
-    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int, density: float):
+    def add_results(self, n: int, t: int, k: int, l: int, intersection_size: int, density: float, subset_size: int):
         self.results[n][(l, k)]['intersection_size'][t] = intersection_size
         self.results[n][(l, k)]['density'][t] = density
+        self.results[n][(l, k)]['subset_size'][t] = subset_size
         self.collected_results += 1
 
     # Gets the average for a specific experiment across trials
@@ -53,6 +55,8 @@ class Results:
     def get_average_density(self, n: int, k: int, l: int) -> float:
         return sum(self.results[n][(l, k)]['density']) / self.num_trials
 
+    def get_average_subset_size(self, n: int, k: int, l: int) -> float:
+        return sum(self.results[n][(l, k)]['subset_size']) / self.num_trials
 
     # Gets the % of total results which have been collected
     def get_percent_complete(self) -> float:
@@ -83,6 +87,18 @@ class Results:
         heights: [[int]] = []
         for k in k_values:
             row: [int] = [self.get_average_density(n, k, l) for l in l_values]
+            heights.append(row)
+        
+        return l_values, k_values, heights
+
+
+    def get_subset_sizes(self, n: int) -> ([int], [int], [[int]]):
+        l_values: [int] = self.ranges[n]['l']
+        k_values: [int] = self.ranges[n]['k']
+
+        heights: [[int]] = []
+        for k in k_values:
+            row: [int] = [self.get_average_subset_size(n, k, l) for l in l_values]
             heights.append(row)
         
         return l_values, k_values, heights

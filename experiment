@@ -140,7 +140,7 @@ def test_local_search(n: [int], num_trials, file_name):
                     intersection_size: int = len(final_subset.intersection(B))
                     density: float = nx.density(G.subgraph(final_subset))
 
-                    results.add_results(n_value, t, k, l, intersection_size, density)
+                    results.add_results(n_value, t, k, l, intersection_size, density, len(final_subset))
                     if results.get_percent_complete() > percent_done + PERCENT_INCREMENT:
                         percent_done = results.get_percent_complete()
                         print(f"{int(percent_done * 100)}% Complete")
