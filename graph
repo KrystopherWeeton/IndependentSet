@@ -58,6 +58,28 @@ def __generate_density_heatmap(results: Results, directory: str, n: int, include
         include_annotation=include_annotation,
     )
 
+def __generate_subset_size_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
+    file_name: str = __generate_file_name("subset-size-heatmap", n)
+    directory = plot.create_dir(directory, agressive=True)
+
+    l_values, k_values, z = results.get_subset_sizes(n)
+    z = round_all_values(M=z, num_points=2)     # Round to two decimal points to make it readable
+
+    plot.graph_heatmap(
+        x=l_values,
+        y=k_values,
+        z=z,
+        directory=directory,
+        file_name=file_name,
+        min=0,
+        max=n,
+        title=f"Sol. size after loc. opt. (n={n}, size={results.planted_sizes[n]})",
+        x_axis_title="Headstart Set (l)",
+        y_axis_title="Initial Intersection (k)",
+        color=plot.HeatMapColor.REDS,
+        include_annotation=include_annotation,
+    )
+
 
 @click.group()
 def run():
@@ -68,8 +90,9 @@ def run():
 @click.option("--include-annotation", required=False, is_flag=True, default=False, help="Flag with whether or not to include annotations on the graph.")
 @click.option("--intersection-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of the final intersection size with planted ind set.")
 @click.option("--density-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of resulting density of set after local optimization.")
+@click.option("--subset-size-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of the size of the resulting subset.")
 @click.option("--all", required=False, is_flag=True, default=False, help="Flag to graph all possible graphs.")
-def graph_results(include_annotation, intersection_heatmap: bool, density_heatmap: bool, all: bool):
+def graph_results(include_annotation, intersection_heatmap: bool, density_heatmap: bool, subset_size_heatmap: bool, all: bool):
     # TODO: Fix graphing large values by showing a subset of the sizes rather than all of them
     # TODO: Fix the title, etc. to be a bit quicker.
     #? Verify the user has selected at least one graph
@@ -81,9 +104,11 @@ def graph_results(include_annotation, intersection_heatmap: bool, density_heatma
     if all:
         intersection_heatmap = True
         density_heatmap = True
+        subset_size_heatmap = True
+
 
     #? Collect file name from user
-    pickle_name = click.prompt('Please enter the file for the results.', type=str)
+    pickle_name = click.prompt('Please enter the file for the results', type=str)
     if not pickle_name:
         click.secho("A file name must be provided", err=True)
         sys.exit(0)
@@ -109,6 +134,8 @@ def graph_results(include_annotation, intersection_heatmap: bool, density_heatma
             __generate_intersection_heatmap(results, results_directory,  n, include_annotation)
         if density_heatmap:
             __generate_density_heatmap(results, results_directory,  n, include_annotation)
+        if subset_size_heatmap:
+            __generate_subset_size_heatmap(results, results_directory, n, include_annotation)
 
 @run.command()
 @click.option("--results-name", required=False, help="The file to pull results from")
@@ -125,7 +152,7 @@ def generate_csv(results_name: str, csv_dir: str):
     
     results: Results = load(results_name)
     if not results:
-        click.secho("Coulf not load results.", err=True)
+        click.secho("Could not load results.", err=True)
         sys.exit(0)
 
     # Put the relevant data into csv format
