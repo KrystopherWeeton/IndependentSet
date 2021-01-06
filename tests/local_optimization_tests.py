@@ -56,4 +56,4 @@ def _test_density_after_swap() -> int:
 def run_tests() -> int:	
     return _test_density_after_add() + \
             _test_density_after_rem() + \
-            _test_density_after_swap() 
+            _test_density_after_swap()
