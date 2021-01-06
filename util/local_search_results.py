@@ -24,7 +24,7 @@ class Results:
                     self.results[n][(l, k)] = {}
                     self.results[n][(l, k)]['intersection_size'] = [None] * num_trials
                     self.results[n][(l, k)]['density'] = [None] * num_trials
-                    self.resutls[n][(l, k)]['subset_size'] = [None] * num_trials
+                    self.results[n][(l, k)]['subset_size'] = [None] * num_trials
                     self.total_results += num_trials
 
 
