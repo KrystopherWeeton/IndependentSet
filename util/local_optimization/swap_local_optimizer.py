@@ -114,11 +114,11 @@ class SwapLocalOptimizer(LocalOptimizer):
 
             #? Get the best index to add to the subset
             add_index = np.argmin([float('inf') if i in self.subset else self.cross_edges[i] for i in G.nodes])
-            add_degree = self.cross_edges[add_index] if i not in self.subset else float('inf')
+            add_degree = self.cross_edges[add_index] if add_index not in self.subset else float('inf')
 
             #? Get the best index to remove from the subset
             rem_index = np.argmax([-1 if i not in self.subset else self.cross_edges[i] for i in G.nodes])
-            rem_degree = self.cross_edges[rem_index] if i in self.subset else -1
+            rem_degree = self.cross_edges[rem_index] if rem_index in self.subset else -1
 
             #? Calculate new density and check if we are at a local optimum
             # TODO: Check that this density is correct (first time working on this a little bit)
