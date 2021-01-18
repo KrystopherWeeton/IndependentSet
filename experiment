@@ -15,6 +15,7 @@ from util.local_optimization.basic_local_optimizer import BasicLocalOptimizer
 from util.local_optimization.all_local_optimizer import AllLocalOptimizer
 from util.local_optimization.swap_local_optimizer import SwapLocalOptimizer
 from util.local_optimization.metropolis import Metropolis
+from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.storage import store
 from util.local_search_results import Results
 
@@ -43,7 +44,7 @@ PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 # local_optimizer: LocalOptimizer = Metropolis(temperature=1)
-local_optimizer: LocalOptimizer = SwapLocalOptimizer()
+local_optimizer: LocalOptimizer = SwapPurgeLocalOptimizer()
 
 # ACTUAL RESULTS BOUNDS
 # This is the size of the planted independent set in terms of n
