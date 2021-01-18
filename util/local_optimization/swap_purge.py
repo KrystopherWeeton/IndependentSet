@@ -15,10 +15,6 @@ class SwapPurgeLocalOptimizer(LocalOptimizer):
                 return
             else:
                 self._swap_in_subset(swap)
-        # We ran out of steps, return what we have right now
-        print(
-            f"Warning: Local optimization ran {max_steps} steps without hitting a local optimum."
-            " Consider increasing the maximum number of steps to find local optimums.")
     
 
     def remove(self, max_steps: int):
