@@ -4,7 +4,7 @@ import os
 import sys
 
 from util.storage import load
-from util.local_search_results import Results
+from util.local_search_results import Results, generate_results_file_name
 import util.plot as plot
 from util.misc import round_all_values
 
@@ -92,7 +92,8 @@ def run():
 @click.option("--density-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of resulting density of set after local optimization.")
 @click.option("--subset-size-heatmap", required=False, is_flag=True, default=False, help="2d heatmap of the size of the resulting subset.")
 @click.option("--all", required=False, is_flag=True, default=False, help="Flag to graph all possible graphs.")
-def graph_results(include_annotation, intersection_heatmap: bool, density_heatmap: bool, subset_size_heatmap: bool, all: bool):
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to set results name to results generated today.")
+def graph_results(include_annotation, intersection_heatmap: bool, density_heatmap: bool, subset_size_heatmap: bool, all: bool, today: bool):
     # TODO: Fix graphing large values by showing a subset of the sizes rather than all of them
     # TODO: Fix the title, etc. to be a bit quicker.
     #? Verify the user has selected at least one graph
@@ -108,7 +109,11 @@ def graph_results(include_annotation, intersection_heatmap: bool, density_heatma
 
 
     #? Collect file name from user
-    pickle_name = click.prompt('Please enter the file for the results', type=str)
+    if not today: 
+        pickle_name = click.prompt('Please enter the file for the results', type=str)
+    else:
+        pickle_name = f"results/{generate_results_file_name()}"
+
     if not pickle_name:
         click.secho("A file name must be provided", err=True)
         sys.exit(0)
@@ -140,9 +145,13 @@ def graph_results(include_annotation, intersection_heatmap: bool, density_heatma
 @run.command()
 @click.option("--results-name", required=False, help="The file to pull results from")
 @click.option("--csv-dir", required=False, help="The name of the file to save to ")
-def generate_csv(results_name: str, csv_dir: str):
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to set results name to results generated today.")
+def generate_csv(results_name: str, csv_dir: str, today: bool):
     if not results_name:
-        results_name = click.prompt("Results Name")
+        if not today:
+            results_name = click.prompt("Results Name")
+        else:
+            results_name = f"results/{generate_results_file_name()}"
     if not csv_dir:
         csv_dir = click.prompt("CSV Directory")
 

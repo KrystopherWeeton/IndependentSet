@@ -1,5 +1,9 @@
 from datetime import date
 
+
+def generate_results_file_name() -> str:
+    return f"results-{date.today()}" 
+
 class Results:
     def __init__(self, num_trials: int, n_values: [int], planted_ind_set_size, k_range, l_range):
         #? Set configuration functions
@@ -30,7 +34,7 @@ class Results:
 
     # Generates a name that is good for a file for this object
     def generate_file_name(self, override_name: str = None) -> str:
-        return f"results-{date.today()}" if not override_name else override_name
+        return generate_results_file_name() if not override_name else override_name
 
 
     # Gets the ranges to be used for a specific experiment
