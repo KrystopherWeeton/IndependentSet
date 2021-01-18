@@ -27,7 +27,6 @@ class SwapPurgeLocalOptimizer(LocalOptimizer):
 
 
     def optimize(self, initial: set, G: nx.Graph, max_steps: int) -> set:
-        # Pre-process and store some results
         self._reset(G, initial)
         self.swap(max_steps)
         self.remove(max_steps)
