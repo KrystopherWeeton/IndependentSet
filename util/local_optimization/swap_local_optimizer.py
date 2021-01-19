@@ -7,7 +7,7 @@ class SwapLocalOptimizer(LocalOptimizer):
         pass
 
 
-    def optimizer(self, initial: set, G: nx.graph, max_steps: int) -> set:
+    def optimize(self, initial: set, G: nx.graph, max_steps: int) -> set:
         self._reset(G, initial)
         for i in range(max_steps):
             swap: SwapUpdate = self._get_best_swap()

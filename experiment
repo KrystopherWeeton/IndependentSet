@@ -36,7 +36,7 @@ EDGE_PROBABILITY: float = 0.5
 # Key provided to every node which is part of the planted independent subset
 PLANTED_KEY: str = "beta"
 # The step size for k and l
-STEP_SIZE: int = 20
+STEP_SIZE: int = 10
 # The maximum number of steps an optimizer can run before we stop it
 MAX_OPTIMIZER_STEPS: int = 999
 # Print debug statements to track what is going on
@@ -44,23 +44,23 @@ PRINT_DEBUG: bool = False
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 # local_optimizer: LocalOptimizer = Metropolis(temperature=1)
-local_optimizer: LocalOptimizer = SwapPurgeLocalOptimizer()
+local_optimizer: LocalOptimizer = SwapPurgeLocalOptimizer(min_subset_size=10)
 
 # ACTUAL RESULTS BOUNDS
 # This is the size of the planted independent set in terms of n
 def planted_ind_set_size(n: int) -> int:
-    return math.ceil(math.sqrt(n)) * 4
+    return math.ceil(math.sqrt(n)) * 1
 
 
 # This is the number of 'extra' nodes to include in the initial subset
 def l_range(n: int) -> [int]:
-    l_init, l_final = (math.ceil(math.log(n)) * 10,  10 * math.ceil(math.sqrt(n)))
+    l_init, l_final = (math.ceil(math.log(n)) * 4,  10 * math.ceil(math.sqrt(n)))
     return list(range(l_init, l_final, STEP_SIZE))
 
 
 # This is the maximum size that we want for the initial intersection size
 def k_range(n: int) -> [int]:
-    k_init, k_final = (5, math.ceil(math.log(n)) * 10)
+    k_init, k_final = (0, math.ceil(math.log(n)) * 4)
     return list(range(k_init, k_final, STEP_SIZE))
 
 """
@@ -97,7 +97,7 @@ def test_local_search(n: [int], num_trials, file_name):
         click.secho("All values of n must be positive.", fg="red")
 
     #? Initialization
-    random.seed(0)      # TODO: Swap out for randomly seeded randomness when testing is complete
+    # random.seed(0)      # TODO: Swap out for randomly seeded randomness when testing is complete
     results: Results = Results(num_trials, n, planted_ind_set_size, k_range, l_range)
     percent_done: float = 0
     results.verify_bounds()                         # Run initial tests just to verify bounds work out

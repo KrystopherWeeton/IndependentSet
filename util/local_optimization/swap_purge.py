@@ -4,7 +4,8 @@ import numpy as np
 
 
 class SwapPurgeLocalOptimizer(LocalOptimizer):
-    def __init__(self):
+    def __init__(self, min_subset_size: int):
+        self.min_subset_size = min_subset_size
         pass
 
 
@@ -21,6 +22,8 @@ class SwapPurgeLocalOptimizer(LocalOptimizer):
         for i in range(max_steps):
             remove: RemoveUpdate = self._get_best_remove()
             if remove.new_density >= self.density:
+                return
+            elif len(self.subset) <= self.min_subset_size:
                 return
             else:
                 self._remove_from_subset(remove)

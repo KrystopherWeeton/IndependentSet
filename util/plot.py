@@ -88,7 +88,8 @@ def graph_heatmap(
     x_axis_title: str = "x_axis", 
     y_axis_title: str = "y_axis",
     color: HeatMapColor = HeatMapColor.REDS,
-    include_annotation: bool = True
+    include_annotation: bool = True,
+    plot_size: float = 10.0
 ):
     # Generate plot and set ticks
     plt.imshow(z, color.value, vmin=min, vmax=max)
@@ -115,6 +116,9 @@ def graph_heatmap(
     # plt.colorbar()
 
     # Save the plot to a figure
+    fig = plt.gcf()
+    fig.set_size_inches(plot_size, plot_size)
+    plt.xticks(rotation=90)
     plt.savefig(f"{directory}/{file_name}.png")
     plt.clf()
 
