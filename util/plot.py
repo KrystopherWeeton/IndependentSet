@@ -8,6 +8,7 @@ from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.cm as cmap        # Used for heatmaps
 from matplotlib.axes import Axes    # Used for advanced plotting things (heatmaps)
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enum import Enum
 
 import networkx.drawing as nx_draw
@@ -105,7 +106,14 @@ def graph_heatmap(
             for j in range(len(y)):
                 ax.text(i, j, str(z[j][i]), ha="center", va="center", color="black")
     else:
-        plt.colorbar()
+        pass
+        # create an axes on the right side of ax. The width of cax will be 5%
+        # of ax and the padding between cax and ax will be fixed at 0.05 inch.
+        # divider = make_axes_locatable(ax)
+        # cax = divider.append_axes("right", size="5%", pad=0.05)
+
+        # plt.colorbar(cax=cax)
+        # plt.colorbar()
 
     # Set title of the heatmap and axes
     plt.title(title)
