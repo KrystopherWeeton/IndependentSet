@@ -36,6 +36,7 @@ class Metropolis(LocalOptimizer):
         # Update cross edges
         for neighbor in self.G.neighbors(node):
             self.cross_edges[neighbor] += 1
+        #? Increment density?
 
 
     def _rem_from_subset(self, node: int, new_density: float):
