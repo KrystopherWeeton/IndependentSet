@@ -4,7 +4,6 @@ import util.formulas as formulas
 class Heuristic:
 
     def __init__(self, expected_metadata_keys: [str] = []):
-        raise RuntimeError("This is an abstract class. Implement a heuristic subclass.")
 
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
@@ -133,3 +132,7 @@ class GraphSubsetTracker:
     """
     def size(self) -> int:
         return len(self.subset)
+
+
+    def __iter__(self):
+        return iter(self.subset)

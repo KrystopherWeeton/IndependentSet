@@ -21,7 +21,7 @@ class Metropolis(Heuristic):
 
     def __select_initial_subset(self):
         # Right now just select a random point
-        x = random.choice(self.G.nodes)
+        x = random.choice(list(self.G.nodes))
         return set([x])
 
 
@@ -38,7 +38,7 @@ class Metropolis(Heuristic):
             k: int = self.solution.size()
 
             #? Generate a candidate and calculate new density
-            node: int = random.choice(self.G.nodes)
+            node: int = random.choice(list(self.G.nodes))
             removing: bool = node in self.solution
             internal_degree: int = self.solution.internal_degree(node)
             if removing:

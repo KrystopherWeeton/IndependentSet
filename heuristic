@@ -14,8 +14,7 @@ from util.heuristics.metropolis import Metropolis, TESTING_METADATA
 def run():
     pass
 
-if __name__ == "__main__":
-    run()
+
 
 
 ##########################################
@@ -28,8 +27,6 @@ if __name__ == "__main__":
 def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 1
 
-# Whether or not to include print statements for debug messages
-PRINT_DEBUG: bool = True
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
 # The maximum number of steps an optimizer can run before we stop it
@@ -60,7 +57,7 @@ def test_heuristic(n: [int], num_trials, file_name, verbose):
         click.secho("All values of n must be positive.", fg="red")
     
     #? Initialization
-    results: HeuristicResults = HeuristicResults(num_trials, n, planted_ind_set_size)
+    results: HeuristicResults = HeuristicResults(n, num_trials, planted_ind_set_size)
 
     for n_value in n:
 
@@ -69,7 +66,7 @@ def test_heuristic(n: [int], num_trials, file_name, verbose):
             print(f"Got a planted size of {planted_size} for n={n_value}. Replacing with maximum planted size of n.")
             planted_size = n_value
         
-        if PRINT_DEBUG:
+        if verbose:
             print(f"Running experiment for n={n_value} with planted_size={planted_size}")
 
         
@@ -88,7 +85,7 @@ def test_heuristic(n: [int], num_trials, file_name, verbose):
             density: float = nx.density(G.subgraph(solution))
             subset_size: int = len(solution)
 
-            if PRINT_DEBUG:
+            if verbose:
                 print(f"Collected results for n={n_value}, t={t}, with results {intersection_size}, {density}, {subset_size}")
 
             results.add_result(n_value, t, intersection_size, density, subset_size)
@@ -100,3 +97,5 @@ def test_heuristic(n: [int], num_trials, file_name, verbose):
 
 
 
+if __name__ == "__main__":
+    run()
