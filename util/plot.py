@@ -54,14 +54,14 @@ class PlotArgs:
         plt.ylabel(self.y_title)
 
         for series in self.series:
-            plt.plot(series.x_values, series.y_values,
+            line = plt.plot(series.x_values, series.y_values,
                      series.color, label=series.name, marker="o")
 
         if len(self.series) > 1:
             plt.legend()
 
         if self.directory:
-            print(self.directory, self.file_name)
+            # print(self.directory, self.file_name)
             plt.savefig(f"{self.directory}/{self.file_name}.png")
             plt.clf()
         else:

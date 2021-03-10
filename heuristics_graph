@@ -1,0 +1,98 @@
+#!env/bin/python3
+
+import math
+import click
+import os
+import sys
+import networkx as nx
+
+from util.storage import load
+from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name
+import util.plot as plot
+from util.misc import round_all_values
+
+@click.group()
+def run():
+    pass
+
+def __generate_graphs(results: HeuristicResults, directory: str):
+    file_name: str = "planted-independent-set-intersection"
+    directory = plot.create_dir(directory, agressive=True)
+
+    n_values: [int] = results.n_values
+    intersection_sizes: [float] = results.avg_intersection_sizes()
+    densities: [float] = results.avg_densities()
+    subset_sizes: [float] = results.avg_subset_sizes()
+
+    intersection_sizes: plot.Series = plot.Series(
+        x_values=n_values,
+        y_values=results.avg_intersection_sizes(),
+        color="red",
+        name="Intersection Sizes"
+    )
+    densities: plot.Series = plot.Series(
+        x_values=n_values,
+        y_values=results.avg_densities(),
+        color="blue",
+        name="Intersection Sizes"
+    )
+    subset_sizes: plot.Series = plot.Series(
+        x_values=n_values,
+        y_values=results.avg_subset_sizes(),
+        color="green",
+        name="Intersection Sizes"
+    )
+
+    int_args: plot.PlotArgs = plot.PlotArgs(
+        x_title="N",
+        y_title="Resulting Set Intersection with Planted Independent Set",
+        title="Intersection sizes after Heuristic",
+        series=[intersection_sizes],
+        file_name="intersection-sizes",
+        directory=directory
+    )
+    density_args: plot.PlotArgs = plot.PlotArgs(
+        x_title="N",
+        y_title="Density after Heuristic",
+        title="Density after Heuristic",
+        series=[densities],
+        file_name="density",
+        directory=directory
+    )
+    subset_size_args: plot.PlotArgs = plot.PlotArgs(
+        x_title="N",
+        y_title="Subset Size after Heuristic",
+        title="Subset Size after Heuristic",
+        series=[subset_sizes],
+        file_name="subset-sizes",
+        directory=directory
+    )
+
+    int_args.plot()
+    density_args.plot()
+    subset_size_args.plot()
+
+
+@run.command()
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name automatically to results generated today.")
+def generate_graphs(today):
+    if not today:
+        pickle_name = click.prompt("Please enter the file for the results", type=str)
+    else:
+        pickle_name = f"results/{generate_heuristic_results_file_name()}"
+
+    if not os.path.isfile(f"{pickle_name}.pkl"):
+        click.secho(f"The file at {pickle_name}.pkl could not be found.", err=True)
+        sys.exit(0)
+    
+    results: HeuristicResults = load(pickle_name)
+    if not results:
+        click.secho("Could not load results.", err=True)
+        sys.exit(0)
+    
+    results_directory = click.prompt("Please enter a directory to store the graphs in.", type=str)
+    __generate_graphs(results, results_directory)
+
+
+if __name__ == "__main__":
+    run()

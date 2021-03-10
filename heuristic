@@ -45,11 +45,19 @@ HEURISTIC: Heuristic = Metropolis()
     Experiment which attempts to solve a planted clique problem from start to end.
 """
 @run.command()
-@click.option("-n", required=True, multiple=True, type=int)
+@click.option("-n", required=False, multiple=True, type=int)
+@click.option("--min-n", required=False, multiple=False, type=int)
+@click.option("--max-n", required=False, multiple=False, type=int)
+@click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("--file-name", required=False, multiple=False, type=str)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def test_heuristic(n: [int], num_trials, file_name, verbose):
+def test_heuristic(n: [int], min_n, max_n, step, num_trials, file_name, verbose):
+    if len(n) == 0:
+        if min_n is None or max_n is None or step is None:
+            click.secho("No valid n ranges were provided. Exiting.", fg="red")
+        n = range(min_n, max_n, step)
+        
     #? Validate command line arguments
     if len(n) == 0:
         click.secho("At least one value for n must be provided", fg="red")
