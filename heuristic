@@ -1,0 +1,102 @@
+#!env/bin/python3
+
+import math
+import click
+import networkx as nx
+
+from util.graph import generate_planted_independent_set_graph
+from util.storage import store
+from util.results.heuristic_results import HeuristicResults
+from util.heuristics.heuristic import Heuristic
+from util.heuristics.metropolis import Metropolis, TESTING_METADATA
+
+@click.group()
+def run():
+    pass
+
+if __name__ == "__main__":
+    run()
+
+
+##########################################
+#       Configuration
+##########################################
+
+"""
+    Provides the size of the planted independent set for a graph with n vertices.
+"""
+def planted_ind_set_size(n: int) -> int:
+    return math.ceil(math.sqrt(n)) * 1
+
+# Whether or not to include print statements for debug messages
+PRINT_DEBUG: bool = True
+# The probability that edges exist
+EDGE_PROBABILITY: float = 0.5
+# The maximum number of steps an optimizer can run before we stop it
+MAX_OPTIMIZER_STEPS: int = 999
+# The percent to accomplish between each print statement
+PERCENT_INCREMENT: float = 0.05
+# The actual heuristic to run
+HEURISTIC: Heuristic = Metropolis()
+
+##########################################
+#       Commands / Experiments
+##########################################
+
+
+"""
+    Experiment which attempts to solve a planted clique problem from start to end.
+"""
+@run.command()
+@click.option("-n", required=True, multiple=True, type=int)
+@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
+@click.option("--file-name", required=False, multiple=False, type=str)
+@click.option("--verbose", required=False, is_flag=True, default=False)
+def test_heuristic(n: [int], num_trials, file_name, verbose):
+    #? Validate command line arguments
+    if len(n) == 0:
+        click.secho("At least one value for n must be provided", fg="red")
+    if any([x <= 0 for x in n]):
+        click.secho("All values of n must be positive.", fg="red")
+    
+    #? Initialization
+    results: HeuristicResults = HeuristicResults(num_trials, n, planted_ind_set_size)
+
+    for n_value in n:
+
+        planted_size: int = planted_ind_set_size(n_value)    
+        if planted_size >= n_value:
+            print(f"Got a planted size of {planted_size} for n={n_value}. Replacing with maximum planted size of n.")
+            planted_size = n_value
+        
+        if PRINT_DEBUG:
+            print(f"Running experiment for n={n_value} with planted_size={planted_size}")
+
+        
+        for t in range(num_trials):
+            # Generate a random graph
+            (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, 'planted')
+
+            # Run the heuristic
+            HEURISTIC.clear()
+            HEURISTIC.run_heuristic(G, TESTING_METADATA)
+
+            # Take the results, collect data, store the results
+            solution: set = HEURISTIC.solution.subset
+
+            intersection_size: int = len(solution.intersection(B))
+            density: float = nx.density(G.subgraph(solution))
+            subset_size: int = len(solution)
+
+            if PRINT_DEBUG:
+                print(f"Collected results for n={n_value}, t={t}, with results {intersection_size}, {density}, {subset_size}")
+
+            results.add_result(n_value, t, intersection_size, density, subset_size)
+    
+    # Pickle the results and store them
+    store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
+
+            
+
+
+

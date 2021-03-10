@@ -59,3 +59,9 @@ class Metropolis(Heuristic):
             f"Warning: Metropolis ran {max_steps} without terminating."
         )
         return
+
+
+TESTING_METADATA: dict = {
+    "temperature": 0.5,
+    "max_steps": 999
+}
