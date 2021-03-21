@@ -1,3 +1,6 @@
+import networkx as nx
+import numpy as np
+
 from util.heuristics.heuristic import Heuristic
 import random
 from util.heuristics.graph_subset_tracker import GraphSubsetTracker
@@ -12,7 +15,8 @@ class GWW(Heuristic):
                 "num_points", 
                 "min_subset_size", 
                 "threshold_density_change",
-                "random_walk_steps"
+                "random_walk_steps",
+                "min_threshold",
             ]
         )
 
@@ -49,6 +53,25 @@ class GWW(Heuristic):
                     size -= 1
         return subset
 
+    
+    """
+        Pulls an independent set from the provided subset, by sorting the vertices
+        by degree, then greedily adding vertices based on connections to all
+        vertices in the set.
+    """
+    def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
+        sorted_vertices: [int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
+        return_value: set = set()
+
+        for node in sorted_vertices:
+            # Check if the node connects to anything in the set.
+            if len(nx.edge_boundary(self.G, set(node), return_value)) == 0:
+                return_value.add(node)
+        
+        return return_value
+
+
+
 
     def _run_heuristic(self):
         #? Pull metadata
@@ -56,6 +79,17 @@ class GWW(Heuristic):
         min_subset_size: int = self.metadata["min_subset_size"]
         threshold_density_change: float = self.metadata["threshold_density_change"]
         random_walk_steps: int = self.metadata["random_walk_steps"]
+        min_threshold: float = self.metadata["min_threshold"]
+
+        #? Metadata validation
+        if num_points < 1:
+            raise Exception("Cannot run GWW with non-positive number of points")
+        
+        if min_threshold < 0:
+            raise Exception("Minimum threshold for GWW can not be less than 0.")
+
+        if threshold_density_change > min_threshold:
+            raise Exception(f"A threshold density change of {threshold_density_change} will go past 0, as min_threshold is set to {min_threshold} for GWW.")
 
 
         #? Initialize trackers
@@ -66,8 +100,7 @@ class GWW(Heuristic):
         # The threshold that all points should satisfy
         threshold: float = 1
 
-        # TODO: When do I stop?????
-        while True:
+        while threshold > min_threshold:
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps, min_subset_size)
@@ -84,3 +117,10 @@ class GWW(Heuristic):
 
             #? Reduce the threshold for next iteration
             threshold -= threshold_density_change
+        
+        #? Greedily pull largest independent set from each subset, then
+        #? return the largest independent set found.
+        subsets: [ set ] = [
+            self.__greedily_get_ind_subset(subset) for subset in subsets
+        ]
+        return subsets[np.argmax([len(x) for x in subsets])]
