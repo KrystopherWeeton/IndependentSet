@@ -1,6 +1,7 @@
 import networkx as nx
 import util.formulas as formulas
 import random as random
+import copy
 
 
 
@@ -19,9 +20,13 @@ class GraphSubsetTracker:
         self.G: nx.graph = G
         self.set_subset(initial_subset)
 
-    
+
+    def __str__(self) -> str:
+        return f"<{self.subset}>"
+
+
     def replicate(self) -> "GraphSubsetTracker":
-        return GraphSubsetTracker(self.G, self.subset)
+        return copy.deepcopy(self)
 
 
     """
@@ -59,7 +64,7 @@ class GraphSubsetTracker:
     def add_random_node(self):
         if self.size() == len(self.G.nodes):
             raise Exception("Attempt to add random node to complete subset.")
-        node = random.choice(self.vertices_not_in_subset)
+        node = random.choice(list(self.vertices_not_in_subset))
         self.add_node(node)
 
     """
@@ -68,7 +73,7 @@ class GraphSubsetTracker:
     def remove_random_node(self):
         if self.size() == 0:
             raise Exception("Attempt to remove random node from empty subset.")
-        node = random.choice(self.subset)
+        node = random.choice(list(self.subset))
         self.remove_node(node)
 
 
@@ -110,3 +115,4 @@ class GraphSubsetTracker:
 
     def __iter__(self):
         return iter(self.subset)
+

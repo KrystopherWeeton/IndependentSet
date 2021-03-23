@@ -17,6 +17,7 @@ class GWW(Heuristic):
                 "threshold_density_change",
                 "random_walk_steps",
                 "min_threshold",
+                "verbose",
             ]
         )
 
@@ -65,7 +66,7 @@ class GWW(Heuristic):
 
         for node in sorted_vertices:
             # Check if the node connects to anything in the set.
-            if len(nx.edge_boundary(self.G, set(node), return_value)) == 0:
+            if len(list(nx.edge_boundary(self.G, set([node]), return_value))) == 0:
                 return_value.add(node)
         
         return return_value
@@ -80,6 +81,10 @@ class GWW(Heuristic):
         threshold_density_change: float = self.metadata["threshold_density_change"]
         random_walk_steps: int = self.metadata["random_walk_steps"]
         min_threshold: float = self.metadata["min_threshold"]
+        verbose: bool = self.metadata["verbose"]
+
+        if verbose:
+            print(f"Received metadata: {self.metadata}")
 
         #? Metadata validation
         if num_points < 1:
@@ -101,6 +106,8 @@ class GWW(Heuristic):
         threshold: float = 1
 
         while threshold > min_threshold:
+            if verbose:
+                print(f"Running iteration with threshold {threshold}.")
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps, min_subset_size)
@@ -111,8 +118,16 @@ class GWW(Heuristic):
             ]
 
             #? Replicate subsets until points are replenished
+            if verbose:
+                print(f"Number of subsets after removal is {len(subsets)}.")
+            
+            # Check if subsets is empty
+            if len(subsets) == 0:
+                print(f"WARNING: Unable to replicate points because no subsets survived.")
+                # TODO: Make failure behavior better
+                return set()
             while len(subsets) < num_points:
-                subsets.append(random.choice(self.subsets).replicate())
+                subsets.append(random.choice(list(subsets)).replicate())
 
 
             #? Reduce the threshold for next iteration
@@ -123,4 +138,14 @@ class GWW(Heuristic):
         subsets: [ set ] = [
             self.__greedily_get_ind_subset(subset) for subset in subsets
         ]
-        return subsets[np.argmax([len(x) for x in subsets])]
+        self.solution = GraphSubsetTracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
+
+
+TESTING_METADATA_GWW: dict = {
+    "num_points":               25,
+    "min_subset_size":          30,
+    "threshold_density_change": 0.025,
+    "random_walk_steps":        30,
+    "min_threshold":            0.1,
+    "verbose":                  False,
+}
