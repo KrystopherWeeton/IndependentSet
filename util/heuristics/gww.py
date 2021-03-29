@@ -4,6 +4,8 @@ import numpy as np
 from util.heuristics.heuristic import Heuristic
 import random
 from util.heuristics.graph_subset_tracker import GraphSubsetTracker
+from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
+from util.local_optimization.local_optimization import LocalOptimizer
 
 
 class GWW(Heuristic):
@@ -20,6 +22,7 @@ class GWW(Heuristic):
                 "verbose",
             ]
         )
+        self.optimizer: LocalOptimizer = SwapPurgeLocalOptimizer(1)
 
 
     """
@@ -72,6 +75,14 @@ class GWW(Heuristic):
         return return_value
 
 
+
+    """
+        Runs a local optimizer from the provided headstart_set. Returns the result as a
+        set of nodes.
+    """
+    def __run_local_optimizer(self, headstart_set: GraphSubsetTracker) -> set:
+        self.optimizer.clear()
+        return self.optimizer.optimize(headstart_set.subset, self.G, 9999)
 
 
     def _run_heuristic(self):
@@ -136,7 +147,9 @@ class GWW(Heuristic):
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
         subsets: [ set ] = [
-            self.__greedily_get_ind_subset(subset) for subset in subsets
+            self.__greedily_get_ind_subset(GraphSubsetTracker(self.G, self.__run_local_optimizer(subset)))
+                 for subset in subsets
+            # self.__greedily_get_ind_subset(subset) for subset in subsets
         ]
         self.solution = GraphSubsetTracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
 
