@@ -207,6 +207,7 @@ def plot_data_with_error_bars(
     spacing: int = 0.3,
     other_y_values: [[float]] = [],
 ):
+    plt.clf()
     plt.title(title)
     plt.xlabel(x_title)
     plt.ylabel(y_title)
@@ -220,7 +221,7 @@ def plot_data_with_error_bars(
 
     for i, value in enumerate(y_values):
         ax.annotate(
-            f"({y_means[i]}, {round(y_errs[i], 1)})", 
+            f"({round(y_means[i], 1)}, {round(y_errs[i], 1)})", 
             (x_values[i] + spacing, y_means[i] + spacing)
         )
 

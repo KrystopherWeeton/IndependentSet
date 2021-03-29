@@ -46,58 +46,8 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         title="Resulting Subset Sizes",
         x_title="Number of vertices (n)",
         y_title="Resulting Ind. Set Size",
-        directory="directory",
+        directory=directory,
     )
-
-    return
-
-    intersection_sizes: plot.Series = plot.Series(
-        x_values=n_values,
-        y_values=results.avg_intersection_sizes(),
-        color="red",
-        name="Intersection Sizes"
-    )
-    densities: plot.Series = plot.Series(
-        x_values=n_values,
-        y_values=results.avg_densities(),
-        color="blue",
-        name="Intersection Sizes"
-    )
-    subset_sizes: plot.Series = plot.Series(
-        x_values=n_values,
-        y_values=results.avg_subset_sizes(),
-        color="green",
-        name="Intersection Sizes"
-    )
-
-    int_args: plot.PlotArgs = plot.PlotArgs(
-        x_title="N",
-        y_title="Resulting Set Intersection with Planted Independent Set",
-        title="Intersection sizes after Heuristic",
-        series=[intersection_sizes],
-        file_name="intersection-sizes",
-        directory=directory
-    )
-    density_args: plot.PlotArgs = plot.PlotArgs(
-        x_title="N",
-        y_title="Density after Heuristic",
-        title="Density after Heuristic",
-        series=[densities],
-        file_name="density",
-        directory=directory
-    )
-    subset_size_args: plot.PlotArgs = plot.PlotArgs(
-        x_title="N",
-        y_title="Subset Size after Heuristic",
-        title="Subset Size after Heuristic",
-        series=[subset_sizes],
-        file_name="subset-sizes",
-        directory=directory
-    )
-
-    int_args.plot()
-    density_args.plot()
-    subset_size_args.plot()
 
 
 @run.command()
