@@ -7,7 +7,7 @@ import sys
 import networkx as nx
 
 from util.storage import load
-from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name
+from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name, StatInfo
 import util.plot as plot
 from util.misc import round_all_values
 
@@ -16,13 +16,30 @@ def run():
     pass
 
 def __generate_graphs(results: HeuristicResults, directory: str):
-    file_name: str = "planted-independent-set-intersection"
     directory = plot.create_dir(directory, agressive=True)
 
-    n_values: [int] = results.n_values
-    intersection_sizes: [float] = results.avg_intersection_sizes()
-    densities: [float] = results.avg_densities()
-    subset_sizes: [float] = results.avg_subset_sizes()
+    n_values: [int] = results.get_n_values()
+
+    intersection_sizes: [StatInfo] = results.get_all_intersection_size_info()
+    densities: [StatInfo] = results.get_all_density_info()
+    subset_sizes: [StatInfo] = results.get_all_subset_size_info()
+
+    planted_sizes = [
+        results.planted_sizes[n] for n in n_values
+    ]
+
+    plot.plot_data_with_error_bars(
+        x_values=n_values,
+        y_values=intersection_sizes,
+        file_name="intersection-sizes",
+        title="Resulting Planted Independent Set Intersection",
+        x_title="Number of Vertices (n)",
+        y_title="Planted Ind. Set Intersection",
+        directory=directory,
+        other_y_values=[planted_sizes],
+    )
+
+    return
 
     intersection_sizes: plot.Series = plot.Series(
         x_values=n_values,

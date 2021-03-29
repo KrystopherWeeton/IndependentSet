@@ -10,6 +10,7 @@ import matplotlib.cm as cmap        # Used for heatmaps
 from matplotlib.axes import Axes    # Used for advanced plotting things (heatmaps)
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enum import Enum
+from util.models.stat_info import StatInfo
 
 import networkx.drawing as nx_draw
 from networkx.drawing.nx_agraph import write_dot
@@ -189,3 +190,53 @@ def create_dir(name: str, agressive: bool = False) -> str:
     if not os.path.isdir(directory):
         os.mkdir(directory)
     return directory
+
+
+
+#? Plotting with error bars
+
+
+def plot_data_with_error_bars(
+    x_values: [int], 
+    y_values: [StatInfo], 
+    file_name: str, 
+    title: str,
+    x_title: str,
+    y_title: str,
+    directory: str = None,
+    spacing: int = 0.3,
+    other_y_values: [[float]] = [],
+):
+    plt.title(title)
+    plt.xlabel(x_title)
+    plt.ylabel(y_title)
+
+    ax: Axes = plt.gca()
+
+    y_means: [float] = [y.mean for y in y_values]
+    y_errs: [float] = [y.std_dev for y in y_values]
+
+    ax.errorbar(x_values, y_means, y_errs, fmt="-o")
+
+    for i, value in enumerate(y_values):
+        ax.annotate(
+            f"({y_means[i]}, {round(y_errs[i], 1)})", 
+            (x_values[i] + spacing, y_means[i] + spacing)
+        )
+
+    for series in other_y_values:
+        ax.plot(x_values, series, "go")
+        for i, value in enumerate(series):
+            ax.annotate(
+                value,
+                (x_values[i] + spacing, series[i] + spacing)
+            )
+
+    if directory:
+        # print(self.directory, self.file_name)
+        plt.savefig(f"{directory}/{file_name}.png")
+        plt.clf()
+    else:
+        plt.savefig(f"{file_name}.png")
+        plt.clf() 
+

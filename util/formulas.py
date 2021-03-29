@@ -1,4 +1,4 @@
-
+import statistics
 
 """
     Calculates the density of a subset provided the current density, 
@@ -14,3 +14,17 @@ def density_after_rem(cur_density: float, subset_size: int, edges_in: int) -> fl
 
 def density_after_swap(cur_density: float, subset_size: int, add_degree, rem_degree: int) -> float:
     return cur_density + ( 2 / (subset_size * (subset_size - 1)) * (add_degree - rem_degree) )
+
+
+"""
+    Calculates the mean of a list of points. Wrapper around library.
+"""
+def mean(data: [float]) -> float:
+    return statistics.mean(data)
+
+
+"""
+    Calculates the standard deviation of a list of points. Wrapper around library.
+"""
+def std_dev(data: [float]) -> float:
+    return statistics.stdev(data)
