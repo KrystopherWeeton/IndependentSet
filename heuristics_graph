@@ -39,6 +39,16 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         other_y_values=[planted_sizes],
     )
 
+    plot.plot_data_with_error_bars(
+        x_values=n_values,
+        y_values=subset_sizes,
+        file_name="subset-sizes",
+        title="Resulting Subset Sizes",
+        x_title="Number of vertices (n)",
+        y_title="Resulting Ind. Set Size",
+        directory="directory",
+    )
+
     return
 
     intersection_sizes: plot.Series = plot.Series(
