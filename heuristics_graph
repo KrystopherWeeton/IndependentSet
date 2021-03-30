@@ -24,29 +24,41 @@ def __generate_graphs(results: HeuristicResults, directory: str):
     densities: [StatInfo] = results.get_all_density_info()
     subset_sizes: [StatInfo] = results.get_all_subset_size_info()
 
+    intersection_means: [float] = [x.mean for x in intersection_sizes]
+
     planted_sizes = [
         results.planted_sizes[n] for n in n_values
     ]
 
-    plot.plot_data_with_error_bars(
-        x_values=n_values,
-        y_values=intersection_sizes,
-        file_name="intersection-sizes",
+    intersection_data: [[float]] = results.get_intersection_data()
+    subset_data: [[float]] = results.get_subset_size_data()
+
+    plot.plot_scatter_data(
+        x_points=n_values,
+        y_points=intersection_data,
         title="Resulting Planted Independent Set Intersection",
         x_title="Number of Vertices (n)",
-        y_title="Planted Ind. Set Intersection",
+        y_title="Planted Ind. Set Intersection Size",
+        file_name="intersection-sizes",
+        other_y_series=[intersection_means, planted_sizes],
+        other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Sizes")],
         directory=directory,
-        other_y_values=[planted_sizes],
+        x_spacing=5,
+        y_spacing=0.25
     )
 
-    plot.plot_data_with_error_bars(
-        x_values=n_values,
-        y_values=subset_sizes,
-        file_name="subset-sizes",
+    plot.plot_scatter_data(
+        x_points=n_values,
+        y_points=subset_data,
         title="Resulting Subset Sizes",
-        x_title="Number of vertices (n)",
-        y_title="Resulting Ind. Set Size",
+        x_title="Number of Vertices (n)",
+        y_title="Resulting Subset Size",
+        file_name="subset-sizes",
+        other_y_series=[[x.mean for x in subset_sizes]],
+        other_y_formatting=[plot.LIGHT_GRAY("Average")],
         directory=directory,
+        x_spacing=5,
+        y_spacing=0.25
     )
 
 
