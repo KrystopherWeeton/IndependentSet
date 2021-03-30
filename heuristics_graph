@@ -41,7 +41,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         y_title="Planted Ind. Set Intersection Size",
         file_name="intersection-sizes",
         other_y_series=[intersection_means, planted_sizes],
-        other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Sizes")],
+        other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Size")],
         directory=directory,
         x_spacing=5,
         y_spacing=0.25

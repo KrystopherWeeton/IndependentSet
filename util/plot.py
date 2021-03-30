@@ -327,6 +327,7 @@ def plot_scatter_data(
     plt.scatter(x_values, y_values, marker="o")
     for series, formatting in zip(other_y_series, other_y_formatting):
         plot_series(x_points, series, formatting)
+    plt.legend()
 
     #? Annotate the scatter points
     ax = plt.gca()
