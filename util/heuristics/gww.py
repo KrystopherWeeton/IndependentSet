@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+from typing import Callable
 
 from util.heuristics.heuristic import Heuristic
 import random
@@ -14,7 +15,7 @@ class GWW(Heuristic):
     def __init__(self):
         super().__init__(
             expected_metadata_keys=[
-                "num_points", 
+                "num_particles", 
                 "min_subset_size", 
                 "threshold_density_change",
                 "random_walk_steps",
@@ -87,10 +88,11 @@ class GWW(Heuristic):
 
     def _run_heuristic(self):
         #? Pull metadata
-        num_points: int = self.metadata["num_points"]
+        n: int = len(self.G.nodes)
+        num_particles: int = self.metadata["num_particles"](n)
+        random_walk_steps: int = self.metadata["random_walk_steps"](n)
         min_subset_size: int = self.metadata["min_subset_size"]
         threshold_density_change: float = self.metadata["threshold_density_change"]
-        random_walk_steps: int = self.metadata["random_walk_steps"]
         min_threshold: float = self.metadata["min_threshold"]
         verbose: bool = self.metadata["verbose"]
 
@@ -98,7 +100,7 @@ class GWW(Heuristic):
             print(f"Received metadata: {self.metadata}")
 
         #? Metadata validation
-        if num_points < 1:
+        if num_particles < 1:
             raise Exception("Cannot run GWW with non-positive number of points")
         
         if min_threshold < 0:
@@ -111,7 +113,7 @@ class GWW(Heuristic):
         #? Initialize trackers
         # The point trackers
         subsets: [GraphSubsetTracker] = [ 
-            self.__select_initial_subset(min_subset_size) for p in range(num_points)
+            self.__select_initial_subset(min_subset_size) for p in range(num_particles)
         ]
         # The threshold that all points should satisfy
         threshold: float = 1
@@ -137,7 +139,7 @@ class GWW(Heuristic):
                 print(f"WARNING: Unable to replicate points because no subsets survived.")
                 # TODO: Make failure behavior better
                 return set()
-            while len(subsets) < num_points:
+            while len(subsets) < num_particles:
                 subsets.append(random.choice(list(subsets)).replicate())
 
 
@@ -155,10 +157,10 @@ class GWW(Heuristic):
 
 
 TESTING_METADATA_GWW: dict = {
-    "num_points":               25,
+    "num_particles":               lambda n: 30,
     "min_subset_size":          30,
     "threshold_density_change": 0.025,
-    "random_walk_steps":        30,
+    "random_walk_steps":        lambda n: 30,
     "min_threshold":            0.1,
     "verbose":                  False,
 }
