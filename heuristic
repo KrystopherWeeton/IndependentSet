@@ -96,7 +96,7 @@ def test_heuristic(n: [int], min_n, max_n, step, num_trials, file_name, verbose)
 
             # Run the heuristic
             HEURISTIC.clear()
-            HEURISTIC.run_heuristic(G, TESTING_METADATA_GWW)
+            HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
 
             # Take the results, collect data, store the results
             solution: set = HEURISTIC.solution.subset
