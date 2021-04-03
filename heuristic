@@ -1,8 +1,8 @@
 #!env/bin/python3
-
 import math
 import click
 import networkx as nx
+import cProfile, pstats
 import sys
 
 from util.graph import generate_planted_independent_set_graph
@@ -11,12 +11,6 @@ from util.results.heuristic_results import HeuristicResults
 from util.heuristics.heuristic import Heuristic
 from util.heuristics.metropolis import Metropolis, TESTING_METADATA
 from util.heuristics.gww import GWW, TESTING_METADATA_GWW
-
-@click.group()
-def run():
-    pass
-
-
 
 
 ##########################################
@@ -52,69 +46,78 @@ HEURISTIC_METADATA: dict = {
 ##########################################
 
 
-"""
-    Experiment which attempts to solve a planted clique problem from start to end.
-"""
-@run.command()
-@click.option("-n", required=False, multiple=True, type=int)
-@click.option("--min-n", required=False, multiple=False, type=int)
-@click.option("--max-n", required=False, multiple=False, type=int)
-@click.option("--step", required=False, multiple=False, type=int)
-@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-@click.option("--file-name", required=False, multiple=False, type=str)
-@click.option("--verbose", required=False, is_flag=True, default=False)
-def test_heuristic(n: [int], min_n, max_n, step, num_trials, file_name, verbose):
-    if len(n) == 0:
-        if min_n is None or max_n is None or step is None:
-            click.secho("No valid n ranges were provided. Exiting.", fg="red")
-            sys.exit(1)
-        n = range(min_n, max_n, step)
-        
-    #? Validate command line arguments
-    if len(n) == 0:
-        click.secho("At least one value for n must be provided", fg="red")
-    if any([x <= 0 for x in n]):
-        click.secho("All values of n must be positive.", fg="red")
-    
+def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
     #? Initialization
     results: HeuristicResults = HeuristicResults(n, num_trials, planted_ind_set_size)
-
     for n_value in n:
-
         planted_size: int = planted_ind_set_size(n_value)    
         if planted_size >= n_value:
             print(f"Got a planted size of {planted_size} for n={n_value}. Replacing with maximum planted size of n.")
             planted_size = n_value
-        
         if verbose:
             print(f"Running experiment for n={n_value} with planted_size={planted_size}")
-
-        
         for t in range(num_trials):
             # Generate a random graph
             (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, 'planted')
-
             # Run the heuristic
             HEURISTIC.clear()
             HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
 
             # Take the results, collect data, store the results
             solution: set = HEURISTIC.solution.subset
-
             intersection_size: int = len(solution.intersection(B))
             density: float = nx.density(G.subgraph(solution))
             subset_size: int = len(solution)
-
             if verbose:
                 print(f"Collected results for n={n_value}, t={t}, with results {intersection_size}, {density}, {subset_size}")
-
             results.add_result(n_value, t, intersection_size, density, subset_size)
     
-    # Pickle the results and store them
-    store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
+    return results
 
-            
 
+def profile_heuristic():
+    profiler = cProfile.Profile()
+    profiler.enable()
+    profiler.run("run_heuristic([500], 1, False)")
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats('cumtime')
+    stats.print_stats()
+
+
+"""
+    Experiment which attempts to solve a planted clique problem from start to end.
+"""
+@click.command()
+@click.option("--profile", required=False, is_flag=True)
+@click.option("-n", required=False, multiple=True, type=int)
+@click.option("--min-n", required=False, multiple=False, type=int)
+@click.option("--max-n", required=False, multiple=False, type=int)
+@click.option("--step", required=False, multiple=False, type=int)
+@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
+@click.option("--file-name", required=False, multiple=False, type=str)
+@click.option("--transient", required=False, is_flag=True)
+@click.option("--verbose", required=False, is_flag=True, default=False)
+def run(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient, verbose):
+    #? Check if we are profiling and rec. profile.
+    if profile:
+        profile_heuristic()
+        return
+
+    #? Validate command line arguments
+    if len(n) == 0:
+        if min_n is None or max_n is None or step is None:
+            click.secho("No valid n ranges were provided. Exiting.", fg="red")
+            sys.exit(1)
+        n = range(min_n, max_n, step)
+    if len(n) == 0:
+        click.secho("At least one value for n must be provided", fg="red")
+    if any([x <= 0 for x in n]):
+        click.secho("All values of n must be positive.", fg="red")
+
+    #? Run the heuristic, then persist results
+    results = run_heuristic(n, num_trials, verbose) 
+    if not transient:
+        store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
 
 
 if __name__ == "__main__":
