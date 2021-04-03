@@ -97,7 +97,7 @@ class GWW(Heuristic):
         verbose: bool = self.metadata["verbose"]
 
         if verbose:
-            print(f"Received metadata: {self.metadata}")
+            print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")
 
         #? Metadata validation
         if num_particles < 1:
