@@ -9,7 +9,7 @@ def generate_heuristic_results_file_name() -> str:
 
 class HeuristicResults:
 
-    def __init__(self, n_values: [int], num_trials: int, planted_ind_set_size):
+    def __init__(self, n_values: [int], num_trials: int, planted_ind_set_size, metadata: dict):
         #? Set configuration values
         self.n_values = n_values
         self.num_trials = num_trials
@@ -17,6 +17,7 @@ class HeuristicResults:
         self.planted_sizes = {}
         # The results themselves, indexed by n values
         self.results = {}
+        self.heuristic_metadata: dict = metadata
         
         #? Set configuration values which require calculation
         # The number of results which need to be collected to complete the results

@@ -48,7 +48,7 @@ HEURISTIC_METADATA: dict = {
 
 def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
     #? Initialization
-    results: HeuristicResults = HeuristicResults(n, num_trials, planted_ind_set_size)
+    results: HeuristicResults = HeuristicResults(n, num_trials, planted_ind_set_size, HEURISTIC_METADATA)
     for n_value in n:
         planted_size: int = planted_ind_set_size(n_value)    
         if planted_size >= n_value:
