@@ -95,7 +95,7 @@ def profile_heuristic():
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("--file-name", required=False, multiple=False, type=str)
-@click.option("--transient", required=False, is_flag=True)
+@click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
 def run(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient, verbose):
     #? Check if we are profiling and rec. profile.
