@@ -86,6 +86,14 @@ class GWW(Heuristic):
         return self.optimizer.optimize(headstart_set.subset, self.G, 9999)
 
 
+    def __get_best_ind_set(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
+        subsets = [
+            self.__greedily_get_ind_subset(GraphSubsetTracker(self.G, self.__run_local_optimizer(subset)))
+                 for subset in subsets
+        ]
+        return GraphSubsetTracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
+
+
     def _run_heuristic(self):
         #? Pull metadata
         n: int = len(self.G.nodes)
@@ -126,21 +134,22 @@ class GWW(Heuristic):
                 self.__random_walk(subset, random_walk_steps, min_subset_size)
 
             #? Remove all subsets which are not below the threshold
-            subsets = [
+            temp_subsets = [
                 subset for subset in subsets if subset.density() <= threshold
             ]
 
             #? Replicate subsets until points are replenished
             if verbose:
-                print(f"Number of subsets after removal is {len(subsets)}.")
+                print(f"Number of subsets after removal is {len(temp_subsets)}.")
             
             # Check if subsets is empty
-            if len(subsets) == 0:
+            if len(temp_subsets) == 0:
+                self.solution = self.__get_best_ind_set(subsets)
                 print(f"WARNING: Unable to replicate points because no subsets survived.")
-                # TODO: Make failure behavior better
-                return set()
-            while len(subsets) < num_particles:
-                subsets.append(random.choice(list(subsets)).replicate())
+                return
+            while len(temp_subsets) < num_particles:
+                temp_subsets.append(random.choice(list(temp_subsets)).replicate())
+            subsets = temp_subsets
 
 
             #? Reduce the threshold for next iteration
@@ -148,12 +157,7 @@ class GWW(Heuristic):
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
-        subsets: [ set ] = [
-            self.__greedily_get_ind_subset(GraphSubsetTracker(self.G, self.__run_local_optimizer(subset)))
-                 for subset in subsets
-            # self.__greedily_get_ind_subset(subset) for subset in subsets
-        ]
-        self.solution = GraphSubsetTracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
+        self.solution = self.__get_best_ind_set(subsets)
 
 
 TESTING_METADATA_GWW: dict = {

@@ -1,6 +1,7 @@
 from datetime import date
 import util.formulas as formulas
 from util.models.stat_info import StatInfo
+import inspect
 
 
 def generate_heuristic_results_file_name() -> str:
@@ -17,7 +18,13 @@ class HeuristicResults:
         self.planted_sizes = {}
         # The results themselves, indexed by n values
         self.results = {}
-        self.heuristic_metadata: dict = metadata
+
+        self.heuristic_metadata = {}
+        for k in metadata.keys():
+            if callable(metadata[k]):
+                self.heuristic_metadata[k] = inspect.getsourcelines(metadata[k])[0][0]
+            else:
+                self.heuristic_metadata[k] = metadata[k]
         
         #? Set configuration values which require calculation
         # The number of results which need to be collected to complete the results
