@@ -2,7 +2,8 @@ import networkx as nx
 import random
 import itertools
 import numpy as np
-
+from collections import deque
+from itertools import count
 
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
@@ -48,3 +49,10 @@ def generate_planted_subset_graph(n: int, p: float, q: float, planted_size: int,
 # graph but with 0 edge probabilities within the planted subset
 def generate_planted_independent_set_graph(n: int, p: float, planted_size: int, planted_key: str) -> (nx.Graph, list):
     return generate_planted_subset_graph(n, p, 0, planted_size, planted_key)
+
+
+def count_edge_boundary(G: nx.Graph, v: int, subset: set) -> int:
+    boundary = nx.edge_boundary(G, set([v]), subset)
+    cnt = count()
+    deque(zip(boundary, cnt), 0)
+    return next(cnt)

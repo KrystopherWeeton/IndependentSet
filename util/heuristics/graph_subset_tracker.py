@@ -2,6 +2,7 @@ import networkx as nx
 import util.formulas as formulas
 import random as random
 import copy
+from util.graph import count_edge_boundary
 
 
 
@@ -36,9 +37,8 @@ class GraphSubsetTracker:
         self.subset: set = subset
         self.vertices_not_in_subset = set(self.G.nodes).difference(self.subset)
 
-        # Performs initial (expensive) calculation of internal degrees and density
         self.__internal_degrees: [int] = [
-            sum((1 for i in nx.edge_boundary(self.G, set([v]), self.subset))) for v in self.G.nodes
+            count_edge_boundary(self.G, v, self.subset) for v in self.G.nodes
         ]
         self.__subset_density: float = nx.density(nx.subgraph(self.G, self.subset))
 

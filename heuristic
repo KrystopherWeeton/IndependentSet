@@ -78,7 +78,7 @@ def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
 def profile_heuristic():
     profiler = cProfile.Profile()
     profiler.enable()
-    profiler.run("run_heuristic([500], 1, False)")
+    profiler.run("run_heuristic([1000], 1, False)")
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats('cumtime')
     stats.print_stats()
