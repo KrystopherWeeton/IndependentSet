@@ -4,7 +4,7 @@ from typing import Callable
 
 from util.heuristics.heuristic import Heuristic
 import random
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker
+from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
 from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.local_optimization.local_optimization import LocalOptimizer
 
@@ -32,7 +32,7 @@ class GWW(Heuristic):
     """
     def __select_initial_subset(self, size: int) -> GraphSubsetTracker:
         subset = set(random.sample(list(self.G.nodes), size))
-        return GraphSubsetTracker(self.G, subset)
+        return create_graph_subset_tracker(self.G, subset)
 
 
     """
@@ -88,10 +88,10 @@ class GWW(Heuristic):
 
     def __get_best_ind_set(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
         subsets = [
-            self.__greedily_get_ind_subset(GraphSubsetTracker(self.G, self.__run_local_optimizer(subset)))
+            self.__greedily_get_ind_subset(create_graph_subset_tracker(self.G, self.__run_local_optimizer(subset)))
                  for subset in subsets
         ]
-        return GraphSubsetTracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
+        return create_graph_subset_tracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
 
 
     def _run_heuristic(self):

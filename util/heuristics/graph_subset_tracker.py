@@ -16,10 +16,15 @@ Currently tracks:
 """
 class GraphSubsetTracker:
 
-    def __init__(self, G: nx.graph, initial_subset: set = set()):
+    def __init__(self):
+        self.initialized = False
+
+    
+    def initialize(self, G: nx.graph, initial_subset: set = set()):
         # Sets simple metadata to track
         self.G: nx.graph = G
         self.set_subset(initial_subset)
+        self.initialized = True
 
 
     def __str__(self) -> str:
@@ -27,7 +32,18 @@ class GraphSubsetTracker:
 
 
     def replicate(self) -> "GraphSubsetTracker":
-        return copy.deepcopy(self)
+        #! Warning: This is not great code from an organizational standpoint, as
+        #! changes to this structure could mess with it. It is fast though.
+        other = GraphSubsetTracker()
+        other.G = self.G
+
+        # As long as the data in each of these is just numbers / primitives, this should be okay
+        other.subset = copy.copy(self.subset)
+        other.vertices_not_in_subset = copy.copy(self.vertices_not_in_subset)
+        other.__internal_degrees = copy.copy(self.__internal_degrees)
+        other.__subset_density = copy.copy(self.__subset_density)
+        other.initialized = True
+        return other
 
 
     """
@@ -47,6 +63,8 @@ class GraphSubsetTracker:
         Adds a node to the existing subset, doesn't need to recalculate that much
     """
     def add_node(self, node: int):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         if node in self.subset:
             raise RuntimeError("Attempt to add node in subset")
         self.subset.add(node)
@@ -62,6 +80,8 @@ class GraphSubsetTracker:
         Adds a random node in G not currently in the subset
     """
     def add_random_node(self):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         if self.size() == len(self.G.nodes):
             raise Exception("Attempt to add random node to complete subset.")
         node = random.choice(list(self.vertices_not_in_subset))
@@ -71,6 +91,8 @@ class GraphSubsetTracker:
         Removes a random node in G that is currently in the subset
     """
     def remove_random_node(self):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         if self.size() == 0:
             raise Exception("Attempt to remove random node from empty subset.")
         node = random.choice(list(self.subset))
@@ -81,6 +103,8 @@ class GraphSubsetTracker:
         Removes a node from the existing subset, doesn't need to recalculate that much
     """
     def remove_node(self, node: int):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         if node not in self.subset:
             raise RuntimeError("Attempt to remove node from subset which is not in subset.")
         self.subset.remove(node)
@@ -96,6 +120,8 @@ class GraphSubsetTracker:
         Returns the internal degree of node into the subset being tracked
     """    
     def internal_degree(self, node: int) -> int:
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         return self.__internal_degrees[node]
 
     
@@ -103,6 +129,8 @@ class GraphSubsetTracker:
         Returns the current density
     """
     def density(self) -> float:
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         return self.__subset_density
 
     
@@ -110,9 +138,19 @@ class GraphSubsetTracker:
         Returns the size of the current subset
     """
     def size(self) -> int:
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         return len(self.subset)
 
 
     def __iter__(self):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
         return iter(self.subset)
 
+
+
+def create_graph_subset_tracker(G: nx.graph, initial_subset: set) -> GraphSubsetTracker:
+    t = GraphSubsetTracker()
+    t.initialize(G, initial_subset)
+    return t

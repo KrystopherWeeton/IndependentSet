@@ -1,6 +1,6 @@
 import networkx as nx
 import util.formulas as formulas
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker
+from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
 
 class Heuristic:
 
@@ -36,7 +36,7 @@ class Heuristic:
 
         # Set metadata
         self.G = G
-        self.solution = GraphSubsetTracker(self.G)
+        self.solution = create_graph_subset_tracker(self.G, set())
         self.metadata = metadata
 
         # Validate the metadata using the expected keys.
