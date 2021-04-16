@@ -16,6 +16,7 @@ from util.heuristics.gww import GWW, TESTING_METADATA_GWW
 ##########################################
 #       Configuration
 ##########################################
+#askldfas df asdf
 
 """
     Provides the size of the planted independent set for a graph with n vertices.
