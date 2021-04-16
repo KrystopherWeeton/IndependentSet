@@ -7,6 +7,7 @@ import random
 from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
 from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.local_optimization.local_optimization import LocalOptimizer
+from util.graph import count_edge_boundary
 
 
 class GWW(Heuristic):
@@ -70,7 +71,7 @@ class GWW(Heuristic):
 
         for node in sorted_vertices:
             # Check if the node connects to anything in the set.
-            if len(list(nx.edge_boundary(self.G, set([node]), return_value))) == 0:
+            if count_edge_boundary(self.G, node, return_value) == 0:
                 return_value.add(node)
         
         return return_value

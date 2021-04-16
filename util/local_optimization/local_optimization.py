@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-
+from util.graph import count_edge_boundary
 
 class Update:
     pass
@@ -50,7 +50,7 @@ class LocalOptimizer:
         self.G = G
         self.subset = subset
         self.density = self._get_density()
-        self.subset_degree = [sum((1 for i in nx.edge_boundary(G, set([v]), self.subset))) for v in G.nodes]
+        self.subset_degree = [count_edge_boundary(G, v, self.subset) for v in G.nodes]
 
 
     def _get_best_remove(self) -> RemoveUpdate:
