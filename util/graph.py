@@ -52,7 +52,4 @@ def generate_planted_independent_set_graph(n: int, p: float, planted_size: int, 
 
 
 def count_edge_boundary(G: nx.Graph, v: int, subset: set) -> int:
-    boundary = nx.edge_boundary(G, set([v]), subset)
-    cnt = count()
-    deque(zip(boundary, cnt), 0)
-    return next(cnt)
+    return len(set(G.neighbors(v)).intersection(subset))
