@@ -1,5 +1,3 @@
-#!env/bin/python3
-
 import math
 import click
 import os
