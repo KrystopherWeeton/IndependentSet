@@ -11,7 +11,7 @@ from util.local_optimization.local_optimization import LocalOptimizer
 from util.graph import count_edge_boundary
 
 
-class GWW(Heuristic):
+class FixedGWW(Heuristic):
 
 
     def __init__(self):
@@ -87,13 +87,13 @@ class GWW(Heuristic):
         n: int = len(self.G.nodes)
         num_particles: int = self.metadata["num_particles"](n)
         random_walk_steps: int = self.metadata["random_walk_steps"](n)
-        subset_size: int = self.metadata["subset_size"]
+        subset_size: int = self.metadata["subset_size"](n)
         threshold_added_change: float = self.metadata["threshold_added_change"]
         min_threshold: float = self.metadata["min_threshold"]
         verbose: bool = self.metadata["verbose"]
 
         if verbose:
-            print(f"Received metadata: {json.dumps(self.metadata, indent=2)}.")
+            print(f"Received metadata: {self.metadata}.")
 
         #? Metadata validation
         if num_particles < 1:
@@ -142,7 +142,7 @@ class GWW(Heuristic):
 
             #? Reduce the threshold for next iteration
             minimum, median, maximum = get_density(subsets)
-            threshold = median - threshold_added_change
+            threshold = median + threshold_added_change
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.

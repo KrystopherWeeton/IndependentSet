@@ -10,6 +10,7 @@ from util.storage import store
 from util.results.heuristic_results import HeuristicResults
 from util.heuristics.heuristic import Heuristic
 from util.heuristics.metropolis import Metropolis, TESTING_METADATA
+from util.heuristics.fixed_gww import FixedGWW
 from util.heuristics.gww import GWW, TESTING_METADATA_GWW
 
 
@@ -30,6 +31,17 @@ MAX_OPTIMIZER_STEPS: int = 999
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 # The actual heuristic to run
+HEURISTIC: Heuristic = FixedGWW()
+HEURISTIC_METADATA: dict = {
+    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
+    "subset_size":              lambda n: int(n ** (2/3)),
+    "threshold_added_change":   0.0,
+    "random_walk_steps":        lambda n: int(math.log(n, 2)),
+    "min_threshold":            0.1,
+    "verbose":                  True, 
+}
+
+"""
 HEURISTIC: Heuristic = GWW()
 
 HEURISTIC_METADATA: dict = {
@@ -40,6 +52,7 @@ HEURISTIC_METADATA: dict = {
     "min_threshold":            0.1,
     "verbose":                  True,
 }
+"""
 
 ##########################################
 #       Commands / Experiments
