@@ -162,5 +162,5 @@ def create_graph_subset_tracker(G: nx.graph, initial_subset: set) -> GraphSubset
 def get_density(subsets: [GraphSubsetTracker]) -> (float, float, float):
     if len(subsets) == 0:
         return (None, None, None)
-    densities = sorted([S.__subset_density for S in subsets])
+    densities = sorted([S.density() for S in subsets])
     return (densities[0], densities[len(densities) // 2], densities[len(densities) - 1])

@@ -33,9 +33,9 @@ PERCENT_INCREMENT: float = 0.05
 HEURISTIC: Heuristic = GWW()
 
 HEURISTIC_METADATA: dict = {
-    "num_particles":            lambda n: int(math.sqrt(n)),
+    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
     "min_subset_size":          30,
-    "threshold_density_change": 0.1,
+    "threshold_added_change":   0.01,
     "random_walk_steps":        lambda n: int(math.log(n, 2)),
     "min_threshold":            0.1,
     "verbose":                  True,

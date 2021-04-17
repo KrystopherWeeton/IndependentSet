@@ -4,7 +4,7 @@ from typing import Callable
 
 from util.heuristics.heuristic import Heuristic
 import random
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
+from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker, get_density
 from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.local_optimization.local_optimization import LocalOptimizer
 from util.graph import count_edge_boundary
@@ -18,7 +18,7 @@ class GWW(Heuristic):
             expected_metadata_keys=[
                 "num_particles", 
                 "min_subset_size", 
-                "threshold_density_change",
+                "threshold_added_change",
                 "random_walk_steps",
                 "min_threshold",
                 "verbose",
@@ -101,7 +101,7 @@ class GWW(Heuristic):
         num_particles: int = self.metadata["num_particles"](n)
         random_walk_steps: int = self.metadata["random_walk_steps"](n)
         min_subset_size: int = self.metadata["min_subset_size"]
-        threshold_density_change: float = self.metadata["threshold_density_change"]
+        threshold_added_change: float = self.metadata["threshold_added_change"]
         min_threshold: float = self.metadata["min_threshold"]
         verbose: bool = self.metadata["verbose"]
 
@@ -115,8 +115,8 @@ class GWW(Heuristic):
         if min_threshold < 0:
             raise Exception("Minimum threshold for GWW can not be less than 0.")
 
-        if threshold_density_change > min_threshold:
-            raise Exception(f"A threshold density change of {threshold_density_change} will go past 0, as min_threshold is set to {min_threshold} for GWW.")
+        if threshold_added_change > min_threshold:
+            raise Exception(f"A threshold density change of {threshold_added_change} will go past 0, as min_threshold is set to {min_threshold} for GWW.")
 
 
         #? Initialize trackers
@@ -125,7 +125,7 @@ class GWW(Heuristic):
             self.__select_initial_subset(min_subset_size) for p in range(num_particles)
         ]
         # The threshold that all points should satisfy
-        threshold: float = 1
+        threshold: float = 0.6
 
         while threshold > min_threshold:
             if verbose:
@@ -154,7 +154,8 @@ class GWW(Heuristic):
 
 
             #? Reduce the threshold for next iteration
-            threshold -= threshold_density_change
+            minimum, median, maximum = get_density(subsets)
+            threshold = median - threshold_added_change
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
