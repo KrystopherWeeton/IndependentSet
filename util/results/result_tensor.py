@@ -1,27 +1,40 @@
 import itertools
 import numpy as np
-from typing import Tuple
+from typing import Tuple, List
 from pprint import pprint
+import math
+import copy
 
-class ResultsDict:
+
+def mean(X: np.array) -> float:
+    return sum(X) / X.size
+
+
+class ResultTensor:
     def __init__(self):
         self.__dimension_names: [str] = []
         self.__dimension_sizes: [int] = []
-        self.__dimension_keys: [int] = []
+        self.__dimension_keys: [[int]] = []
         self.__dimension_indices: dict = {}
         self.__num_dimensions = 0
         self.dimensions_fixed = False
 
         self.results = None
-        self.num_results_total = -1
+        self.__results_total = -1
         self.results_collected = -1
+        self.__index_list = []
 
 
     def __dim_size(self, dimension: str) -> int:
         return self.__dimension_sizes[self.__dimension_indices[dimension]]    
 
 
-    def __dim_keys(self, dimension: str) -> int:
+    # Might not be strictly necessary, but not bad to do overall    
+    def keys(self, dimension: str) -> [int]:
+        return copy.copy(self.__dim_keys(dimension))
+
+
+    def __dim_keys(self, dimension: str) -> [int]:
         return self.__dimension_keys[self.__dimension_indices[dimension]]
 
     
@@ -47,7 +60,8 @@ class ResultsDict:
         # Initialize the results object to track all the actual results now
         self.results = np.zeros(self.__dimension_sizes)
         self.results_collected = 0
-        self.__results_total = itertools.product(self.__dimension_sizes)
+        self.__result_total = math.prod(self.__dimension_sizes)
+        self.__index_list = list(itertools.product(**self.__dimension_keys))
 
     
     def __validate_kwargs_access(self, kwargs):
@@ -91,21 +105,38 @@ class ResultsDict:
         return self.results_collected == self.__results_total
 
 
-    def aggregate_results(self, **kwargs):
-        pass
-
-
-    def collapse_to_matrix(self, f = lambda x: np.sum(x)) -> np.ndarray:
+    def collapse_to_matrix(self, f = mean) -> np.ndarray:
         m: np.array = np.zeros(self.__dimension_sizes[0:2])
-
         outer_size: int = self.__dimension_sizes[0]
         inner_size: int = self.__dimension_sizes[1]
-
         for r in range(outer_size):
             for c in range(inner_size):
                 m[r][c] = f(self.results[r][c])
-        
         return m
+
+    
+    def collapse_to_list(self, f = mean) -> np.ndarray:
+        m: np.array = np.zeris(self.__dimension_sizes[0])
+        size: int = self.__dimension_sizes[0]
+        for r in range(size):
+            m[r] = f(self.results[r])
+        return m
+
+
+    def collapse_to_2d_list(self, f = mean) -> [(int, float)]:
+        M = self.collapse_to_matrix(f)
+        l: [(int, float)] = []
+        keys = self.__dimension_keys[0]
+
+        for row in range(M.shape[0]):
+            for col in range(M.shape[1]):
+                key = keys[row]
+                l.append((key, M[row][col]))
+        return l
+
+
+    def get_index_list(self) -> List:
+        return copy.copy(self.__index_list)
 
 
     def __str__(self) -> str:
