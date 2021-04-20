@@ -67,6 +67,9 @@ class ResultsDict:
 
     
     def add_result(self, result, **kwargs) -> bool:
+        if not self.dimensions_fixed:
+            raise Exception("Attempt to add result with dimensions not fixed in results dict")
+
         self.__validate_kwargs_access(kwargs)
         indices = self.__to_indices(kwargs)
         self.results[indices] = result
@@ -75,6 +78,9 @@ class ResultsDict:
 
 
     def get_results(self, **kwargs) -> bool:
+        if not self.dimensions_fixed:
+            raise Exception("Attempt to get result with dimensions not fixed in results dict")
+
         self.__validate_kwargs_access(kwargs)
         indices = self.__to_indices(kwargs)
         return self.results[indices]
@@ -87,6 +93,19 @@ class ResultsDict:
 
     def aggregate_results(self, **kwargs):
         pass
+
+
+    def collapse_to_matrix(self, f = lambda x: np.sum(x)) -> np.ndarray:
+        m: np.array = np.zeros(self.__dimension_sizes[0:2])
+
+        outer_size: int = self.__dimension_sizes[0]
+        inner_size: int = self.__dimension_sizes[1]
+
+        for r in range(outer_size):
+            for c in range(inner_size):
+                m[r][c] = f(self.results[r][c])
+        
+        return m
 
 
     def __str__(self) -> str:
