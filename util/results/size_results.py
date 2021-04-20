@@ -1,5 +1,6 @@
 from datetime import date
 import numpy as np
+from util.results.result_tensor import ResultTensor
 
 def generate_size_results_file_name() -> str:
     return f"size-results-{date.today()}"
@@ -7,25 +8,37 @@ def generate_size_results_file_name() -> str:
 class SizeResults:
 
     def __init__(self, n_values: [int], trials: int, planted_ind_set_size: int, min_k: int, max_k: int, step: int):
-        self.n_values = n_values
+        # Store metadata
         self.trials = trials
         self.planted_ind_set_size = planted_ind_set_size
         self.min_k = min_k
         self.max_k = max_k
         self.step = step
 
+        # Store ranges / keys for tracker
+        self.n_values = n_values
         self.k_values = list(range(min_k, max_k, step))
+        self.trial_values = list(range(trials))
 
-        self.results = np.zeros((len(self.n_values, self.k_values, trials)))
-        self.total_results = self.n_values * self.k_values * trials
-        self.collected_results = 0
+        # Initialize tracking tensore for the results
+        self.result: ResultTensor = ResultTensor()
+        self.result.add_dimension("n", self.n_values)
+        self.result.add_dimension("k", k_values)
+        self.result.add_dimension("t", trial_values)
+        self.result.fix_dimensions()
 
-    
-    def add_results(self, n: int, k: int, t: int, results) -> bool:
-        n_index: int = self.n_values.index(n)
-        k_index: int = self.k_values.index(k)
 
-        if n_index is None or k_index is None or t < 0 or t >= self.trials:
-            raise Exception("Attempt to set invalid results entry for size results")
+    def add_result(self, n: int, k: int, t: int, value) -> bool:
+        self.result.add_result(value, n=n, k=k, t=t)
+
+
+    def get_avg_heatmap_values(self):
+        if not self.result.all_results_collected():
+            raise Warning("Attempt to get heatmap values for SizeResults file not filled")
+            return None
         
-        self.results[n][k][t] = 
+        return self.result.collapse_to_matrix()
+
+
+    def __iter__(self):
+        return iter(self.result.get_index_list())
