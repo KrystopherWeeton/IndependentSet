@@ -93,7 +93,13 @@ class FixedGWW(Heuristic):
         verbose: bool = self.metadata["verbose"]
 
         if verbose:
-            print(f"Received metadata: {self.metadata}.")
+            print(
+                f"[V] Running Heuristic with the following arguments\n"
+                f"[V] Number of Particles: {num_particles}\n"
+                f"[V] Random Walk Steps: {random_walk_steps}\n"
+                f"[V] Subset Size: {subset_size}\n"
+                f"[V] ==========="
+            )
 
         #? Metadata validation
         if num_particles < 1:
@@ -116,7 +122,7 @@ class FixedGWW(Heuristic):
 
         while threshold > min_threshold:
             if verbose:
-                print(f"Running iteration with threshold {threshold}.")
+                print(f"[V] Threshold: {threshold}.")
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps)
@@ -128,7 +134,7 @@ class FixedGWW(Heuristic):
 
             #? Replicate subsets until points are replenished
             if verbose:
-                print(f"Particles below threshold: {len(temp_subsets)} / {num_particles}")
+                print(f"[V] {len(temp_subsets)} / {num_particles} surviving particles.")
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:

@@ -7,24 +7,20 @@ def generate_size_results_file_name() -> str:
 
 class SizeResults:
 
-    def __init__(self, n_values: [int], trials: int, planted_ind_set_size: int, min_k: int, max_k: int, step: int):
+    def __init__(self, n_values: [int], k_values: [int], trials: int):
         # Store metadata
         self.trials = trials
-        self.planted_ind_set_size = planted_ind_set_size
-        self.min_k = min_k
-        self.max_k = max_k
-        self.step = step
 
         # Store ranges / keys for tracker
         self.n_values = n_values
-        self.k_values = list(range(min_k, max_k, step))
+        self.k_values = k_values
         self.trial_values = list(range(trials))
 
         # Initialize tracking tensore for the results
         self.result: ResultTensor = ResultTensor()
         self.result.add_dimension("n", self.n_values)
-        self.result.add_dimension("k", k_values)
-        self.result.add_dimension("t", trial_values)
+        self.result.add_dimension("k", self.k_values)
+        self.result.add_dimension("t", self.trial_values)
         self.result.fix_dimensions()
 
 

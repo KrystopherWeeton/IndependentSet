@@ -60,8 +60,8 @@ class ResultTensor:
         # Initialize the results object to track all the actual results now
         self.results = np.zeros(self.__dimension_sizes)
         self.results_collected = 0
-        self.__result_total = math.prod(self.__dimension_sizes)
-        self.__index_list = list(itertools.product(**self.__dimension_keys))
+        self.__result_total = np.prod(self.__dimension_sizes)
+        self.__index_list = list(itertools.product(*self.__dimension_keys))
 
     
     def __validate_kwargs_access(self, kwargs):
