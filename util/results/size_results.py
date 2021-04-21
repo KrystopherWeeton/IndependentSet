@@ -30,7 +30,7 @@ class SizeResults:
 
     def get_avg_heatmap_values(self):
         if not self.result.all_results_collected():
-            raise Warning("Attempt to get heatmap values for SizeResults file not filled")
+            raise Warning(f"Attempt to get heatmap values for SizeResults with only {self.result.results_collected} / {self.result.results_total}")
             return None
         
         return self.result.collapse_to_matrix()

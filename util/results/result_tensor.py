@@ -20,7 +20,7 @@ class ResultTensor:
         self.dimensions_fixed = False
 
         self.results = None
-        self.__results_total = -1
+        self.results_total = -1
         self.results_collected = -1
         self.__index_list = []
 
@@ -60,7 +60,7 @@ class ResultTensor:
         # Initialize the results object to track all the actual results now
         self.results = np.zeros(self.__dimension_sizes)
         self.results_collected = 0
-        self.__result_total = np.prod(self.__dimension_sizes)
+        self.results_total = np.prod(self.__dimension_sizes)
         self.__index_list = list(itertools.product(*self.__dimension_keys))
 
     
@@ -102,7 +102,7 @@ class ResultTensor:
 
 
     def all_results_collected(self) -> bool:
-        return self.results_collected == self.__results_total
+        return self.results_collected == self.results_total
 
 
     def collapse_to_matrix(self, f = mean) -> np.ndarray:
