@@ -102,6 +102,14 @@ class FixedGWW(Heuristic):
             )
 
         #? Metadata validation
+        if subset_size > n:
+            if verbose:
+                print(
+                    f"[V] Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set."
+                )
+                self.solution = create_graph_subset_tracker(self.G, set())
+                return
+
         if num_particles < 1:
             raise Exception("Cannot run GWW with non-positive number of points")
         
@@ -121,8 +129,8 @@ class FixedGWW(Heuristic):
         threshold: float = 0.6
 
         while threshold > min_threshold:
-            if verbose:
-                print(f"[V] Threshold: {threshold}.")
+            #if verbose:
+            #    print(f"[V] Threshold: {threshold}.")
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps)
@@ -133,8 +141,8 @@ class FixedGWW(Heuristic):
             ]
 
             #? Replicate subsets until points are replenished
-            if verbose:
-                print(f"[V] {len(temp_subsets)} / {num_particles} surviving particles.")
+            #if verbose:
+            #    print(f"[V] {len(temp_subsets)} / {num_particles} surviving particles.")
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:

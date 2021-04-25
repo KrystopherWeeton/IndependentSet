@@ -58,8 +58,8 @@ def size(
         raise Exception("Experiment must be run with a positive number of trials")
 
     # Create results and run experiment for each possible value
-    n_values = range(min_n, max_n, n_step)
-    k_values = range(min_k, max_k, k_step)
+    n_values = range(min_n, max_n + 1, n_step)  # Adjusting for inclusivity
+    k_values = range(min_k, max_k + 1, k_step)
     results: SizeResults = SizeResults(n_values=n_values, k_values=k_values, trials=trials)
     gww: FixedGWW = FixedGWW()
 
@@ -84,6 +84,8 @@ def size(
             print(f"[V] Results: intersection_size of {intersection_size}")
         
         results.add_result(n, k, t, intersection_size)
+        if verbose:
+            print(f"[V] Collected Results: {results.get_results_collected()} / {results.get_total_results()}")
 
     store(obj=results, file_name=generate_size_results_file_name(), directory="results")
 

@@ -36,5 +36,12 @@ class SizeResults:
         return self.result.collapse_to_matrix()
 
 
+    def get_results_collected(self) -> int:
+        return self.result.results_collected
+
+
+    def get_total_results(self) -> int:
+        return self.result.results_total
+
     def __iter__(self):
         return iter(self.result.get_index_list())
