@@ -98,6 +98,21 @@ class GraphSubsetTracker:
         node = random.choice(list(self.subset))
         self.remove_node(node)
 
+    
+    """
+        Swaps a random internal node for a random internal outer node
+    """
+    def swap_random_nodes(self):
+        if not self.initialized:
+            raise Exception("Attempt to run operations on graph subset tracker without initialization.")
+        if self.size() == 0:
+            raise Exception("Attempt to swap random node from empty subset.")
+        to_add = random.choice(list(self.vertices_not_in_subset))
+        to_remove = random.choice(list(self.subset))
+        self.add_node(to_add)
+        self.remove_node(to_remove)
+
+
 
     """
         Removes a node from the existing subset, doesn't need to recalculate that much
@@ -154,3 +169,13 @@ def create_graph_subset_tracker(G: nx.graph, initial_subset: set) -> GraphSubset
     t = GraphSubsetTracker()
     t.initialize(G, initial_subset)
     return t
+
+
+"""
+    Returns min, avg, and max density for the provided graph subset trackers.
+"""
+def get_density(subsets: [GraphSubsetTracker]) -> (float, float, float):
+    if len(subsets) == 0:
+        return (None, None, None)
+    densities = sorted([S.density() for S in subsets])
+    return (densities[0], densities[len(densities) // 2], densities[len(densities) - 1])

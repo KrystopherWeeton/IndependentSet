@@ -4,21 +4,22 @@ from typing import Callable
 
 from util.heuristics.heuristic import Heuristic
 import random
+import json
 from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker, get_density
 from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.local_optimization.local_optimization import LocalOptimizer
 from util.graph import count_edge_boundary
 
 
-class GWW(Heuristic):
+class FixedGWW(Heuristic):
 
 
     def __init__(self):
         super().__init__(
             expected_metadata_keys=[
                 "num_particles", 
-                "min_subset_size", 
                 "threshold_added_change",
+                "subset_size",
                 "random_walk_steps",
                 "min_threshold",
                 "verbose",
@@ -40,24 +41,10 @@ class GWW(Heuristic):
         Performs a random walk to move the set, where steps is the number of
         random steps to perform (addition / removal of a vertex from the set.)
     """ 
-    def __random_walk(self, subset: GraphSubsetTracker, steps: int, min_size: int) -> set:
+    def __random_walk(self, subset: GraphSubsetTracker, steps: int):
         size: int = subset.size()
-
         for step in range(steps):
-            if size == min_size:
-                subset.add_random_node()
-                size += 1
-            elif size == len(self.G.nodes):
-                subset.remove_random_node()
-                size -= 1
-            else:
-                if random.randint(0, 1):
-                    subset.add_random_node()
-                    size += 1
-                else:
-                    subset.remove_random_node()
-                    size -= 1
-        return subset
+            subset.swap_random_nodes()
 
     
     """
@@ -100,15 +87,29 @@ class GWW(Heuristic):
         n: int = len(self.G.nodes)
         num_particles: int = self.metadata["num_particles"](n)
         random_walk_steps: int = self.metadata["random_walk_steps"](n)
-        min_subset_size: int = self.metadata["min_subset_size"]
+        subset_size: int = self.metadata["subset_size"](n)
         threshold_added_change: float = self.metadata["threshold_added_change"]
         min_threshold: float = self.metadata["min_threshold"]
         verbose: bool = self.metadata["verbose"]
 
         if verbose:
-            print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")
+            print(
+                f"[V] Running Heuristic with the following arguments\n"
+                f"[V] Number of Particles: {num_particles}\n"
+                f"[V] Random Walk Steps: {random_walk_steps}\n"
+                f"[V] Subset Size: {subset_size}\n"
+                f"[V] ==========="
+            )
 
         #? Metadata validation
+        if subset_size > n:
+            if verbose:
+                print(
+                    f"[V] Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set."
+                )
+                self.solution = create_graph_subset_tracker(self.G, set())
+                return
+
         if num_particles < 1:
             raise Exception("Cannot run GWW with non-positive number of points")
         
@@ -122,17 +123,17 @@ class GWW(Heuristic):
         #? Initialize trackers
         # The point trackers
         subsets: [GraphSubsetTracker] = [ 
-            self.__select_initial_subset(min_subset_size) for p in range(num_particles)
+            self.__select_initial_subset(subset_size) for p in range(num_particles)
         ]
         # The threshold that all points should satisfy
         threshold: float = 0.6
 
         while threshold > min_threshold:
-            if verbose:
-                print(f"Running iteration with threshold {threshold}.")
+            #if verbose:
+            #    print(f"[V] Threshold: {threshold}.")
             #? Take a random walk at each point
             for subset in subsets:
-                self.__random_walk(subset, random_walk_steps, min_subset_size)
+                self.__random_walk(subset, random_walk_steps)
 
             #? Remove all subsets which are not below the threshold
             temp_subsets = [
@@ -140,8 +141,8 @@ class GWW(Heuristic):
             ]
 
             #? Replicate subsets until points are replenished
-            if verbose:
-                print(f"Number of subsets after removal is {len(temp_subsets)}.")
+            #if verbose:
+            #    print(f"[V] {len(temp_subsets)} / {num_particles} surviving particles.")
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:
@@ -155,17 +156,17 @@ class GWW(Heuristic):
 
             #? Reduce the threshold for next iteration
             minimum, median, maximum = get_density(subsets)
-            threshold = median - threshold_added_change
+            threshold = median + threshold_added_change
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
         self.solution = self.__get_best_ind_set(subsets)
 
 
-TESTING_METADATA_GWW: dict = {
-    "num_particles":               lambda n: 30,
-    "min_subset_size":          30,
-    "threshold_density_change": 0.025,
+TESTING_METADATA_FIXED_GWW: dict = {
+    "num_particles":            lambda n: 30,
+    "subset_size":              30,
+    "thresold_added_change":    0.01,
     "random_walk_steps":        lambda n: 30,
     "min_threshold":            0.1,
     "verbose":                  False,

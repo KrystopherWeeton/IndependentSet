@@ -9,6 +9,8 @@ def density_after_add(cur_density: float, subset_size: int, edges_in: int) -> fl
 
 
 def density_after_rem(cur_density: float, subset_size: int, edges_in: int) -> float:
+    if subset_size <= 2:
+        raise Exception(f"Attempt to calculate density after removal for a subset of size {subset_size}")
     return cur_density * subset_size / (subset_size - 2) - 2 * edges_in / ((subset_size-1) * (subset_size-2))
 
 
