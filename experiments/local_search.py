@@ -22,11 +22,6 @@ from util.local_search_results import Results
 import tests.local_optimization_tests as local_optimization_tests
 
 
-@click.group()
-def run():
-    pass
-
-
 ##########################################
 #       Configurations for local optimization
 ##########################################
@@ -85,11 +80,7 @@ def k_range(n: int) -> [int]:
 #       Experiments
 ##########################################
 
-@run.command()
-@click.option("-n", required=True, multiple=True, type=int)
-@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-@click.option("--file-name", required=False, multiple=False, type=str)
-def test_local_search(n: [int], num_trials, file_name):
+def _local_search(n: [int], num_trials, file_name):
     #? Verify command line arguments make sense
     if len(n) == 0:      # Initial argument checking
         click.secho("At least one value for n must be provided", fg="red")
@@ -152,23 +143,28 @@ def test_local_search(n: [int], num_trials, file_name):
     #? Results have been collected. Pickle them into a file for storage so they can be reused
     store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
 
-@run.command()
-@click.pass_context
-def profile_local_search(ctx):
-    profiler = cProfile.Profile()
-    profiler.enable()
-    ctx.invoke(test_local_search, n=[500], num_trials=1, file_name="profiling")
-    profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats('cumtime')
-    stats.print_stats()
 
+@click.command()
+@click.option("-n", required=True, multiple=True, type=int)
+@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
+@click.option("--file-name", required=False, multiple=False, type=str)
+@click.option("--profile", required=False, is_flag=True, default=False, help="Run profiler for local search.")
+def local_search(n: [int], num_trials, file_name, profile):
+    if not profile:
+        _local_search(n, num_trials, file_name)
+    else:
+        profiler = cProfile.Profile()
+        profiler.enable()
+        _local_search(n=[500], num_trials=1, file_name="profiling")
+        profiler.disable()
+        stats = pstats.Stats(profiler).sort_stats('cumtime')
+        stats.print_stats()
 
+"""
 @run.command()
 def run_unit_tests():
     passes: int = 0
     passes += local_optimization_tests.run_tests()
 
     print(f"All {passes} tests passed.")
-
-if __name__ == "__main__":
-    run()
+"""
