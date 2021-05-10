@@ -17,8 +17,6 @@ def draw_hist(values, file_name: str):
     plt.savefig(file_name + ".png")
 
 
-
-
 class SeriesFormatting:
     def __init__(self, 
         label: str, 
