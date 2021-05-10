@@ -6,7 +6,8 @@ import networkx as nx
 
 from util.storage import load
 from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name, StatInfo
-import util.plot as plot
+import util.file_util as file_util
+import util.plot.plot as plot
 from util.misc import round_all_values
 
 @click.group()
@@ -14,7 +15,7 @@ def run():
     pass
 
 def __generate_graphs(results: HeuristicResults, directory: str):
-    directory = plot.create_dir(directory, agressive=True)
+    directory = file_util.create_dir(directory, agressive=True)
 
     n_values: [int] = results.get_n_values()
 
