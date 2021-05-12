@@ -5,7 +5,9 @@ import sys
 
 from util.storage import load
 from util.local_search_results import Results, generate_results_file_name
-import util.plot as plot
+import util.file_util as file_util
+import util.plot.heatmap as heatmap_plot
+import util.plot.csv as csv_plot
 from util.misc import round_all_values
 
 
@@ -15,12 +17,12 @@ def __generate_file_name(base_name: str, n: int) -> str:
 
 def __generate_intersection_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
     file_name: str = __generate_file_name("intersection-heatmap", n)
-    directory = plot.create_dir(directory, agressive=True)
+    directory = file_util.create_dir(directory, agressive=True)
 
     l_values, k_values, z = results.get_intersection_sizes(n)
     z = round_all_values(M=z, num_points=1)
 
-    plot.graph_heatmap(
+    heatmap_plot.graph_heatmap(
         x=l_values,
         y=k_values,
         z=z,
@@ -31,7 +33,7 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int, in
         title=f"Size of Intersection with Planted Independent Set  \n (n={n}, size={results.planted_sizes[n]}) \n after Local Optimization on Headstart Set",
         x_axis_title="Size of Headstart Set (l)",
         y_axis_title="Size of Intersection in Headstart Set (k)",
-        color=plot.HeatMapColor.YELLOW_GREEN,
+        color=heatmap_plot.HeatMapColor.YELLOW_GREEN,
         include_annotation=include_annotation,
         plot_size = 10
     )
@@ -39,12 +41,12 @@ def __generate_intersection_heatmap(results: Results, directory: str, n: int, in
 
 def __generate_density_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
     file_name: str = __generate_file_name("density-heatmap", n)
-    directory = plot.create_dir(directory, agressive=True)
+    directory = file_util.create_dir(directory, agressive=True)
 
     l_values, k_values, z = results.get_densities(n)
     z = round_all_values(M=z, num_points=2)     # Round to two decimal points to make it readable
 
-    plot.graph_heatmap(
+    heatmap_plot.graph_heatmap(
         x=l_values,
         y=k_values,
         z=z,
@@ -55,19 +57,19 @@ def __generate_density_heatmap(results: Results, directory: str, n: int, include
         title=f"Density of set after local optimization (n={n}, size={results.planted_sizes[n]})",
         x_axis_title="Size of Headstart Set (l)",
         y_axis_title="Size of Intersection in Headstart Set (k)",
-        color=plot.HeatMapColor.REDS,
+        color=heatmap_plot.HeatMapColor.REDS,
         include_annotation=include_annotation,
         plot_size = 10
     )
 
 def __generate_subset_size_heatmap(results: Results, directory: str, n: int, include_annotation: bool = True):
     file_name: str = __generate_file_name("subset-size-heatmap", n)
-    directory = plot.create_dir(directory, agressive=True)
+    directory = file_util.create_dir(directory, agressive=True)
 
     l_values, k_values, z = results.get_subset_sizes(n)
     z = round_all_values(M=z, num_points=2)     # Round to two decimal points to make it readable
 
-    plot.graph_heatmap(
+    heatmap_plot.graph_heatmap(
         x=l_values,
         y=k_values,
         z=z,
@@ -78,7 +80,7 @@ def __generate_subset_size_heatmap(results: Results, directory: str, n: int, inc
         title=f"Sol. size after loc. opt. (n={n}, size={results.planted_sizes[n]})",
         x_axis_title="Headstart Set (l)",
         y_axis_title="Initial Intersection (k)",
-        color=plot.HeatMapColor.REDS,
+        color=heatmap_plot.HeatMapColor.REDS,
         include_annotation=include_annotation,
         plot_size = 10
     )
@@ -168,15 +170,15 @@ def generate_csv(results_name: str, csv_dir: str, today: bool):
         sys.exit(0)
 
     # Put the relevant data into csv format
-    directory = plot.create_dir(csv_dir, agressive=True)
+    directory = file_util.create_dir(csv_dir, agressive=True)
     for n in results.n_values:
         l_values, k_values, densities = results.get_densities(n)
         l_values, k_values, intersection = results.get_intersection_sizes(n)
         l_values, k_values, subset_size = results.get_subset_sizes(n)
 
-        plot.write_2d_to_csv(k_values, l_values, densities, f"{directory}/densities(n={n})")
-        plot.write_2d_to_csv(k_values, l_values, intersection, f"{directory}/intersection(n={n})")
-        plot.write_2d_to_csv(k_values, l_values, subset_size, f"{directory}/subset_sizes(n={n})")
+        csv_plot.write_2d_to_csv(k_values, l_values, densities, f"{directory}/densities(n={n})")
+        csv_plot.write_2d_to_csv(k_values, l_values, intersection, f"{directory}/intersection(n={n})")
+        csv_plot.write_2d_to_csv(k_values, l_values, subset_size, f"{directory}/subset_sizes(n={n})")
 
         
     

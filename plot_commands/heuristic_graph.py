@@ -6,15 +6,13 @@ import networkx as nx
 
 from util.storage import load
 from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name, StatInfo
-import util.plot as plot
-from util.misc import round_all_values
+import util.file_util as file_util
+import util.plot.plot as plot
 
-@click.group()
-def run():
-    pass
+
 
 def __generate_graphs(results: HeuristicResults, directory: str):
-    directory = plot.create_dir(directory, agressive=True)
+    directory = file_util.create_dir(directory, agressive=True)
 
     n_values: [int] = results.get_n_values()
 
@@ -59,10 +57,10 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         y_spacing=0.25
     )
 
-
-@run.command()
-@click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name automatically to results generated today.")
-def generate_graphs(today):
+@click.command()
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
+@click.option("--directory", required=False, help="The directory to store the results in")
+def plot_heuristics_graphs(today, directory):
     if not today:
         pickle_name = click.prompt("Please enter the file for the results", type=str)
     else:
@@ -76,10 +74,7 @@ def generate_graphs(today):
     if not results:
         click.secho("Could not load results.", err=True)
         sys.exit(0)
-    
-    results_directory = click.prompt("Please enter a directory to store the graphs in.", type=str)
-    __generate_graphs(results, results_directory)
 
-
-if __name__ == "__main__":
-    run()
+    if directory is None: 
+        directory = click.prompt("Please enter a directory to store the graphs in.", type=str)
+    __generate_graphs(results, directory)

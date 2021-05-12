@@ -110,7 +110,7 @@ def profile_heuristic():
 @click.option("--file-name", required=False, multiple=False, type=str)
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def run(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient, verbose):
+def heuristic(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient, verbose):
     #? Check if we are profiling and rec. profile.
     if profile:
         profile_heuristic()
@@ -131,7 +131,3 @@ def run(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient,
     results = run_heuristic(n, num_trials, verbose) 
     if not transient:
         store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
-
-
-if __name__ == "__main__":
-    run()
