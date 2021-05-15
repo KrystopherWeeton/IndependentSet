@@ -19,6 +19,13 @@ def density_after_swap(cur_density: float, subset_size: int, add_degree, rem_deg
 
 
 """
+ Calculate the density of a subset after a swap - Eric
+"""
+def updated_density_after_swap(cur_edges: int, remove_deg: int, add_deg: int, density_constant: float) -> float:
+    return (cur_edges - remove_deg + add_deg) / density_constant
+    
+
+"""
     Calculates the mean of a list of points. Wrapper around library.
 """
 def mean(data: [float]) -> float:

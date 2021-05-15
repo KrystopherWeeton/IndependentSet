@@ -19,10 +19,14 @@ class Metropolis(Heuristic):
         return threshold
 
 
-    def __select_initial_subset(self):
+    def __select_initial_subset(self) -> set:
+        '''
         # Right now just select a random point
         x = random.choice(list(self.G.nodes))
-        return set([x])
+        '''
+        print(random.sample(list(self.G.nodes), math.ceil(math.sqrt(self.G.number_of_nodes()))))
+        subset1 = set(random.sample(list(self.G.nodes), math.ceil(math.sqrt(self.G.number_of_nodes()))))
+        return subset1
 
 
     def _run_heuristic(self):
@@ -36,7 +40,7 @@ class Metropolis(Heuristic):
         # Perform actual metropolis process
         for i in range(max_steps):
             k: int = self.solution.size()
-
+            ''' OLD CODE
             #? Generate a candidate and calculate new density
             node: int = random.choice(list(self.G.nodes))
             removing: bool = node in self.solution
@@ -53,6 +57,22 @@ class Metropolis(Heuristic):
                     self.solution.remove_node(node)
                 else:
                     self.solution.add_node(node)
+            '''
+            # Eric's code:
+            #? Generate a candidate and calculate new density
+            node_remove: int = random.choice(list(self.solution.subset))
+            node_add: int = random.choice(list(self.solution.vertices_not_in_subset))
+            #new_density: float = (self.solution.__edges_in_subset - self.solution.internal_degree(node_remove) + self.solution.internal_degree(node_add)) / self.solution.__density_size_constant
+            new_density: float = formulas.updated_density_after_swap(self.solution.edges_in_subset, self.solution.internal_degree(node_remove), self.solution.internal_degree(node_add), self.solution.density_size_constant)
+            # Edge case: if node_remove and node_add have an edge between them, in the swap they will still have an edge.  Similarly, if no edge, still no edge, so we don't need to worry about that
+            # perform swap
+            #? Calculate acceptance threshold, determine action
+            threshold: float = self.__calc_threshold(new_density, temperature)
+            if random.random() <= threshold:
+                self.solution.add_node(node_add)
+                self.solution.remove_node(node_remove)
+            # End Eric's code
+
 
         # Ran out of steps. Give warning then bail
         print(
