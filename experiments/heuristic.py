@@ -31,7 +31,6 @@ MAX_OPTIMIZER_STEPS: int = 999
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
 # The actual heuristic to run
-
 HEURISTIC: Heuristic = FixedGWW()
 HEURISTIC_METADATA: dict = {
     "num_particles":            lambda n: 2 * int(math.sqrt(n)),
@@ -41,14 +40,7 @@ HEURISTIC_METADATA: dict = {
     "min_threshold":            0.1,
     "verbose":                  True, 
 }
-"""
 
-HEURISTIC: Heuristic = Metropolis()
-HEURISTIC_METADATA: dict = {
-    "temperature": .9999,
-    "max_steps": 100
-}
-"""
 """
 HEURISTIC: Heuristic = GWW()
 

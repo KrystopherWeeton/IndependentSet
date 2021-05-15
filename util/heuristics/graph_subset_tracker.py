@@ -41,8 +41,7 @@ class GraphSubsetTracker:
         other.subset = copy.copy(self.subset)
         other.vertices_not_in_subset = copy.copy(self.vertices_not_in_subset)
         other.__internal_degrees = copy.copy(self.__internal_degrees)
-        other.edges_in_subset = copy.copy(self.edges_in_subset)
-        other.density_size_constant = copy.copy(self.density_size_constant)
+        other.__subset_density = copy.copy(self.__subset_density)
         other.initialized = True
         return other
 
@@ -57,12 +56,7 @@ class GraphSubsetTracker:
         self.__internal_degrees: [int] = [
             count_edge_boundary(self.G, v, self.subset) for v in self.G.nodes
         ]
-        # density = num_edges_in_subgraph / (v*(v-1))
-        self.edges_in_subset = 0
-        for vertex in subset:
-            self.edges_in_subset += self.__internal_degrees[vertex]
-        self.density_size_constant = ((len(subset)) * (len(subset) - 1))
-        #self.__subset_density: float = nx.density(nx.subgraph(self.G, self.subset))
+        self.__subset_density: float = nx.density(nx.subgraph(self.G, self.subset))
 
 
     """
@@ -79,7 +73,7 @@ class GraphSubsetTracker:
         # Update calculated metadata
         for neighbor in self.G.neighbors(node):
             self.__internal_degrees[neighbor] += 1
-        self.edges_in_subset += self.__internal_degrees[node]
+        self.__subset_density = formulas.density_after_add(self.__subset_density, len(self.subset), self.__internal_degrees[node])
 
 
     """
@@ -134,7 +128,7 @@ class GraphSubsetTracker:
         # Update calculated metadata
         for neighbor in self.G.neighbors(node):
             self.__internal_degrees[neighbor] -= 1
-        self.edges_in_subset -= self.__internal_degrees[node]
+        self.__subset_density = formulas.density_after_rem(self.__subset_density, len(self.subset), self.__internal_degrees[node])
 
 
     """
@@ -152,7 +146,7 @@ class GraphSubsetTracker:
     def density(self) -> float:
         if not self.initialized:
             raise Exception("Attempt to run operations on graph subset tracker without initialization.")
-        return self.edges_in_subset / self.density_size_constant
+        return self.__subset_density
 
     
     """
