@@ -8,6 +8,7 @@ from util.storage import load
 from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name, StatInfo
 import util.file_util as file_util
 import util.plot.plot as plot
+import util.plot.series as series
 
 
 
@@ -37,7 +38,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         y_title="Planted Ind. Set Intersection Size",
         file_name="intersection-sizes",
         other_y_series=[intersection_means, planted_sizes],
-        other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Size")],
+        other_y_formatting=[series.LIGHT_GRAY("Average"), series.LIGHT_GREEN("Planted Size")],
         directory=directory,
         x_spacing=5,
         y_spacing=0.25
@@ -51,7 +52,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         y_title="Resulting Subset Size",
         file_name="subset-sizes",
         other_y_series=[[x.mean for x in subset_sizes]],
-        other_y_formatting=[plot.LIGHT_GRAY("Average")],
+        other_y_formatting=[series.LIGHT_GRAY("Average")],
         directory=directory,
         x_spacing=5,
         y_spacing=0.25

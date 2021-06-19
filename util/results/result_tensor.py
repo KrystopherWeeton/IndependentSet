@@ -116,7 +116,7 @@ class ResultTensor:
 
     
     def collapse_to_list(self, f = mean) -> np.ndarray:
-        m: np.array = np.zeris(self.__dimension_sizes[0])
+        m: np.array = np.zeros(self.__dimension_sizes[0])
         size: int = self.__dimension_sizes[0]
         for r in range(size):
             m[r] = f(self.results[r])

@@ -21,6 +21,10 @@ class GraphSubsetTracker:
 
     
     def initialize(self, G: nx.graph, initial_subset: set = set()):
+        #? Type check inputs
+        if not isinstance(initial_subset, set):
+            raise Exception("Graph subset tracker passed non set argument.")
+
         # Sets simple metadata to track
         self.G: nx.graph = G
         self.set_subset(initial_subset)

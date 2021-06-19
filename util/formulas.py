@@ -1,4 +1,6 @@
 import statistics
+from typing import List
+import itertools
 
 """
     Calculates the density of a subset provided the current density, 
@@ -30,3 +32,11 @@ def mean(data: [float]) -> float:
 """
 def std_dev(data: [float]) -> float:
     return statistics.stdev(data)
+
+
+
+"""
+    Returns a list of all subsets of S of size m
+"""
+def subsets(S: set, m: int) -> List:
+    return [set(s) for s in itertools.combinations(S, m)]
