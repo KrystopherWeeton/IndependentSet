@@ -31,7 +31,8 @@ def plot_sa_trace(today, file_name):
     intersection_sizes = list(results.intersection_results.collapse_to_list())
     sizes = list(results.size_results.collapse_to_list())
 
+    #? Graph everything
     plot.initialize_figure("Step", "", "Size / Intersection", (20, 8))
     plot_series(steps, sizes, SIZE_FORMATTING)
     plot_series(steps, intersection_sizes, INTERSECTION_FORMATTING)
-    plot.show_plot()
+    plot.save_plot(file_name, directory="results")
