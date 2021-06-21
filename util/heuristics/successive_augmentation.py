@@ -55,9 +55,11 @@ class SuccessiveAugmentation(Heuristic):
         def f(v, S: GraphSubsetTracker) -> bool:
             m: int = S.size()
             #! Somewhere near expectation?
-            threshold: int = (math.sqrt(m) * (math.sqrt(m) - 1)) / 2
+            #threshold: int = (math.sqrt(m) * (math.sqrt(m) - 1)) / 2
             #! Oracle call here. Not realistic!
-            #threshold: int = (m - intersection_oracle(S.subset)) / 2
+            threshold: int = (m - intersection_oracle(S.subset)) / 2 - 3
+            if threshold < 0:
+                threshold = 0
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
 
