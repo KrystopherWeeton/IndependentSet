@@ -19,7 +19,8 @@ INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")
 @click.option("--file-name", required=False, help="The file name to save the graph as. Prompt will be provided if option not provided.")
-def plot_sa_trace(today, file_name):
+@click.option("--transient", required=False, is_flag=True, default=False, help="Shows the plot instead of saving.")
+def plot_sa_trace(today, file_name, transient):
     #? Load results and generate file name if not set
     results: SuccAugResults = verify_and_load_results(
         today, generate_sa_results_file_name, SuccAugResults
@@ -35,4 +36,7 @@ def plot_sa_trace(today, file_name):
     plot.initialize_figure("Step", "", "Size / Intersection", (20, 8))
     plot_series(steps, sizes, SIZE_FORMATTING)
     plot_series(steps, intersection_sizes, INTERSECTION_FORMATTING)
-    plot.save_plot(file_name, directory="results")
+    if transient:
+        plot.show_plot()
+    else:
+        plot.save_plot(file_name, directory="results")
