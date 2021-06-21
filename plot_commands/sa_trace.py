@@ -7,6 +7,15 @@ from util.results.sa_results import SuccAugResults, generate_sa_results_file_nam
 from util.plot.series import SeriesFormatting, plot_series, SeriesFormatting
 import util.plot.plot as plot
 
+
+SIZE_FORMATTING: SeriesFormatting = SeriesFormatting(
+    "Subset Size", "gray", 1, False, "-o"
+)
+
+INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
+    "Intersection Size", "blue", 1, False, "-o"
+    ) 
+
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")
 @click.option("--file-name", required=False, help="The file name to save the graph as. Prompt will be provided if option not provided.")
@@ -31,18 +40,12 @@ def plot_sa_trace(today, file_name):
             click.secho("Invalid file name provided.", err=True)
             sys.exit(0) 
 
-    #? Set formatting for series
-    size_formatting: SeriesFormatting = SeriesFormatting("Subset Size", "gray", 1, False, "-o")
-    intersection_formatting: SeriesFormatting = SeriesFormatting(
-        "Intersection Size", "blue", 1, False, "-o"
-        )
-
     #? Gather data for series
     steps = list(range(results.n))
     intersection_sizes = list(results.intersection_results.collapse_to_list())
     sizes = list(results.size_results.collapse_to_list())
 
     plot.initialize_figure("Step", "", "Size / Intersection", (20, 8))
-    plot_series(steps, sizes, size_formatting)
-    plot_series(steps, intersection_sizes, intersection_formatting)
+    plot_series(steps, sizes, SIZE_FORMATTING)
+    plot_series(steps, intersection_sizes, INTERSECTION_FORMATTING)
     plot.show_plot()
