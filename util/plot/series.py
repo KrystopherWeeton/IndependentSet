@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from typing import Callable
 
 class SeriesFormatting:
     def __init__(self, 
@@ -49,4 +50,3 @@ def plot_series(
             color=formatting.color,
             alpha=formatting.alpha
         )
-

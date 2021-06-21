@@ -10,6 +10,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enum import Enum
 from util.models.stat_info import StatInfo
 from util.plot.series import plot_series, SeriesFormatting
+from typing import Callable
 
 def draw_hist(values, file_name: str):
     plt.close()
@@ -98,3 +99,44 @@ def save_plot(file_name: str, directory: str = None):
     else:
         plt.savefig(f"{file_name}.png")
         plt.clf() 
+
+
+# Annotates points provided on the active plot
+def annotate_all_points(
+    x_points: [float],      # x points
+    y_points: [float],      # y points
+    annotations: [str],     # Annotations for each point
+    x_offset: int,          # x offset for annotations
+    y_offset: int,          # y offset for annotations
+):
+    for i, label in enumerate(annotations):
+        plt.annotate(
+            label, 
+            (x_points[i], y_points[i]), 
+            xytext=(x_offset, y_offset), 
+            textcoords="offset pixels"
+        )
+
+
+# Uses a function to generate annotations for each point provided
+def annotate_points(
+    x_points: [float],
+    y_points: [float],
+    k: int,                 # Will annotate the k'th element 
+    annotator: Callable,    # Annotation generation function (x, y) -> str
+    x_offset: int,          # x offset for annotations
+    y_offset: int,          # y offset for annotations
+):
+    #? Validate arguments
+    if len(x_points) != len(y_points):
+        raise Exception(f"Cannot annotate labels with unequal lengths. |x|={len(x_points)}, |y|={len(y_points)}")
+    #? Generate annotations and pass through to helper function
+    annotations: [str] = []
+    for i in range(len(x_points)):
+        if i % k == 0:
+            annotations.append(annotator(x_points[i], y_points[i]))
+        else:
+            annotations.append("")
+    annotate_all_points(
+        x_points, y_points, annotations, x_offset, y_offset
+    )

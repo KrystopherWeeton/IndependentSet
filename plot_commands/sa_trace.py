@@ -16,6 +16,8 @@ INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Intersection Size", "blue", 1, False, "-o"
     ) 
 
+NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
+
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")
 @click.option("--file-name", required=False, help="The file name to save the graph as. Prompt will be provided if option not provided.")
@@ -32,10 +34,27 @@ def plot_sa_trace(today, file_name, transient):
     intersection_sizes = list(results.intersection_results.collapse_to_list())
     sizes = list(results.size_results.collapse_to_list())
 
-    #? Graph everything
+    #? Graph everything and add annotations
     plot.initialize_figure("Step", "", "Size / Intersection", (20, 8))
     plot_series(steps, sizes, SIZE_FORMATTING)
     plot_series(steps, intersection_sizes, INTERSECTION_FORMATTING)
+    plot.annotate_points(
+        steps, 
+        sizes, 
+        results.n // NUM_ANNOTATIONS, 
+        lambda x, y : f"{y :.2f}",
+        0,
+        50
+    )
+    plot.annotate_points(
+        steps, 
+        intersection_sizes, 
+        results.n // NUM_ANNOTATIONS, 
+        lambda x, y: f"{y :.2f}",
+        0,
+        50,
+    )
+
     if transient:
         plot.show_plot()
     else:
