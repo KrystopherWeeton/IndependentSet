@@ -63,7 +63,7 @@ class SuccessiveAugmentation(Heuristic):
 
         #? Run successive augmentation
         subset: GraphSubsetTracker =  create_graph_subset_tracker(self.G, seed_subset)
-        step: int = 1
+        step: int = 0
         for v in self.G.nodes:
             if v in subset.subset:
                 continue
@@ -77,7 +77,9 @@ class SuccessiveAugmentation(Heuristic):
             step += 1
 
         #? Prune to get a final solution
-        self.solution = create_graph_subset_tracker(self.G, self.__greedily_get_ind_subset(subset))
+        #! Stop pruning for now. We can add this back in.
+        #self.solution = create_graph_subset_tracker(self.G, self.__greedily_get_ind_subset(subset))
+        self.solution = subset
 
 
 

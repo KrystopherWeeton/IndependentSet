@@ -30,7 +30,7 @@ def plot_sa_trace(today, file_name, transient):
     file_name = prompt_file_name(file_name)
 
     #? Gather data for series
-    steps = list(range(results.n))
+    steps = results.step_values
     intersection_sizes = list(results.intersection_results.collapse_to_list())
     sizes = list(results.size_results.collapse_to_list())
 
@@ -52,7 +52,12 @@ def plot_sa_trace(today, file_name, transient):
         results.n // NUM_ANNOTATIONS, 
         lambda x, y: f"{y :.2f}",
         0,
-        50,
+        30,
+    )
+    plot.add_notes(
+        f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\nSize: {results.final_size}\nIntersection: {results.final_intersection}", 
+        0.05,
+        0.9,
     )
 
     if transient:

@@ -140,3 +140,20 @@ def annotate_points(
     annotate_all_points(
         x_points, y_points, annotations, x_offset, y_offset
     )
+
+
+# Used to add 'notes' to a graph in the top right corner
+def add_notes(
+    notes: str,
+    x: int,
+    y: int,
+):
+    ax = plt.gca()
+    plt.text(
+        x, 
+        y, 
+        notes, 
+        horizontalalignment="left",
+        verticalalignment="center",
+        transform=ax.transAxes
+    )
