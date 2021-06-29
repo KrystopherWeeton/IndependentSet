@@ -19,8 +19,6 @@ from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 from util.storage import store
 from util.local_search_results import Results
 
-import tests.local_optimization_tests as local_optimization_tests
-
 
 ##########################################
 #       Configurations for local optimization
@@ -159,12 +157,3 @@ def local_search(n: [int], num_trials, file_name, profile):
         profiler.disable()
         stats = pstats.Stats(profiler).sort_stats('cumtime')
         stats.print_stats()
-
-"""
-@run.command()
-def run_unit_tests():
-    passes: int = 0
-    passes += local_optimization_tests.run_tests()
-
-    print(f"All {passes} tests passed.")
-"""
