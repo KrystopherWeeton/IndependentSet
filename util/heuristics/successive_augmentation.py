@@ -1,6 +1,6 @@
 from util.heuristics.heuristic import Heuristic
 from util.results.sa_results import SuccAugResults
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
+from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.graph import count_edge_boundary
 from util.formulas import subsets
 from typing import Callable
@@ -64,7 +64,7 @@ class SuccessiveAugmentation(Heuristic):
             return internal_degree <= threshold
 
         #? Run successive augmentation
-        subset: GraphSubsetTracker =  create_graph_subset_tracker(self.G, seed_subset)
+        subset: GraphSubsetTracker = GraphSubsetTracker(self.G, seed_subset)
         step: int = 0
         for v in self.G.nodes:
             if v in subset.subset:
