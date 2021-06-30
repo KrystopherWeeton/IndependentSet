@@ -50,3 +50,21 @@ def plot_series(
             color=formatting.color,
             alpha=formatting.alpha
         )
+
+
+def plot_function(
+    x_points: [float],
+    func: Callable,
+    formatting: SeriesFormatting = DEFAULT_SERIES_FORMATTING
+):
+    """
+        Plots the provided function
+            x_points: The x values to evaluate at
+            func: A function f(x) to plot
+            formatting: Formatting for the series
+    """
+    plot_series(
+        x_points,
+        [func(x) for x in x_points],
+        formatting
+    )
