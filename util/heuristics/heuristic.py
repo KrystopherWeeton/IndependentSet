@@ -58,7 +58,8 @@ class Heuristic:
 
 class SeededHeuristic(Heuristic):
 
-    def __init__(self):
+    def __init__(self, expected_metadata_keys: dict = None):
+        super().__init__(expected_metadata_keys)
         self.seed: set = None
 
 
