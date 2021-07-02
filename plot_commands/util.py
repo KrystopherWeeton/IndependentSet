@@ -49,7 +49,7 @@ def verify_and_load_results(
 """
 def prompt_file_name(file_name: str) -> str:
     if file_name is None:
-        file_name = click.propt("Resulting Graph File", type=str)
+        file_name = click.prompt("Resulting Graph File", type=str)
         if file_name is None:
             click.secho("Invalid file name provided. Exiting.", err=True)
             sys.exit(0)

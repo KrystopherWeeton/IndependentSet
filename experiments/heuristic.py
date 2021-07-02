@@ -131,3 +131,7 @@ def heuristic(profile, n: [int], min_n, max_n, step, num_trials, file_name, tran
     results = run_heuristic(n, num_trials, verbose) 
     if not transient:
         store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
+
+
+
+

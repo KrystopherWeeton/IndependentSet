@@ -1,4 +1,4 @@
-from util.heuristics.heuristic import Heuristic
+from util.heuristics.heuristic import Heuristic, SeededHeuristic
 from util.results.sa_results import SuccAugResults
 from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.graph import count_edge_boundary
@@ -8,14 +8,13 @@ import math
 import sys
 
 
-class SuccessiveAugmentation(Heuristic):
+class SuccessiveAugmentation(SeededHeuristic):
 
     def __init__(self, results: SuccAugResults):
         super().__init__(
             expected_metadata_keys=[
                 "K",
                 "intersection_oracle",
-                "seed_subset",
                 "trial",
             ]
         )
@@ -43,7 +42,6 @@ class SuccessiveAugmentation(Heuristic):
         N: int = len(self.G.nodes)
         K: int = self.metadata["K"]
         intersection_oracle: Callable = self.metadata["intersection_oracle"]
-        seed_subset: set = self.metadata["seed_subset"]
         trial: int = self.metadata["trial"]
 
         #? Metadata validation
@@ -65,7 +63,7 @@ class SuccessiveAugmentation(Heuristic):
             return internal_degree <= threshold
 
         #? Run successive augmentation
-        subset: GraphSubsetTracker = GraphSubsetTracker(self.G, seed_subset)
+        subset: GraphSubsetTracker = GraphSubsetTracker(self.G, self.seed)
         step: int = 0
         for v in self.G.nodes:
             if v in subset.subset:

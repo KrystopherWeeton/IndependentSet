@@ -53,3 +53,18 @@ class Heuristic:
     """
     def _run_heuristic(self):
         raise RuntimeError("This is an abstract function. Implement in subclass.")
+
+
+
+class SeededHeuristic(Heuristic):
+
+    def __init__(self):
+        self.seed: set = None
+
+
+    def run_heuristic(self, G: nx.graph, seed: set, metadata: dict = None):
+        if seed is None:
+            raise RuntimeError("Cannot run seeded heuristic with no seeded subset.")
+
+        self.seed = seed
+        super().run_heuristic(G, metadata)

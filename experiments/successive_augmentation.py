@@ -36,10 +36,9 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
         metadata = copy.copy(BASE_METADATA)
         metadata["K"] = planted_ind_set_size(n)
         metadata["intersection_oracle"] = lambda x : len(x.intersection(B))
-        metadata["seed_subset"] = set(random.sample(B, k=HEADSTART_SIZE))
         metadata["trial"] = t
         sa.clear()
-        sa.run_heuristic(G, metadata)
+        sa.run_heuristic(G, metadata, set(random.sample(B, k=HEADSTART_SIZE)))
         #? Gather final results and store
         intersection_size: int = len(sa.solution.subset.intersection(B))
         size: int = len(sa.solution.subset)
