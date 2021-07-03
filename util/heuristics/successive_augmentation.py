@@ -55,7 +55,7 @@ class SuccessiveAugmentation(SeededHeuristic):
             #! Somewhere near expectation?
             #threshold: int = (math.sqrt(m) * (math.sqrt(m) - 1)) / 2
             #! Oracle call here. Not realistic!
-            #threshold: int = (m - intersection_oracle(S.subset)) / 2 - 3
+            # threshold: int = (m - intersection_oracle(S.subset)) / 2 - 3
             threshold: int = (m - intersection_oracle(S.subset)) / 2
             if threshold < 0:
                 threshold = 0
