@@ -1,10 +1,10 @@
-import networkx as nx
-import util.formulas as formulas
-import random as random
 import copy
+import random as random
+
+import networkx as nx
+
+import util.formulas as formulas
 from util.graph import count_edge_boundary
-
-
 
 """
 A class which tracks a subset and some relevant metadata, allowing limited access to

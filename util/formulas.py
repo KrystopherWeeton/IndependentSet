@@ -1,6 +1,6 @@
+import itertools
 import statistics
 from typing import List
-import itertools
 
 """
     Calculates the density of a subset provided the current density, 

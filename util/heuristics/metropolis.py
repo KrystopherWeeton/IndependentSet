@@ -1,7 +1,9 @@
-import random
-from util.heuristics.heuristic import Heuristic
-import util.formulas as formulas
 import math
+import random
+
+import util.formulas as formulas
+from util.heuristics.heuristic import Heuristic
+
 
 class Metropolis(Heuristic):
 

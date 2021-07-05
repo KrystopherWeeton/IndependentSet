@@ -1,16 +1,19 @@
-from typing import List, Tuple
-import matplotlib.pyplot as plt  # Used for plotting results
 import os
 import random
-from mpl_toolkits import mplot3d
-import numpy as np
-import matplotlib.cm as cmap        # Used for heatmaps
-from matplotlib.axes import Axes    # Used for advanced plotting things (heatmaps)
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enum import Enum
+from typing import Callable, List, Tuple
+
+import matplotlib.cm as cmap  # Used for heatmaps
+import matplotlib.pyplot as plt  # Used for plotting results
+import numpy as np
+from matplotlib.axes import \
+    Axes  # Used for advanced plotting things (heatmaps)
+from mpl_toolkits import mplot3d
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from util.models.stat_info import StatInfo
-from util.plot.series import plot_series, SeriesFormatting
-from typing import Callable
+from util.plot.series import SeriesFormatting, plot_series
+
 
 def draw_hist(values, file_name: str):
     plt.close()

@@ -1,5 +1,6 @@
 import util.formulas as formulas
 
+
 class StatInfo:
     def __init__(self, data: [float]):
         if len(data) == 1:

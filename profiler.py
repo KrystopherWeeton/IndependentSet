@@ -3,6 +3,7 @@ import click
 
 from experiments.successive_augmentation import profile_successive_augmentation
 
+
 @click.group()
 def run():
     pass

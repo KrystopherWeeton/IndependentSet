@@ -1,9 +1,10 @@
-import itertools
-import numpy as np
-from typing import Tuple, List
-from pprint import pprint
-import math
 import copy
+import itertools
+import math
+from pprint import pprint
+from typing import List, Tuple
+
+import numpy as np
 
 
 def mean(X: np.array) -> float:

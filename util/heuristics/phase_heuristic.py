@@ -1,8 +1,7 @@
-from util.heuristics.heuristic import Heuristic, SeededHeuristic
-from util.models.graph_subset_tracker import GraphSubsetTracker
-
 import copy
 
+from util.heuristics.heuristic import Heuristic, SeededHeuristic
+from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
 class PhaseHeuristic(Heuristic):

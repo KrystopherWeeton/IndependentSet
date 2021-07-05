@@ -1,8 +1,14 @@
-from util.local_optimization.local_optimization import LocalOptimizer, density_after_add, density_after_rem, density_after_swap
+import math
+import random
+
 import networkx as nx
 import numpy as np
-import random
-import math
+
+from util.local_optimization.local_optimization import (LocalOptimizer,
+                                                        density_after_add,
+                                                        density_after_rem,
+                                                        density_after_swap)
+
 
 class Metropolis(LocalOptimizer):
     def __init__(self, temperature):

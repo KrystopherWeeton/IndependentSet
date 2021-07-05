@@ -1,7 +1,8 @@
+import inspect
 from datetime import date
+
 import util.formulas as formulas
 from util.models.stat_info import StatInfo
-import inspect
 
 
 def generate_heuristic_results_file_name() -> str:

@@ -1,6 +1,8 @@
+import random
+
 import networkx as nx
 import numpy as np
-import random
+
 
 # Right now very simple, just return a random vertex (unless we start with hint)
 def get_init_state(g: nx.Graph, ) -> set:
