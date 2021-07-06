@@ -10,11 +10,15 @@ import numpy as np
 def mean(X: np.array) -> float:
     return sum(X) / X.size
 
+def next_power_of_2(x):
+    return 1 if x == 0 else 2**math.ceil(math.log2(x))
 
 class DynamicResultTensor:
     def __init__(self):
-        self.__dynamic_keys: [int] = []
-        self.__dynamic_name: str = None
+        #! Note this value is disallowed to allow for padding, which I can't
+        #! figure out how to do with a non-integer. For now this can be -1,
+        #! but it may need to change if we start collecting negative results.
+        self.DISALLOWED_RESULT: int = -1
 
         self.__dimension_names: [str] = []
         self.__dimension_sizes: [int] = []
@@ -39,14 +43,6 @@ class DynamicResultTensor:
     def __dim_size(self, dimension: str) -> int:
         """ Returns the size of the provided dimension """
         return self.__dimension_sizes[self.__dimension_indices[dimension]]
-
-    def __dim_keys(self, dimension: str) -> [int]:
-        """ Returns the keys (shallow copy) of the provided dimension """
-        return self.__dimension_keys[self.__dimension_indices[dimension]]
-
-    def __get_index(self, dimension: str, key: int) -> int:
-        """ Turns the key into an index for the provided dimension """
-        return self.__dim_keys(dimension).index(key)
 
     def __to_indices(self, kwargs) -> Tuple:
         """ Returns a tuple of all the keys turned into indices """
@@ -121,10 +117,10 @@ class DynamicResultTensor:
         # Iterate through the dimensions so we can check them 1 by 1
         for dim_index in range(self.__num_dimensions):
             dim_name, j = items[dim_index]
-            capacity: int = self.__dimension_capacities[i]
+            capacity: int = self.__dimension_capacities[dim_index]
             # Validate value provided is within current capacity
-            if j >= i:
-                return (i, j + 1)
+            if j >= capacity:
+                return (dim_index, j+1)
         return None
     
 
@@ -133,11 +129,25 @@ class DynamicResultTensor:
             Resizes the provided dimension by making it the first power of two at least as large as
             minimum capacity.
         """
-        # TODO: Implement this.
+        # Calculate arguments for padding and pad
+        cur_capacity: int = self.__dimension_capacities[dimension]
+        new_capacity: int = next_power_of_2(min_capacity)
+        pad_amount: int = new_capacity - cur_capacity
+        pad_width: [(int, int)] = [(0, pad_amount if i = dimension else 0) for i in range(self.__num_dimensions)]
+        np.pad(self.results, pad_width, 'constant', constant_values=(self.DISALLOWED_RESULT))
+        # Adjust trackers and return
+        self.__dimension_capacities[dimension] = new_capacity
 
     def __increase_sizes(self, kwargs):
-        # TODO: Implement this
-        pass
+        items = list(kwargs.items())
+        for dim_index in range(self.__num_dimensions):
+            dim_name, j = items[dim_index]
+            capacity: int = self.__dimension_capacities[dim_index]
+            if j >= capacity:
+                raise Exception(
+                    "Dynamic Result Tensor can't increase size past capacity"
+                )
+            self.__dimension_sizes[dim_index]=j+1
 
     def add_result(self, result, **kwargs) -> bool:
         """
@@ -148,6 +158,10 @@ class DynamicResultTensor:
         if not self.dimensions_fixed:
             raise Exception(
                 "Attempt to add result with dimensions not fixed in results dict"
+            )
+        elif result == self.DISALLOWED_RESULT:
+            raise Exception(
+                "Cannot add disallowed result. Please view comment by var. definition."
             )
         self.__validate_kwargs_access(kwargs)
         # Until all dimensions have enough capacity, repeatedly increase capacity
@@ -204,13 +218,24 @@ class DynamicResultTensor:
                 l.append((key, M[row][col]))
         return l
     
-    def validate_filled(self) -> bool:
+    def validate_filled(self, verbose: bool = False) -> bool:
         """
             Validates that all entries up to the size of each dimension have been filled.
             Used to validate that an experiment has left no holes, e.g. skipping some 
             trials or steps.
+                NOTE: Verbose can be passed to print out more detailed errors, e.g. the 
+                minimum index where the first error is found.
         """
-        # TODO: Implement validate_filled
+        # Gather where data
+        dimension_indices = np.where(self.results == self.DISALLOWED_RESULT)
+        min_dimension_indices = [min(indices) for indices in dimension_indices]
+        for dim_index, minimum_null in enumerate(min_dimension_indices):
+            size: int = self.__dimension_sizes[dim_index]
+            if minimum_null < size:
+                if verbose:
+                    print(f"[V] Found unfilled index at dim={dim_index} where size is {size} but there is an entry at {minimum_null} which is 'null'.")
+                return False
+        return True
 
     def __str__(self) -> str:
         return f"<{[self.__dimension_names]}>"
