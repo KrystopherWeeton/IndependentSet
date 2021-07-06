@@ -58,7 +58,8 @@ class DynamicResultTensor:
     
     def add_dimension(self, dimension_name: str, initial_capacity: int = 100):
         """
-            TODO: Need to add in comment here.
+            Adds in a dimension with the provided name, and the provided initial capacity with 0 entries
+                NOTE: `initial_capacity` defaults to 100 if not provided.
         """
         if self.dimensions_fixed:
             raise Exception(
@@ -107,25 +108,36 @@ class DynamicResultTensor:
                     "Invalid index access to dimension."
                 )
 
-    def __does_dimension_need_to_change(self, kwargs) -> (int, int):
+    def __does_capacity_need_to_change(self, kwargs) -> (int, int):
         """
             Determines if the access requires rebalancing the provided dimensions.
 
                 `None` is returned when no resizing needs to be done
 
-                (dimension, minimum_size)  is returned when `dimension` needs to be resized to at least
+                (dimension, minimum_capacity)  is returned when `dimension` needs to be resized to at least
                 `minimum_size`
         """
-        # TODO: Implement this.
+        items = list(kwargs.items())
+        # Iterate through the dimensions so we can check them 1 by 1
+        for dim_index in range(self.__num_dimensions):
+            dim_name, j = items[dim_index]
+            capacity: int = self.__dimension_capacities[i]
+            # Validate value provided is within current capacity
+            if j >= i:
+                return (i, j + 1)
+        return None
     
 
-    def __resize_dimension(self, dimension: int, minimum_size: int):
+    def __increase_capacity(self, dimension: int, min_capacity: int):
         """
             Resizes the provided dimension by making it the first power of two at least as large as
-            minimum size.
+            minimum capacity.
         """
         # TODO: Implement this.
 
+    def __increase_sizes(self, kwargs):
+        # TODO: Implement this
+        pass
 
     def add_result(self, result, **kwargs) -> bool:
         """
@@ -138,12 +150,17 @@ class DynamicResultTensor:
                 "Attempt to add result with dimensions not fixed in results dict"
             )
         self.__validate_kwargs_access(kwargs)
-
-        # TODO: Validate and resize dimensions as necessary to make indexing make actual sense
-
+        # Until all dimensions have enough capacity, repeatedly increase capacity
+        t = self.__does_capacity_need_to_change(kwargs)
+        while t != None:
+            self.__increase_capacity(t[0], t[1])
+        # Increase size where appropriate
+        self.__increase_sizes(kwargs)
+        # Translate to proper indices and set value
         indices = self.__to_indices(kwargs)
         self.results[indices] = result
         self.results_collected += 1
+
 
     def get_results(self, **kwargs) -> bool:
         # Validate state and arguments provided
