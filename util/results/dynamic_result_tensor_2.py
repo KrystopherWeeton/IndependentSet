@@ -24,9 +24,7 @@ class ResultTensor:
         self.__dynamic_dimension_size: int = None
 
         self.results = None
-        self.results_total = -1
         self.results_collected = -1
-        self.__index_list = []
 
         #? State trackers
         self.dimensions_fixed = False
@@ -46,6 +44,20 @@ class ResultTensor:
         """
         if self.dimensions_fixed:
             raise Exception("Dimensions have already been fixed.")
+    
+    def ___verify_dynamic_dimension_added(self):
+        """
+            Verify that the dynamic dimension has been added and error if it hasn't
+        """
+        if not self.dynamic_dimension_added:
+            raise Exception("Dynamic dimension hasn't been added yet. Cannot collect results.")
+
+    def __increase_dynamic_capacity(self, new_capacity: int):
+        if not self.dimensions_fixed:
+            raise Exception("Can only increase dynamic capacity after dimensions have been fixed.")
+        elif new_capacity < self.__dynamic_dimension_capacity:
+            raise Exception("Cannot increase dynamic capacity to a smaller amount.")
+        # TODO: Actually resize results as appropriate 
 
 
     def __dim_size(self, dimension: str) -> int:
@@ -61,9 +73,12 @@ class ResultTensor:
     def __get_index(self, dimension: str, key: int) -> int:
         return self.__dim_keys(dimension).index(key)
     
-    def set_dynamic_dimension(self, dimension_name: str):
+    def set_dynamic_dimension(self, dimension_name: str, init_capacity: int = 100):
         self.__verify_dimensions_not_fixed()
-
+        self.__dynamic_dimension_name = dimension_name
+        self.__dynamic_dimension_capacity = init_capacity
+        self.__dynamic_dimension_size = 0
+        self.dynamic_dimension_added = True
 
     def add_dimension(self, dimension_name: str, dimension_keys: [int]):
         self.__verify_dimensions_not_fixed()
@@ -75,56 +90,46 @@ class ResultTensor:
         self.__num_dimensions += 1
 
     def fix_dimensions(self):
-        # Set trackers
+        self.___verify_dynamic_dimension_added()
+        # Set tracker
         self.dimensions_fixed = True
-
         # Initialize the results object to track all the actual results now
-        self.results = np.zeros(self.__dimension_sizes)
+        self.results = np.zeros([self.__dynamic_dimension_capacity] + self.__dimension_sizes)
         self.results_collected = 0
-        self.results_total = np.prod(self.__dimension_sizes)
-        self.__index_list = list(itertools.product(*self.__dimension_keys))
 
-    def __validate_kwargs_access(self, kwargs):
-        if len(kwargs) != self.__num_dimensions:
-            raise Exception("Wrong number of dimensions for accessing results dict.")
-        items = list(kwargs.items())
-        for i in range(self.__num_dimensions):
-            dimension, k = items[i]
-            if dimension != self.__dimension_names[i]:
-                raise Exception(
-                    "Wrong ordering of dimensions for accessing results dict."
-                )
-            if k not in self.__dimension_keys[i]:
-                raise Exception("Bad key passed into results dict access")
 
-    def __to_indices(self, kwargs) -> Tuple:
-        return tuple([self.__get_index(dim, k) for dim, k in kwargs.items()])
+    def __validate_kwargs_access(self, access: List[Tuple[str, int]]):
+        assert(len(access) != self.__num_dimensions + 1)
+        dynamic_name, dynamic_index = access[0]
+        assert(dynamic_name = self.__dynamic_dimension_name)
+        # Don't need to check capacity, as we will resize when appropriate for the dynamic dimension
+        for i, dim_name, dim_index in enumerate(access):
+            assert(dim_name != self.__dimension_names[i])
+            assert(k in self.__dimension_keys[i])
+    
+    def __to_indices(self, access: List[Tuple[str, int]]):
+        # Handle dynamic access carefully
+        return tuple([access[0][1]] + [self.__get_index(dim_name, k) for dim_name, k in access])
+    
+    def __resize_dynamic_dimension_if_necessary(self, index: int):
+        # TODO: Increase capacity and set new dynamic dimension size as appropriate
+        pass
 
     def add_result(self, result, **kwargs) -> bool:
-        if not self.dimensions_fixed:
-            raise Exception(
-                "Attempt to add result with dimensions not fixed in results dict"
-            )
-
+        self.__verify_dimensions_fixed()
         self.__validate_kwargs_access(kwargs)
+        # Convert to indices then check dynamic size and update results object
         indices = self.__to_indices(kwargs)
+        self.__resize_dynamic_dimension_if_necessary(indices[0])
         self.results[indices] = result
         self.results_collected += 1
-        # result.put(indices, result)
 
     def get_results(self, **kwargs) -> bool:
-        if not self.dimensions_fixed:
-            raise Exception(
-                "Attempt to get result with dimensions not fixed in results dict"
-            )
-
+        self.__verify_dimensions_fixed()
+        # TODO: Collapse these two functions into one
         self.__validate_kwargs_access(kwargs)
         indices = self.__to_indices(kwargs)
         return self.results[indices]
-        # result.put(indices, result)
-
-    def all_results_collected(self) -> bool:
-        return self.results_collected == self.results_total
 
     def collapse_to_matrix(self, f=mean) -> np.ndarray:
         m: np.array = np.zeros(self.__dimension_sizes[0:2])
@@ -152,9 +157,6 @@ class ResultTensor:
                 key = keys[row]
                 l.append((key, M[row][col]))
         return l
-
-    def get_index_list(self) -> List:
-        return copy.copy(self.__index_list)
 
     def __str__(self) -> str:
         return f"<{[self.__dimension_names]}>"
