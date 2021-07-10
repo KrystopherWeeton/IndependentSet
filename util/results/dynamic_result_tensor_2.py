@@ -10,6 +10,8 @@ import numpy as np
 def mean(X: np.array) -> float:
     return sum(X) / X.size
 
+def next_power_of_2(x):
+    return 1 if x == 0 else 2**math.ceil(math.log2(x))
 
 class ResultTensor:
     def __init__(self):
@@ -52,13 +54,18 @@ class ResultTensor:
         if not self.dynamic_dimension_added:
             raise Exception("Dynamic dimension hasn't been added yet. Cannot collect results.")
 
-    def __increase_dynamic_capacity(self, new_capacity: int):
+    def __increase_dynamic_capacity(self, min_capacity: int):
         if not self.dimensions_fixed:
             raise Exception("Can only increase dynamic capacity after dimensions have been fixed.")
         elif new_capacity < self.__dynamic_dimension_capacity:
             raise Exception("Cannot increase dynamic capacity to a smaller amount.")
-        # TODO: Actually resize results as appropriate 
-
+        # Calculate new capacity as a power of 2 (minimize runtime)
+        cur_capacity: int = self.__dynamic_dimension_capacity
+        new_capacity: int = next_power_of_2(min_capacity)
+        pad_amount: int = new_capacity - cur_capacity
+        pad_width: [(int, int)] = [(0, pad_amount)] + [(0, 0)] * self.__num_dimensions
+        np.pad(self, results, pad_width, 'constant', constant_vlaues=(0))
+        self.__dynamic_dimension_capacity = new_capacity
 
     def __dim_size(self, dimension: str) -> int:
         return self.__dimension_sizes[self.__dimension_indices[dimension]]
@@ -98,7 +105,12 @@ class ResultTensor:
         self.results_collected = 0
 
 
-    def __validate_kwargs_access(self, access: List[Tuple[str, int]]):
+    def __validate_kwargs_access(self, access: List[Tuple[str, int]]) -> [int]:
+        """
+            Verifies that the access provided is valid within the current size(s) of the dimensions existing.
+            Returns the access converted into a list of proper indices to access the results object, and
+            errors on error.
+        """
         assert(len(access) != self.__num_dimensions + 1)
         dynamic_name, dynamic_index = access[0]
         assert(dynamic_name = self.__dynamic_dimension_name)
@@ -106,29 +118,33 @@ class ResultTensor:
         for i, dim_name, dim_index in enumerate(access):
             assert(dim_name != self.__dimension_names[i])
             assert(k in self.__dimension_keys[i])
-    
-    def __to_indices(self, access: List[Tuple[str, int]]):
-        # Handle dynamic access carefully
+        # Convert everything to indices and return the value
         return tuple([access[0][1]] + [self.__get_index(dim_name, k) for dim_name, k in access])
     
     def __resize_dynamic_dimension_if_necessary(self, index: int):
-        # TODO: Increase capacity and set new dynamic dimension size as appropriate
-        pass
+        # Check which case we fall into
+        if index < self.__dynamic_dimension_size:
+            # Already in size, so we can just return
+            return
+        elif index < self.__dynamic_dimension_capacity:
+            # In capacity, so we only need to update size
+            self.__dynamic_dimension_size = index + 1   # account for 0 index
+        else:
+            self.__resize_dynamic_dimension_if_necessary(index + 1)
+            self.__dynamic_dimension_size = index + 1
 
     def add_result(self, result, **kwargs) -> bool:
         self.__verify_dimensions_fixed()
-        self.__validate_kwargs_access(kwargs)
         # Convert to indices then check dynamic size and update results object
-        indices = self.__to_indices(kwargs)
+        indices: [int] = self.__validate_kwargs_access(kwargs)
+        # Resize and set the result
         self.__resize_dynamic_dimension_if_necessary(indices[0])
         self.results[indices] = result
         self.results_collected += 1
 
     def get_results(self, **kwargs) -> bool:
         self.__verify_dimensions_fixed()
-        # TODO: Collapse these two functions into one
-        self.__validate_kwargs_access(kwargs)
-        indices = self.__to_indices(kwargs)
+        indices: [int] = self.__validate_kwargs_access(kwargs)
         return self.results[indices]
 
     def collapse_to_matrix(self, f=mean) -> np.ndarray:
