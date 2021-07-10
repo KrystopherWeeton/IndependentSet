@@ -13,7 +13,7 @@ def mean(X: np.array) -> float:
 def next_power_of_2(x):
     return 1 if x == 0 else 2**math.ceil(math.log2(x))
 
-class ResultTensor:
+class DynamicResultTensor:
     def __init__(self):
         self.__dimension_names: [str] = []
         self.__dimension_sizes: [int] = []
@@ -57,14 +57,14 @@ class ResultTensor:
     def __increase_dynamic_capacity(self, min_capacity: int):
         if not self.dimensions_fixed:
             raise Exception("Can only increase dynamic capacity after dimensions have been fixed.")
-        elif new_capacity < self.__dynamic_dimension_capacity:
+        elif min_capacity < self.__dynamic_dimension_capacity:
             raise Exception("Cannot increase dynamic capacity to a smaller amount.")
         # Calculate new capacity as a power of 2 (minimize runtime)
         cur_capacity: int = self.__dynamic_dimension_capacity
         new_capacity: int = next_power_of_2(min_capacity)
         pad_amount: int = new_capacity - cur_capacity
         pad_width: [(int, int)] = [(0, pad_amount)] + [(0, 0)] * self.__num_dimensions
-        np.pad(self, results, pad_width, 'constant', constant_vlaues=(0))
+        self.results = np.pad(self.results, pad_width, 'constant', constant_values=(0))
         self.__dynamic_dimension_capacity = new_capacity
 
     def __dim_size(self, dimension: str) -> int:
@@ -80,10 +80,10 @@ class ResultTensor:
     def __get_index(self, dimension: str, key: int) -> int:
         return self.__dim_keys(dimension).index(key)
     
-    def set_dynamic_dimension(self, dimension_name: str, init_capacity: int = 100):
+    def set_dynamic_dimension(self, dimension_name: str, init_capacity: int = 64):
         self.__verify_dimensions_not_fixed()
         self.__dynamic_dimension_name = dimension_name
-        self.__dynamic_dimension_capacity = init_capacity
+        self.__dynamic_dimension_capacity = next_power_of_2(init_capacity)
         self.__dynamic_dimension_size = 0
         self.dynamic_dimension_added = True
 
@@ -111,15 +111,17 @@ class ResultTensor:
             Returns the access converted into a list of proper indices to access the results object, and
             errors on error.
         """
-        assert(len(access) != self.__num_dimensions + 1)
+        assert(len(access) == self.__num_dimensions + 1)
         dynamic_name, dynamic_index = access[0]
-        assert(dynamic_name = self.__dynamic_dimension_name)
+        access = access[1:]
+        assert(dynamic_name == self.__dynamic_dimension_name)
         # Don't need to check capacity, as we will resize when appropriate for the dynamic dimension
-        for i, dim_name, dim_index in enumerate(access):
-            assert(dim_name != self.__dimension_names[i])
-            assert(k in self.__dimension_keys[i])
+        for i in range(len(access)):
+            dim_name, dim_index = access[i]
+            assert(dim_name == self.__dimension_names[i])
+            assert(dim_index in self.__dimension_keys[i])
         # Convert everything to indices and return the value
-        return tuple([access[0][1]] + [self.__get_index(dim_name, k) for dim_name, k in access])
+        return tuple([dynamic_index] + [self.__get_index(dim_name, k) for dim_name, k in access])
     
     def __resize_dynamic_dimension_if_necessary(self, index: int):
         # Check which case we fall into
@@ -130,13 +132,13 @@ class ResultTensor:
             # In capacity, so we only need to update size
             self.__dynamic_dimension_size = index + 1   # account for 0 index
         else:
-            self.__resize_dynamic_dimension_if_necessary(index + 1)
+            self.__increase_dynamic_capacity(index + 1)
             self.__dynamic_dimension_size = index + 1
 
     def add_result(self, result, **kwargs) -> bool:
         self.__verify_dimensions_fixed()
         # Convert to indices then check dynamic size and update results object
-        indices: [int] = self.__validate_kwargs_access(kwargs)
+        indices: [int] = self.__validate_kwargs_access(list(kwargs.items()))
         # Resize and set the result
         self.__resize_dynamic_dimension_if_necessary(indices[0])
         self.results[indices] = result
@@ -144,7 +146,7 @@ class ResultTensor:
 
     def get_results(self, **kwargs) -> bool:
         self.__verify_dimensions_fixed()
-        indices: [int] = self.__validate_kwargs_access(kwargs)
+        indices: [int] = self.__validate_kwargs_access(list(kwargs.items()))
         return self.results[indices]
 
     def collapse_to_matrix(self, f=mean) -> np.ndarray:
@@ -173,6 +175,11 @@ class ResultTensor:
                 key = keys[row]
                 l.append((key, M[row][col]))
         return l
+    
+    def get_results(self) -> np.array:
+        return self.results[0:self.__dynamic_dimension_size]
 
     def __str__(self) -> str:
         return f"<{[self.__dimension_names]}>"
+
+# TODO: Move to disallowed value to be a bit more clean
