@@ -148,6 +148,16 @@ class GraphSubsetTracker:
         return self.__internal_degrees[node]
 
 
+    def max_internal_degree(self, S: set) -> (int, int):
+        """ Returns the node within S with the max internal degree, and it's degree"""
+        n: int = max(S, key = lambda j : self.internal_degree(j))
+        return (n, self.internal_degree(n))
+
+    def min_internal_degree(self, S: set) -> (int, int):
+        """ Returns the node within S with the minimum internal degree, and it's degree"""
+        n: int = min(S, key = lambda j : self.internal_degree(j))
+        return(n, self.internal_degree(n))
+
     def size(self) -> int:
         """
             Returns the size of the subset being currently tracked.

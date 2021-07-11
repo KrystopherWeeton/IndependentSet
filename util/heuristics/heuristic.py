@@ -1,8 +1,7 @@
 import networkx as nx
 
 import util.formulas as formulas
-from util.heuristics.graph_subset_tracker import (GraphSubsetTracker,
-                                                  create_graph_subset_tracker)
+from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
 class Heuristic:
@@ -22,9 +21,9 @@ class Heuristic:
         Clears out the data stored in this heuristic, allowing it to be used again.
     """
     def clear(self):
-        self.G = None
-        self.solution = None
-        self.metadata = None
+        self.G: nx.Graph = None
+        self.solution: GraphSubsetTracker = None
+        self.metadata: dict = None
 
     """
         Public function to run the optimization heuristic, which sets metadata before
@@ -39,7 +38,7 @@ class Heuristic:
 
         # Set metadata
         self.G = G
-        self.solution = create_graph_subset_tracker(self.G, set())
+        self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
         self.metadata = metadata
 
         # Validate the metadata using the expected keys.
@@ -70,5 +69,5 @@ class SeededHeuristic(Heuristic):
         if seed is None:
             raise RuntimeError("Cannot run seeded heuristic with no seeded subset.")
 
-        self.seed = seed
+        self.seed: set = seed
         super().run_heuristic(G, metadata)

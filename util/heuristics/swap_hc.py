@@ -1,0 +1,32 @@
+import networkx as nx
+import numpy as np
+
+from util.heuristics.heuristic import SeededHeuristic
+
+"""
+    Description: Heuristic which takes an initial set in it's solution, then proceeds
+    through hill climbing to minimize the number of edges within the set, while keeping
+    the size of the set fixed. Finally, 'purges' the set greedily to a true independent
+    set.
+
+        NOTE: During construction, set `include_purge` to False to skip the purge step
+        at the end and leave an approximate solution.
+"""
+class SwapHillClimbing(SeededHeuristic):
+    def __init__(self, include_purge: bool = True):
+        super().__init__(expected_metadata_keys=["verbose"])
+    
+    def _run_heuristic(self):
+        verbose: bool = self.metadata["verbose"]
+        rem, rem_deg = self.solution.max_internal_degree(self.solution.subset)
+        add, add_deg = self.solution.min_internal_degree(self.solution.subset_complement)
+        while rem_deg > add_deg:
+            # While we are able to reduce density
+            self.solution.remove_node(rem_deg)
+            self.solution.add_node(add_deg)
+            if verbose:
+                print(f"[V] Swapping ({rem}, {add})\t Degrees ({rem_deg}, {add_deg})")
+                print(f"[V] # Edges = {self.solution.num_edges()}")
+            rem, rem_deg = self.solution.max_internal_degree(self.solution.subset)
+            add, add_deg = self.solution.min_internal_degree(self.solution.subset_complement)
+        
