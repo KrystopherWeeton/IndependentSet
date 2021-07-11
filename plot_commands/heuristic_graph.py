@@ -8,6 +8,7 @@ import networkx as nx
 import util.file_util as file_util
 import util.plot.plot as plot
 import util.plot.series as series
+import util.plot.scatter as scatter
 from util.results.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
@@ -31,7 +32,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
     intersection_data: [[float]] = results.get_intersection_data()
     subset_data: [[float]] = results.get_subset_size_data()
 
-    plot.plot_scatter_data(
+    scatter.plot_scatter_data(
         x_points=n_values,
         y_points=intersection_data,
         title="Resulting Planted Independent Set Intersection",
@@ -45,7 +46,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         y_spacing=0.25
     )
 
-    plot.plot_scatter_data(
+    scatter.plot_scatter_data(
         x_points=n_values,
         y_points=subset_data,
         title="Resulting Subset Sizes",
