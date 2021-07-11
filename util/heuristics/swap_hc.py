@@ -6,11 +6,7 @@ from util.heuristics.heuristic import SeededHeuristic
 """
     Description: Heuristic which takes an initial set in it's solution, then proceeds
     through hill climbing to minimize the number of edges within the set, while keeping
-    the size of the set fixed. Finally, 'purges' the set greedily to a true independent
-    set.
-
-        NOTE: During construction, set `include_purge` to False to skip the purge step
-        at the end and leave an approximate solution.
+    the size of the set fixed.
 """
 class SwapHillClimbing(SeededHeuristic):
     def __init__(self, include_purge: bool = True):
