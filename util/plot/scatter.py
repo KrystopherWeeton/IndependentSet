@@ -11,10 +11,8 @@ def plot_scatter_data(
     title: str,
     x_title: str,
     y_title: str,
-    file_name: str,
     other_y_series: [[float]] = [],
     other_y_formatting: [SeriesFormatting] = [],
-    directory: str = None,
     x_spacing: float = 0,
     y_spacing: float = 0
 ):
