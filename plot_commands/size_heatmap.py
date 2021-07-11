@@ -1,9 +1,13 @@
-import click
-from util.storage import load
-from util.results.size_results import SizeResults, generate_size_results_file_name
-import util.plot.heatmap as heatmap
 import os
 import sys
+
+import click
+
+import util.plot.heatmap as heatmap
+from util.results.size_results import (SizeResults,
+                                       generate_size_results_file_name)
+from util.storage import load
+
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")

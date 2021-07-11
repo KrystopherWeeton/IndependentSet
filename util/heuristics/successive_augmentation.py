@@ -1,11 +1,12 @@
-from util.heuristics.heuristic import Heuristic, SeededHeuristic
-from util.results.sa_results import SuccAugResults
-from util.models.graph_subset_tracker import GraphSubsetTracker
-from util.graph import count_edge_boundary
-from util.formulas import subsets
-from typing import Callable
 import math
 import sys
+from typing import Callable
+
+from util.formulas import subsets
+from util.graph import count_edge_boundary
+from util.heuristics.heuristic import Heuristic, SeededHeuristic
+from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.results.sa_results import SuccAugResults
 
 
 class SuccessiveAugmentation(SeededHeuristic):

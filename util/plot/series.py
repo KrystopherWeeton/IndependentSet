@@ -1,5 +1,7 @@
-import matplotlib.pyplot as plt
 from typing import Callable
+
+import matplotlib.pyplot as plt
+
 
 class SeriesFormatting:
     def __init__(self, 

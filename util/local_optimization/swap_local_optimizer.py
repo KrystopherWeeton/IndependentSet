@@ -1,6 +1,8 @@
-from util.local_optimization.local_optimization import *
 import networkx as nx
 import numpy as np
+
+from util.local_optimization.local_optimization import *
+
 
 class SwapLocalOptimizer(LocalOptimizer):
     def __init__(self):

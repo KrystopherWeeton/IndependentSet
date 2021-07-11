@@ -1,12 +1,13 @@
-import click
 import os
 import sys
 
-from util.results.sa_results import SuccAugResults, generate_sa_results_file_name
-from util.plot.series import SeriesFormatting, plot_series, SeriesFormatting
-import util.plot.plot as plot
-from plot_commands.util import verify_and_load_results, prompt_file_name
+import click
 
+import util.plot.plot as plot
+from plot_commands.util import prompt_file_name, verify_and_load_results
+from util.plot.series import SeriesFormatting, plot_series
+from util.results.sa_results import (SuccAugResults,
+                                     generate_sa_results_file_name)
 
 SIZE_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Subset Size", "gray", 1, False, "-o"

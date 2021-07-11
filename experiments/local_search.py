@@ -1,24 +1,23 @@
 #!env/bin/python3
-import cProfile, pstats
-import subprocess
-
+import cProfile
 import math
-from typing import Tuple, List
+import pstats
 import random
+import subprocess
+from typing import List, Tuple
 
 import click
 import networkx as nx
 
 from util.graph import generate_planted_independent_set_graph
-from util.local_optimization.local_optimization import LocalOptimizer
-from util.local_optimization.basic_local_optimizer import BasicLocalOptimizer
 from util.local_optimization.all_local_optimizer import AllLocalOptimizer
-from util.local_optimization.swap_local_optimizer import SwapLocalOptimizer
+from util.local_optimization.basic_local_optimizer import BasicLocalOptimizer
+from util.local_optimization.local_optimization import LocalOptimizer
 from util.local_optimization.metropolis import Metropolis
+from util.local_optimization.swap_local_optimizer import SwapLocalOptimizer
 from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
-from util.storage import store
 from util.local_search_results import Results
-
+from util.storage import store
 
 ##########################################
 #       Configurations for local optimization

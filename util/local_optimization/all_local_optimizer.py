@@ -1,6 +1,11 @@
-from util.local_optimization.local_optimization import LocalOptimizer, density_after_add, density_after_rem, density_after_swap
 import networkx as nx
 import numpy as np
+
+from util.local_optimization.local_optimization import (LocalOptimizer,
+                                                        density_after_add,
+                                                        density_after_rem,
+                                                        density_after_swap)
+
 
 class AllLocalOptimizer(LocalOptimizer):
     def __init__(self):

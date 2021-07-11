@@ -1,10 +1,10 @@
-import networkx as nx
-import random as random
 import copy
+import random as random
+
+import networkx as nx
 
 import util.formulas as formulas
 from util.graph import count_edge_boundary
-
 
 """
     Tracks a subset of a provided graph along with some relevant meetadata, allowing limited

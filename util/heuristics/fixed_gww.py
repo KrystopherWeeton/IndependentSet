@@ -1,14 +1,17 @@
-import networkx as nx
-import numpy as np
+import json
+import random
 from typing import Callable
 
-from util.heuristics.heuristic import Heuristic
-import random
-import json
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker, get_density
-from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
-from util.local_optimization.local_optimization import LocalOptimizer
+import networkx as nx
+import numpy as np
+
 from util.graph import count_edge_boundary
+from util.heuristics.graph_subset_tracker import (GraphSubsetTracker,
+                                                  create_graph_subset_tracker,
+                                                  get_density)
+from util.heuristics.heuristic import Heuristic
+from util.local_optimization.local_optimization import LocalOptimizer
+from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 
 
 class FixedGWW(Heuristic):

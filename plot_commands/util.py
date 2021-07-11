@@ -1,10 +1,10 @@
 import os
 import sys
+from typing import Callable
+
 import click
 
-from typing import Callable
 from util.storage import load
-
 
 """
     Verifies the provided pickle name, getting input from user if it is invalid

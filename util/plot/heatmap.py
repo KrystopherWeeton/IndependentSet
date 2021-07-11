@@ -1,20 +1,21 @@
-from typing import List
-import matplotlib.pyplot as plt  # Used for plotting results
 import csv
 import os
-import networkx as nx
 import random
-from mpl_toolkits import mplot3d
-import numpy as np
-import matplotlib.cm as cmap        # Used for heatmaps
-from matplotlib.axes import Axes    # Used for advanced plotting things (heatmaps)
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from enum import Enum
-from util.models.stat_info import StatInfo
+from typing import List
 
+import matplotlib.cm as cmap  # Used for heatmaps
+import matplotlib.pyplot as plt  # Used for plotting results
+import networkx as nx
 import networkx.drawing as nx_draw
+import numpy as np
+from matplotlib.axes import \
+    Axes  # Used for advanced plotting things (heatmaps)
+from mpl_toolkits import mplot3d
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from networkx.drawing.nx_agraph import write_dot
 
+from util.models.stat_info import StatInfo
 
 
 class HeatMapColor(Enum):

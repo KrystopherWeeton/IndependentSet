@@ -1,10 +1,11 @@
 #!env/bin/python3
 import click
 
-from experiments.size import size
 from experiments.heuristic import heuristic
 from experiments.local_search import local_search
+from experiments.size import size
 from experiments.successive_augmentation import successive_augmentation
+
 
 @click.group()
 def run():
