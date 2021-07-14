@@ -1,15 +1,16 @@
 import math
-import click
 import os
 import sys
+
+import click
 import networkx as nx
 
-from util.storage import load
-from util.results.heuristic_results import HeuristicResults, generate_heuristic_results_file_name, StatInfo
 import util.file_util as file_util
 import util.plot.plot as plot
 import util.plot.series as series
-
+from util.results.heuristic_results import (
+    HeuristicResults, StatInfo, generate_heuristic_results_file_name)
+from util.storage import load
 
 
 def __generate_graphs(results: HeuristicResults, directory: str):

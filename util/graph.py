@@ -1,9 +1,11 @@
-import networkx as nx
-import random
 import itertools
-import numpy as np
+import random
 from collections import deque
 from itertools import count
+
+import networkx as nx
+import numpy as np
+
 
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:

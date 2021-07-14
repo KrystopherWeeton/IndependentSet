@@ -1,15 +1,20 @@
 #!env/bin/python3
-import click
+import copy
+import cProfile
 import math
-import sys
+import pstats
 import random
+import sys
+
+import click
+
 import util.storage as storage
-from util.results.sa_results import SuccAugResults, generate_sa_results_file_name
 from util.graph import generate_planted_independent_set_graph
 from util.heuristics.successive_augmentation import SuccessiveAugmentation
+from util.results.sa_results import (SuccAugResults,
+                                     generate_sa_results_file_name)
 from util.storage import store
-import copy
-import cProfile, pstats
+
 
 def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 1

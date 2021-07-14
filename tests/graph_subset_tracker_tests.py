@@ -1,9 +1,11 @@
-import networkx as nx
 import random
+
+import networkx as nx
 import numpy as np
 
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from tests.test_model import TestModel
+from util.models.graph_subset_tracker import GraphSubsetTracker
+
 
 def _generate_random_graph(n: int) -> nx.Graph:	
     return nx.erdos_renyi_graph(n, 0.5)

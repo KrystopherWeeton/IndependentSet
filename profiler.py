@@ -4,6 +4,7 @@ import click
 from experiments.successive_augmentation import profile_successive_augmentation
 from experiments.phase_heuristic import profile_phase_heuristic
 
+
 @click.group()
 def run():
     pass

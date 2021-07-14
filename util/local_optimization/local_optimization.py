@@ -1,6 +1,8 @@
 import networkx as nx
 import numpy as np
+
 from util.graph import count_edge_boundary
+
 
 class Update:
     pass

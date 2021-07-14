@@ -1,14 +1,15 @@
 #!env/bin/python3
-import click
 import os
 import sys
 
-from util.storage import load
-from util.local_search_results import Results, generate_results_file_name
+import click
+
 import util.file_util as file_util
-import util.plot.heatmap as heatmap_plot
 import util.plot.csv as csv_plot
+import util.plot.heatmap as heatmap_plot
+from util.local_search_results import Results, generate_results_file_name
 from util.misc import round_all_values
+from util.storage import load
 
 
 def __generate_file_name(base_name: str, n: int) -> str:

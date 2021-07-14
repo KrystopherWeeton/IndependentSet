@@ -1,21 +1,17 @@
 #!env/bin/python3
+import cProfile
 import math
+import pstats
+import sys
+
 import click
 import networkx as nx
-import cProfile, pstats
-import sys
-import copy
-
-from util.graph import generate_planted_independent_set_graph
-from util.storage import store
-from util.results.heuristic_results import HeuristicResults
-from util.heuristics.heuristic import Heuristic
-from util.heuristics.successive_augmentation import SuccessiveAugmentation
-from util.heuristics.phase_heuristic import PhaseHeuristic
-from util.heuristics.metropolis import Metropolis, TESTING_METADATA
 from util.heuristics.fixed_gww import FixedGWW
 from util.heuristics.gww import GWW, TESTING_METADATA_GWW
-
+from util.heuristics.heuristic import Heuristic
+from util.heuristics.metropolis import TESTING_METADATA, Metropolis
+from util.results.heuristic_results import HeuristicResults
+from util.storage import store
 
 ##########################################
 #       Configuration

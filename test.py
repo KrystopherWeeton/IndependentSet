@@ -4,7 +4,6 @@ import click
 from tests.graph_subset_tracker_tests import GraphSubsetTrackerTests
 from tests.test_model import TestModel
 
-
 ACTIVE_TESTS: [TestModel] = [
     GraphSubsetTrackerTests()
 ]
