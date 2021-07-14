@@ -9,17 +9,16 @@ from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.results.sa_results import SuccAugResults
 
 
-class SuccessiveAugmentation(SeededHeuristic):
+class SuccessiveAugmentation(Heuristic):
 
-    def __init__(self, results: SuccAugResults):
+    def __init__(self):
         super().__init__(
             expected_metadata_keys=[
                 "K",
                 "intersection_oracle",
-                "trial",
+                "epsilon"
             ]
         )
-        self.results = results
     
     """
         Pulls an independent set from the provided subset, by sorting the vertices
@@ -43,7 +42,7 @@ class SuccessiveAugmentation(SeededHeuristic):
         N: int = len(self.G.nodes)
         K: int = self.metadata["K"]
         intersection_oracle: Callable = self.metadata["intersection_oracle"]
-        trial: int = self.metadata["trial"]
+        epsilon: int = self.metadata["epsilon"]
 
         #? Metadata validation
         if N <= 0 or K <= 0 or K > N:
@@ -57,14 +56,14 @@ class SuccessiveAugmentation(SeededHeuristic):
             #threshold: int = (math.sqrt(m) * (math.sqrt(m) - 1)) / 2
             #! Oracle call here. Not realistic!
             # threshold: int = (m - intersection_oracle(S.subset)) / 2 - 3
-            threshold: int = (m - intersection_oracle(S.subset)) / 2
+            threshold: int = (m - intersection_oracle(S.subset)) / epsilon
             if threshold < 0:
                 threshold = 0
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
 
         #? Run successive augmentation
-        subset: GraphSubsetTracker = GraphSubsetTracker(self.G, self.seed)
+        subset: GraphSubsetTracker = self.solution
         step: int = 0
         for v in self.G.nodes:
             if v in subset.subset:
@@ -75,7 +74,7 @@ class SuccessiveAugmentation(SeededHeuristic):
                 subset.add_node(v)
             
             #? Update results
-            self.results.add_result(step, trial, subset.size(), intersection_oracle(subset.subset))
+            self.call_post_step_hook(subset.subset, step)
             step += 1
 
         #? Prune to get a final solution
