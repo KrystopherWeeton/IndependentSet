@@ -1,6 +1,8 @@
 import networkx as nx
 
 import util.formulas as formulas
+from util.models.graph_subset_tracker import GraphSubsetTracker
+
 
 class Heuristic:
 

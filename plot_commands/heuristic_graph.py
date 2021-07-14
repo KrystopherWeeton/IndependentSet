@@ -8,6 +8,7 @@ import networkx as nx
 import util.file_util as file_util
 import util.plot.plot as plot
 import util.plot.series as series
+import util.plot.scatter as scatter
 from util.results.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
@@ -31,33 +32,31 @@ def __generate_graphs(results: HeuristicResults, directory: str):
     intersection_data: [[float]] = results.get_intersection_data()
     subset_data: [[float]] = results.get_subset_size_data()
 
-    plot.plot_scatter_data(
+    scatter.plot_scatter_data(
         x_points=n_values,
         y_points=intersection_data,
         title="Resulting Planted Independent Set Intersection",
         x_title="Number of Vertices (n)",
         y_title="Planted Ind. Set Intersection Size",
-        file_name="intersection-sizes",
         other_y_series=[intersection_means, planted_sizes],
         other_y_formatting=[series.LIGHT_GRAY("Average"), series.LIGHT_GREEN("Planted Size")],
-        directory=directory,
         x_spacing=5,
         y_spacing=0.25
     )
+    plot.save_plot(file_name="intersection-sizes", directory=directory)
 
-    plot.plot_scatter_data(
+    scatter.plot_scatter_data(
         x_points=n_values,
         y_points=subset_data,
         title="Resulting Subset Sizes",
         x_title="Number of Vertices (n)",
         y_title="Resulting Subset Size",
-        file_name="subset-sizes",
         other_y_series=[[x.mean for x in subset_sizes]],
         other_y_formatting=[series.LIGHT_GRAY("Average")],
-        directory=directory,
         x_spacing=5,
         y_spacing=0.25
     )
+    plot.save_plot(file_name="subset-sizes", directory=directory)
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
