@@ -26,7 +26,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
     results: SuccAugResults = SuccAugResults(
         n, planted_ind_set_size(n), num_trials, HEADSTART_SIZE
     )
-    sa: SuccessiveAugmentation = SuccessiveAugmentation(results)
+    sa: SuccessiveAugmentation = SuccessiveAugmentation()
     for t in results:
         if verbose:
             print(f"[V] Running trial {t + 1} / {num_trials}")
@@ -38,7 +38,11 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
         metadata["intersection_oracle"] = lambda x : len(x.intersection(B))
         metadata["trial"] = t
         sa.clear()
-        sa.run_heuristic(G, set(random.sample(B, k=HEADSTART_SIZE)), metadata)
+
+        def post_step_hook(subset: set, step: int):
+            results.add_result(step, t, size=len(subset), intersection=len(subset.intersection(B)))
+
+        sa.run_heuristic(G, metadata, seed=set(random.sample(B, k=HEADSTART_SIZE)), post_step_hook=post_step_hook)
         #? Gather final results and store
         intersection_size: int = len(sa.solution.subset.intersection(B))
         size: int = len(sa.solution.subset)

@@ -4,11 +4,14 @@ import click
 import networkx as nx
 import cProfile, pstats
 import sys
+import copy
 
 from util.graph import generate_planted_independent_set_graph
 from util.storage import store
 from util.results.heuristic_results import HeuristicResults
 from util.heuristics.heuristic import Heuristic
+from util.heuristics.successive_augmentation import SuccessiveAugmentation
+from util.heuristics.phase_heuristic import PhaseHeuristic
 from util.heuristics.metropolis import Metropolis, TESTING_METADATA
 from util.heuristics.fixed_gww import FixedGWW
 from util.heuristics.gww import GWW, TESTING_METADATA_GWW
@@ -30,8 +33,24 @@ EDGE_PROBABILITY: float = 0.5
 MAX_OPTIMIZER_STEPS: int = 999
 # The percent to accomplish between each print statement
 PERCENT_INCREMENT: float = 0.05
+
 # The actual heuristic to run
-HEURISTIC: Heuristic = FixedGWW()
+#! HEURISTIC: Heuristic = FixedGWW()
+HEURISTIC: Heuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
+BASE_SUCC_METADATA: {
+    "K": None
+}
+BASE_GWW_METADATA: {
+            "num_particles":            lambda n: 2 * int(math.sqrt(n)),
+            "subset_size":              lambda n: int(n ** (2/3)),
+            "threshold_added_change":   0.0,
+            "random_walk_steps":        lambda n: int(math.log(n, 2)),
+            "min_threshold":            0.1,
+            "verbose":                  True, 
+        } 
+
+
+"""
 HEURISTIC_METADATA: dict = {
     "num_particles":            lambda n: 2 * int(math.sqrt(n)),
     "subset_size":              lambda n: int(n ** (2/3)),
@@ -41,7 +60,6 @@ HEURISTIC_METADATA: dict = {
     "verbose":                  True, 
 }
 
-"""
 HEURISTIC: Heuristic = GWW()
 
 HEURISTIC_METADATA: dict = {
@@ -74,7 +92,14 @@ def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
             (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, 'planted')
             # Run the heuristic
             HEURISTIC.clear()
-            HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
+
+            #! Setting heuristic dependent metadata here
+            sa_metadata = copy.copy(BASE_SUCC_METADATA)
+            sa_metadata["K"] = planted_ind_set_size(n_value)
+            sa_metadata["intersection_oracle"] = lambda x : len(x.intersection(B))
+
+
+            HEURISTIC.run_heuristic(G, {"metadata": [sa_metadata, BASE_GWW_METADATA]})
 
             # Take the results, collect data, store the results
             solution: set = HEURISTIC.solution.subset

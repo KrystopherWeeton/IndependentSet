@@ -1,6 +1,7 @@
 import networkx as nx
 import util.formulas as formulas
-from util.heuristics.graph_subset_tracker import GraphSubsetTracker, create_graph_subset_tracker
+from util.models.graph_subset_tracker import GraphSubsetTracker
+from typing import Union, Callable
 
 class Heuristic:
 
@@ -16,12 +17,20 @@ class Heuristic:
         self.expected_metadata_keys = expected_metadata_keys
 
     """
+        Calls post_step_hook with appropriate values if the value is not None, otherwise no-ops
+    """
+    def call_post_step_hook(self, subset: set, step: int):
+        if self.post_step_hook is None:
+            self.post_step_hook(subset, step)
+
+    """
         Clears out the data stored in this heuristic, allowing it to be used again.
     """
     def clear(self):
         self.G = None
         self.solution = None
         self.metadata = None
+        self.post_step_hook = None
 
     """
         Public function to run the optimization heuristic, which sets metadata before
@@ -30,14 +39,22 @@ class Heuristic:
         NOTE: Metadata is the general metadata which subclasses may use on an algorithm
         per algorithm basis.
     """
-    def run_heuristic(self, G: nx.graph, metadata: dict = None):
+    def run_heuristic(
+        self, 
+        G: nx.graph, 
+        metadata: dict = None, 
+        seed: Union[set, GraphSubsetTracker] = set(), 
+        post_step_hook: Callable = None
+    ):
         # Clear self just to be completely sure that there is no bad info.
         self.clear()
 
         # Set metadata
         self.G = G
-        self.solution = create_graph_subset_tracker(self.G, set())
+        # Set seed based on appropriate type of argument
+        self.solution = GraphSubsetTracker(self.G, seed) if isinstance(seed, set) else seed
         self.metadata = metadata
+        self.post_step_hook = post_step_hook
 
         # Validate the metadata using the expected keys.
         for key in self.expected_metadata_keys:
@@ -55,17 +72,3 @@ class Heuristic:
         raise RuntimeError("This is an abstract function. Implement in subclass.")
 
 
-
-class SeededHeuristic(Heuristic):
-
-    def __init__(self, expected_metadata_keys: dict = None):
-        super().__init__(expected_metadata_keys)
-        self.seed: set = None
-
-
-    def run_heuristic(self, G: nx.graph, seed: set, metadata: dict = None):
-        if seed is None:
-            raise RuntimeError("Cannot run seeded heuristic with no seeded subset.")
-
-        self.seed = seed
-        super().run_heuristic(G, metadata)
