@@ -54,8 +54,8 @@ class Heuristic:
 
         # Set metadata
         self.G = G
-        # Set seed based on appropriate type of argument
-        self.solution = seed if seed is not None and isinstance(seed, self.__solution_class) else self.__solution_class()
+        # NOTE: Sets solution to NONE if no seed is passed in
+        self.solution = seed
         self.metadata = metadata
         self.post_step_hook = post_step_hook
 

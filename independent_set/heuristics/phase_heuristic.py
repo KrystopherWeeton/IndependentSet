@@ -18,3 +18,4 @@ class PhaseHeuristic(IndependentSetHeuristic):
 
         for i, h in enumerate(self.heuristics):
             h.run_heuristic(self.G, metadata[i], self.solution) # Note: self.solution is a shallow copy, so solution subset is same throughout.
+        self.solution = self.heuristics[len(self.heuristics) - 1].solution
