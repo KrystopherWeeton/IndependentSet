@@ -7,6 +7,7 @@ import util.plot.heatmap as heatmap
 from independent_set.result_models.size_results import (SizeResults,
                                        generate_size_results_file_name)
 from util.storage import load
+import util.plot.plot as plot
 
 
 @click.command()
@@ -37,8 +38,6 @@ def plot_size_heatmap(today, file_name):
         x = results.k_values,
         y = results.n_values,
         z = results.get_avg_heatmap_values(),
-        directory="results",
-        file_name=file_name,
         title="Performance of Fixed Size GWW",
         x_axis_title="Fixed Subset Size",
         y_axis_title="Number of vertices (n)",
@@ -46,3 +45,4 @@ def plot_size_heatmap(today, file_name):
         include_annotation=True,
         plot_size=10
     )
+    plot.save_plot(file_name, "independent_set")
