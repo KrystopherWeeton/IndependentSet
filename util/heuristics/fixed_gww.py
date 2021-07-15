@@ -10,8 +10,6 @@ from util.heuristics.graph_subset_tracker import (GraphSubsetTracker,
                                                   create_graph_subset_tracker,
                                                   get_density)
 from util.heuristics.heuristic import Heuristic
-from util.local_optimization.local_optimization import LocalOptimizer
-from util.local_optimization.swap_purge import SwapPurgeLocalOptimizer
 
 
 class FixedGWW(Heuristic):
@@ -28,7 +26,6 @@ class FixedGWW(Heuristic):
                 "verbose",
             ]
         )
-        self.optimizer: LocalOptimizer = SwapPurgeLocalOptimizer(1)
 
 
     """
@@ -65,25 +62,9 @@ class FixedGWW(Heuristic):
                 return_value.add(node)
         
         return return_value
-
-
-
-    """
-        Runs a local optimizer from the provided headstart_set. Returns the result as a
-        set of nodes.
-    """
-    def __run_local_optimizer(self, headstart_set: GraphSubsetTracker) -> set:
-        self.optimizer.clear()
-        return self.optimizer.optimize(headstart_set.subset, self.G, 9999)
-
-
-    def __get_best_ind_set(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
-        subsets = [
-            self.__greedily_get_ind_subset(create_graph_subset_tracker(self.G, self.__run_local_optimizer(subset)))
-                 for subset in subsets
-        ]
-        return create_graph_subset_tracker(self.G, subsets[np.argmax([len(x) for x in subsets])])
-
+    
+    def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
+        return min(subsets, lambda t: t.num_edges())
 
     def _run_heuristic(self):
         #? Pull metadata
@@ -149,7 +130,7 @@ class FixedGWW(Heuristic):
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:
-                self.solution = self.__get_best_ind_set(subsets)
+                self.solution = self.__get_best_subset(subsets)
                 print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
@@ -163,7 +144,7 @@ class FixedGWW(Heuristic):
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
-        self.solution = self.__get_best_ind_set(subsets)
+        self.solution = self.__get_best_subset(subsets)
 
 
 TESTING_METADATA_FIXED_GWW: dict = {

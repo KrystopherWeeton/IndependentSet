@@ -6,12 +6,16 @@ import sys
 
 import click
 import networkx as nx
+import copy
 from util.heuristics.fixed_gww import FixedGWW
 from util.heuristics.gww import GWW, TESTING_METADATA_GWW
 from util.heuristics.heuristic import Heuristic
 from util.heuristics.metropolis import TESTING_METADATA, Metropolis
 from util.results.heuristic_results import HeuristicResults
+from util.heuristics.phase_heuristic import PhaseHeuristic
+from util.heuristics.successive_augmentation import SuccessiveAugmentation, SuccAugResults
 from util.storage import store
+from util.graph import generate_planted_independent_set_graph
 
 ##########################################
 #       Configuration
@@ -33,10 +37,10 @@ PERCENT_INCREMENT: float = 0.05
 # The actual heuristic to run
 #! HEURISTIC: Heuristic = FixedGWW()
 HEURISTIC: Heuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
-BASE_SUCC_METADATA: {
+BASE_SUCC_METADATA = {
     "K": None
 }
-BASE_GWW_METADATA: {
+BASE_GWW_METADATA = {
             "num_particles":            lambda n: 2 * int(math.sqrt(n)),
             "subset_size":              lambda n: int(n ** (2/3)),
             "threshold_added_change":   0.0,
@@ -44,6 +48,9 @@ BASE_GWW_METADATA: {
             "min_threshold":            0.1,
             "verbose":                  True, 
         } 
+HEURISTIC_METADATA = {
+    "metadata": [BASE_SUCC_METADATA, BASE_GWW_METADATA]
+}
 
 
 """

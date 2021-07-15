@@ -1,15 +1,13 @@
 import copy
 
-from util.heuristics.heuristic import Heuristic, SeededHeuristic
+from util.heuristics.heuristic import Heuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 
 class PhaseHeuristic(Heuristic):
 
 
     def __init__(self, *argv: [Heuristic]):
-        super(
-            expected_metadata_keys = ["metadata"]
-        )
+        super().__init__(expected_metadata_keys=["metadata"])
         self.heuristics: [Heuristic] = argv
 
     

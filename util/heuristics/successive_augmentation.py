@@ -4,7 +4,7 @@ from typing import Callable
 
 from util.formulas import subsets
 from util.graph import count_edge_boundary
-from util.heuristics.heuristic import Heuristic, SeededHeuristic
+from util.heuristics.heuristic import Heuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.results.sa_results import SuccAugResults
 
