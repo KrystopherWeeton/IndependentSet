@@ -13,7 +13,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from util.models.stat_info import StatInfo
 from util.plot.series import SeriesFormatting, plot_series
-
+from util.config import get_experiment_results_directory
 
 def draw_hist(values, file_name: str):
     plt.close()
@@ -41,14 +41,10 @@ def show_plot():
 """
     Saves the plot to a file.
 """
-def save_plot(file_name: str, directory: str = None):
-    if directory:
-        plt.savefig(f"{directory}/{file_name}.png")
-        plt.clf()
-    else:
-        plt.savefig(f"{file_name}.png")
-        plt.clf() 
-
+def save_plot(file_name: str, project_name: str):
+    directory = get_experiment_results_directory(project_name)
+    plt.savefig(f"{directory}/{file_name}.png")
+    plt.clf()
 
 # Annotates points provided on the active plot
 def annotate_all_points(
