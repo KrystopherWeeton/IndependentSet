@@ -41,9 +41,12 @@ def show_plot():
 """
     Saves the plot to a file.
 """
-def save_plot(file_name: str, project_name: str):
+def save_plot(file_name: str, project_name: str, folder: str = None):
     directory = get_experiment_results_directory(project_name)
-    plt.savefig(f"{directory}/{file_name}.png")
+    path = f"{directory}/{file_name}.png"
+    if folder is not None:
+        path = f"{directory}/{folder}/{file_name}.png"
+    plt.savefig(path)
     plt.clf()
 
 # Annotates points provided on the active plot
