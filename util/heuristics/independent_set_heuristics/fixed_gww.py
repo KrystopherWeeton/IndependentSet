@@ -1,22 +1,16 @@
-import json
 import random
-from typing import Callable
-
-import networkx as nx
-import numpy as np
 
 from util.graph import count_edge_boundary
+from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
-from util.heuristics.heuristic import Heuristic
 
 
-class FixedGWW(Heuristic):
-
+class FixedGWW(IndependentSetHeuristic):
 
     def __init__(self):
         super().__init__(
             expected_metadata_keys=[
-                "num_particles", 
+                "num_particles",
                 "threshold_added_change",
                 "subset_size",
                 "random_walk_steps",

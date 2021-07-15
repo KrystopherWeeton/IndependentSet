@@ -1,11 +1,11 @@
-import networkx as nx
-
-import util.formulas as formulas
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from typing import Union, Callable
 
+import networkx as nx
 
-class Heuristic:
+from util.models.graph_subset_tracker import GraphSubsetTracker
+
+
+class IndependentSetHeuristic:
 
     def __init__(self, expected_metadata_keys: [str] = []):
 
@@ -68,7 +68,7 @@ class Heuristic:
 
     """
         Private function to actually run the heuristic which can be overwritten to 
-        implement different heuristics for improvement.
+        implement different independent_set_heuristics for improvement.
     """
     def _run_heuristic(self):
         raise RuntimeError("This is an abstract function. Implement in subclass.")

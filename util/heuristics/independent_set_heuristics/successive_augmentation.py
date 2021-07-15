@@ -1,15 +1,12 @@
-import math
 import sys
 from typing import Callable
 
-from util.formulas import subsets
 from util.graph import count_edge_boundary
-from util.heuristics.heuristic import Heuristic
+from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
-from util.results.sa_results import SuccAugResults
 
 
-class SuccessiveAugmentation(Heuristic):
+class SuccessiveAugmentation(IndependentSetHeuristic):
 
     def __init__(self):
         super().__init__(

@@ -1,21 +1,20 @@
 #!env/bin/python3
 import cProfile
+import copy
 import math
 import pstats
 import sys
 
 import click
 import networkx as nx
-import copy
-from util.heuristics.fixed_gww import FixedGWW
-from util.heuristics.gww import GWW, TESTING_METADATA_GWW
-from util.heuristics.heuristic import Heuristic
-from util.heuristics.metropolis import TESTING_METADATA, Metropolis
-from util.results.heuristic_results import HeuristicResults
-from util.heuristics.phase_heuristic import PhaseHeuristic
-from util.heuristics.successive_augmentation import SuccessiveAugmentation, SuccAugResults
-from util.storage import store
+
 from util.graph import generate_planted_independent_set_graph
+from util.heuristics.independent_set_heuristics.fixed_gww import FixedGWW
+from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
+from util.heuristics.independent_set_heuristics.phase_heuristic import PhaseHeuristic
+from util.heuristics.independent_set_heuristics.successive_augmentation import SuccessiveAugmentation
+from util.results.heuristic_results import HeuristicResults
+from util.storage import store
 
 ##########################################
 #       Configuration
@@ -27,6 +26,7 @@ from util.graph import generate_planted_independent_set_graph
 def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 1
 
+
 # The probability that edges exist
 EDGE_PROBABILITY: float = 0.5
 # The maximum number of steps an optimizer can run before we stop it
@@ -35,24 +35,23 @@ MAX_OPTIMIZER_STEPS: int = 999
 PERCENT_INCREMENT: float = 0.05
 
 # The actual heuristic to run
-#! HEURISTIC: Heuristic = FixedGWW()
-HEURISTIC: Heuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
+# ! HEURISTIC: IndependentSetHeuristic = FixedGWW()
+HEURISTIC: IndependentSetHeuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
 BASE_SUCC_METADATA = {
     "K": None,
-    "epsilon": 3            # The extra requirement for threshold to be more stringent about vertices added
+    "epsilon": 3  # The extra requirement for threshold to be more stringent about vertices added
 }
 BASE_GWW_METADATA = {
-            "num_particles":            lambda n: 2 * int(math.sqrt(n)),
-            "subset_size":              lambda n: int(n ** (2/3)),
-            "threshold_added_change":   0.0,
-            "random_walk_steps":        lambda n: int(math.log(n, 2)),
-            "min_threshold":            0.1,
-            "verbose":                  True, 
-        } 
+    "num_particles": lambda n: 2 * int(math.sqrt(n)),
+    "subset_size": lambda n: int(n ** (2 / 3)),
+    "threshold_added_change": 0.0,
+    "random_walk_steps": lambda n: int(math.log(n, 2)),
+    "min_threshold": 0.1,
+    "verbose": True,
+}
 HEURISTIC_METADATA = {
     "metadata": [BASE_SUCC_METADATA, BASE_GWW_METADATA]
 }
-
 
 """
 HEURISTIC_METADATA: dict = {
@@ -64,7 +63,7 @@ HEURISTIC_METADATA: dict = {
     "verbose":                  True, 
 }
 
-HEURISTIC: Heuristic = GWW()
+HEURISTIC: IndependentSetHeuristic = GWW()
 
 HEURISTIC_METADATA: dict = {
     "num_particles":            lambda n: 2 * int(math.sqrt(n)),
