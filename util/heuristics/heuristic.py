@@ -4,15 +4,20 @@ import networkx as nx
 
 from util.models.graph_subset_tracker import GraphSubsetTracker
 from typing import Generic
+from util.models.solution import Solution
 
 
 class Heuristic(Generic[T]):
 
     def __init__(self, expected_metadata_keys: [str] = []):
 
+        # Verify that the type of this class is a subclass of solution
+        if not issubclass(T, Solution):
+            raise Exception("Unable to create heuristic with solution not a subclass of Solution.")
+
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
-        self.solution: GraphSubsetTracker = None
+        self.solution: T = None
         self.metadata: dict = None
 
         # The keys which are expected in every metadata passed in, e.g. raise warning
@@ -31,7 +36,7 @@ class Heuristic(Generic[T]):
     """
     def clear(self):
         self.G = None
-        self.solution = None
+        self.solution: T = None
         self.metadata = None
         self.post_step_hook = None
 
@@ -46,7 +51,7 @@ class Heuristic(Generic[T]):
         self, 
         G: nx.graph, 
         metadata: dict = None, 
-        seed: Union[set, GraphSubsetTracker] = set(), 
+        seed: T = None, 
         post_step_hook: Callable = None
     ):
         # Clear self just to be completely sure that there is no bad info.
@@ -55,7 +60,7 @@ class Heuristic(Generic[T]):
         # Set metadata
         self.G = G
         # Set seed based on appropriate type of argument
-        self.solution = GraphSubsetTracker(self.G, seed) if isinstance(seed, set) else seed
+        self.solution = seed if seed is not None else T()
         self.metadata = metadata
         self.post_step_hook = post_step_hook
 
