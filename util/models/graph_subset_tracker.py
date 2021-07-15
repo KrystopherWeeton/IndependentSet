@@ -5,12 +5,13 @@ import networkx as nx
 
 import util.formulas as formulas
 from util.graph import count_edge_boundary
+from util.models.solution import Solution
 
 """
     Tracks a subset of a provided graph along with some relevant meetadata, allowing limited
     access to the subset to speed up metadata access / tracking.
 """
-class GraphSubsetTracker:
+class GraphSubsetTracker(Solution):
 
     def __init__(self, G: nx.Graph = None, initial_subset: set = set()):
         #? If passed relevant context, proceed otherwise mark as

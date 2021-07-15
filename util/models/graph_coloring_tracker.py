@@ -6,9 +6,10 @@ from typing import overload
 import numpy as np
 
 from util.graph import count_edge_boundary
+from util.models.solution import Solution
 
 
-class GraphColoringTracker:
+class GraphColoringTracker(Solution):
     def __init__(self, G: nx.Graph):
         self.G: nx.Graph = G
         self.color_to_nodes: dict = defaultdict(set)
