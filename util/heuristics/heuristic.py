@@ -22,7 +22,7 @@ class Heuristic:
         Calls post_step_hook with appropriate values if the value is not None, otherwise no-ops
     """
     def call_post_step_hook(self, subset: set, step: int):
-        if self.post_step_hook is None:
+        if self.post_step_hook is not None:
             self.post_step_hook(subset, step)
 
     """

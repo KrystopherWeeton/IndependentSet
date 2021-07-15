@@ -6,9 +6,7 @@ import networkx as nx
 import numpy as np
 
 from util.graph import count_edge_boundary
-from util.heuristics.graph_subset_tracker import (GraphSubsetTracker,
-                                                  create_graph_subset_tracker,
-                                                  get_density)
+from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
 from util.heuristics.heuristic import Heuristic
 
 
@@ -34,7 +32,7 @@ class FixedGWW(Heuristic):
     """
     def __select_initial_subset(self, size: int) -> GraphSubsetTracker:
         subset = set(random.sample(list(self.G.nodes), size))
-        return create_graph_subset_tracker(self.G, subset)
+        return GraphSubsetTracker(self.G, subset)
 
 
     """
@@ -64,7 +62,7 @@ class FixedGWW(Heuristic):
         return return_value
     
     def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
-        return min(subsets, lambda t: t.num_edges())
+        return min(subsets, key = lambda t: t.num_edges())
 
     def _run_heuristic(self):
         #? Pull metadata
@@ -91,7 +89,7 @@ class FixedGWW(Heuristic):
                 print(
                     f"[V] Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set."
                 )
-                self.solution = create_graph_subset_tracker(self.G, set())
+                self.solution = GraphSubsetTracker(self.G, set())
                 return
 
         if num_particles < 1:

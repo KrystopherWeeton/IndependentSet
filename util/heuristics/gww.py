@@ -77,7 +77,7 @@ class GWW(Heuristic):
         return return_value
 
     def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
-        return min(subsets, lambda t: t.num_edges())
+        return min(subsets, key = lambda t: t.num_edges())
 
     def _run_heuristic(self):
         #? Pull metadata

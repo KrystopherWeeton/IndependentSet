@@ -38,7 +38,8 @@ PERCENT_INCREMENT: float = 0.05
 #! HEURISTIC: Heuristic = FixedGWW()
 HEURISTIC: Heuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
 BASE_SUCC_METADATA = {
-    "K": None
+    "K": None,
+    "epsilon": 3            # The extra requirement for threshold to be more stringent about vertices added
 }
 BASE_GWW_METADATA = {
             "num_particles":            lambda n: 2 * int(math.sqrt(n)),

@@ -116,7 +116,7 @@ class GraphSubsetTracker:
         return node
 
 
-    def swap_random_node(self, node: int):
+    def swap_random_nodes(self):
         """
             Swaps a random node in the subset with one outside the subset. Errors on
             complete or empety subset.
@@ -197,6 +197,7 @@ class GraphSubsetTracker:
             raise Exception("Cannot replicate an uninitialized subset tracker")
         other = GraphSubsetTracker()
         other.G = self.G
+        other.__graph_size = self.__graph_size
         other.subset = copy.copy(self.subset)
         other.subset_complement = copy.copy(self.subset_complement)
         other.__internal_degrees = copy.copy(self.__internal_degrees)
@@ -215,3 +216,14 @@ class GraphSubsetTracker:
         if not self.initialized:
             return f"<uninit>"
         return f"<{self.subset}>"
+
+
+# TODO: Move this somewhere else
+"""
+    Returns min, avg, and max density for the provided graph subset trackers.
+"""
+def get_density(subsets: [GraphSubsetTracker]) -> (float, float, float):
+    if len(subsets) == 0:
+        return (None, None, None)
+    densities = sorted([S.density() for S in subsets])
+    return (densities[0], densities[len(densities) // 2], densities[len(densities) - 1])
