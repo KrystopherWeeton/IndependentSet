@@ -41,6 +41,12 @@ class Heuristic:
 
         NOTE: Metadata is the general metadata which subclasses may use on an algorithm
         per algorithm basis.
+
+        @Arguments
+            G:              The graph to run the graph heuristic on
+            metadata:       The metadata to pass to the heuristic. Used to set arguments on a run by run basis
+            seed:           An initial solution for the heuristic. Pass in none to set initial solution to None.
+            post_step_hook: A function to call after each 'step' of the heuristic (however the heuristic defines step). Leave None to do nothing.
     """
     def run_heuristic(
         self, 
