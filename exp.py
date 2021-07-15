@@ -1,20 +1,13 @@
 #!env/bin/python3
 import click
 
-from experiments.heuristic import heuristic
-from experiments.size import size
-from experiments.successive_augmentation import successive_augmentation
-#from experiments.phase_heuristic import phase_heuristic
-
+from independent_set.exp import ind_set
 
 @click.group()
 def run():
     pass
 
-run.add_command(size)
-run.add_command(heuristic)
-run.add_command(successive_augmentation)
-#run.add_command(phase_heuristic)
+run.add_command(ind_set)
 
 if __name__ == "__main__":
     run()

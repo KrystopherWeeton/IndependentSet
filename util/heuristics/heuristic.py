@@ -3,21 +3,16 @@ from typing import Union, Callable
 import networkx as nx
 
 from util.models.graph_subset_tracker import GraphSubsetTracker
-from typing import Generic
 from util.models.solution import Solution
 
+class Heuristic:
 
-class Heuristic(Generic[T]):
-
-    def __init__(self, expected_metadata_keys: [str] = []):
-
-        # Verify that the type of this class is a subclass of solution
-        if not issubclass(T(), Solution):
-            raise Exception("Unable to create heuristic with solution not a subclass of Solution.")
+    def __init__(self, solution_class, expected_metadata_keys: [str] = []):
+        self.__solution_class = solution_class
 
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
-        self.solution: T = None
+        self.solution = None
         self.metadata: dict = None
 
         # The keys which are expected in every metadata passed in, e.g. raise warning
@@ -36,7 +31,7 @@ class Heuristic(Generic[T]):
     """
     def clear(self):
         self.G = None
-        self.solution: T = None
+        self.solution = None
         self.metadata = None
         self.post_step_hook = None
 
@@ -46,12 +41,18 @@ class Heuristic(Generic[T]):
 
         NOTE: Metadata is the general metadata which subclasses may use on an algorithm
         per algorithm basis.
+
+        @Arguments
+            G:              The graph to run the graph heuristic on
+            metadata:       The metadata to pass to the heuristic. Used to set arguments on a run by run basis
+            seed:           An initial solution for the heuristic. Pass in none to set initial solution to None.
+            post_step_hook: A function to call after each 'step' of the heuristic (however the heuristic defines step). Leave None to do nothing.
     """
     def run_heuristic(
         self, 
         G: nx.graph, 
         metadata: dict = None, 
-        seed: T = None, 
+        seed = None, 
         post_step_hook: Callable = None
     ):
         # Clear self just to be completely sure that there is no bad info.
@@ -59,8 +60,8 @@ class Heuristic(Generic[T]):
 
         # Set metadata
         self.G = G
-        # Set seed based on appropriate type of argument
-        self.solution = seed if seed is not None else T()
+        # NOTE: Sets solution to NONE if no seed is passed in
+        self.solution = seed
         self.metadata = metadata
         self.post_step_hook = post_step_hook
 
