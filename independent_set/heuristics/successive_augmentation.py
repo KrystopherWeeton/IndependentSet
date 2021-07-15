@@ -2,7 +2,7 @@ import sys
 from typing import Callable
 
 from util.graph import count_edge_boundary
-from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 
 

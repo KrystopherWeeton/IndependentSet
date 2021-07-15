@@ -2,7 +2,7 @@ import math
 import random
 
 import util.formulas as formulas
-from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 
 
 class Metropolis(IndependentSetHeuristic):

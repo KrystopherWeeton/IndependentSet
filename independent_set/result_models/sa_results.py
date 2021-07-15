@@ -3,7 +3,7 @@ from datetime import date
 
 import numpy as np
 
-from util.results.result_tensor import ResultTensor
+from independent_set.result_models.result_tensor import ResultTensor
 
 
 def generate_sa_results_file_name() -> str:

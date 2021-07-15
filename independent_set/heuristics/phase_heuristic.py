@@ -1,4 +1,4 @@
-from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 
 
 class PhaseHeuristic(IndependentSetHeuristic):
