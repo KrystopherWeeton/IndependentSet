@@ -11,6 +11,7 @@ class GraphColoringTracker(Solution):
     def __init__(self, G: nx.Graph, coloring: defaultdict = None, labelling: dict = None):
         super(GraphColoringTracker, self).__init__()
         self.G: nx.Graph = G
+        self.G_comp: nx.Graph = nx.complement(G)
         self.color_to_nodes: dict = defaultdict(set)
         self.node_to_color: dict = {}
         self.uncolored_nodes: set = set(list(G.nodes))
@@ -22,6 +23,9 @@ class GraphColoringTracker(Solution):
             self.set_coloring_with_color_classes(coloring)
         elif labelling != None:
             self.set_coloring_with_node_labels(labelling)
+
+    def get_uncolored_nodes(self):
+        return self.uncolored_nodes
 
     def clear_coloring(self):
         self.color_to_nodes: dict = defaultdict(set)
