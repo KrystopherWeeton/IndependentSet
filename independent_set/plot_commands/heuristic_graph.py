@@ -14,8 +14,7 @@ from independent_set.result_models.heuristic_results import (
 from util.storage import load
 
 
-def __generate_graphs(results: HeuristicResults, directory: str):
-    directory = file_util.create_dir(directory, agressive=True)
+def __generate_graphs(results: HeuristicResults, folder: str):
 
     n_values: [int] = results.get_n_values()
 
@@ -43,7 +42,7 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    plot.save_plot(file_name="intersection-sizes", "independent_set")
+    plot.save_plot(file_name="intersection-sizes", "independent_set", folder=folder)
 
     scatter.plot_scatter_data(
         x_points=n_values,
@@ -56,11 +55,12 @@ def __generate_graphs(results: HeuristicResults, directory: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    plot.save_plot(file_name="subset-sizes", "independent_set")
+    plot.save_plot(file_name="subset-sizes", "independent_set", folder=folder)
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
-def plot_heuristics_graphs(today):
+@click.option("--folder", required=True, help="The folder to save the graphs into")
+def plot_heuristics_graphs(today, folder):
     if not today:
         pickle_name = click.prompt("Please enter the file for the results", type=str)
     else:
@@ -75,4 +75,4 @@ def plot_heuristics_graphs(today):
         click.secho("Could not load results.", err=True)
         sys.exit(0)
 
-    __generate_graphs(results, get_experiment_results_directory("independent_set"))
+    __generate_graphs(results, folder)
