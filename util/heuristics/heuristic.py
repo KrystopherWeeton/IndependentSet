@@ -12,7 +12,7 @@ class Heuristic(Generic[T]):
     def __init__(self, expected_metadata_keys: [str] = []):
 
         # Verify that the type of this class is a subclass of solution
-        if not issubclass(T, Solution):
+        if not issubclass(T(), Solution):
             raise Exception("Unable to create heuristic with solution not a subclass of Solution.")
 
         # Trackers that are set on a per-run basis
