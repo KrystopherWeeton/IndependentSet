@@ -1,20 +1,20 @@
 #!env/bin/python3
 import click
 
-from plot_commands.heuristic_graph import plot_heuristics_graphs
-from plot_commands.sa_trace import plot_sa_trace
-from plot_commands.sa_triangles import plot_sa_triangles
-from plot_commands.size_heatmap import plot_size_heatmap
+from independent_set.plot_commands.heuristic_graph import plot_heuristics_graphs
+from independent_set.plot_commands.sa_trace import plot_sa_trace
+from independent_set.plot_commands.sa_triangles import plot_sa_triangles
+from independent_set.plot_commands.size_heatmap import plot_size_heatmap
 
 
 @click.group()
-def run():
+def ind_set():
     pass
 
-run.add_command(plot_size_heatmap)
-run.add_command(plot_heuristics_graphs)
-run.add_command(plot_sa_trace)
-run.add_command(plot_sa_triangles)
+ind_set.add_command(plot_size_heatmap)
+ind_set.add_command(plot_heuristics_graphs)
+ind_set.add_command(plot_sa_trace)
+ind_set.add_command(plot_sa_triangles)
 
 if __name__ == "__main__":
     run()

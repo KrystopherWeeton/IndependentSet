@@ -6,7 +6,7 @@ from independent_set.experiments.phase_heuristic import profile_phase_heuristic
 
 
 @click.group()
-def run():
+def ind_set():
     pass
 
 run.add_command(profile_successive_augmentation)

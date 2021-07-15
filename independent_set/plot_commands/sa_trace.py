@@ -4,8 +4,8 @@ import sys
 import click
 
 import util.plot.plot as plot
-from plot_commands.util import prompt_file_name, verify_and_load_results
-from util.plot.series import SeriesFormatting, plot_function, plot_series
+from util.commands import prompt_file_name, verify_and_load_results
+from util.plot.series import SeriesFormatting, plot_series
 from independent_set.result_models.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
 
@@ -17,17 +17,13 @@ INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Intersection Size", "blue", 1, False, "-o"
     ) 
 
-LINE_FORMATTING: SeriesFormatting = SeriesFormatting(
-    "Ideal Subset Line ", "green", 1, False, "-o"
-)
-
 NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")
 @click.option("--file-name", required=False, help="The file name to save the graph as. Prompt will be provided if option not provided.")
 @click.option("--transient", required=False, is_flag=True, default=False, help="Shows the plot instead of saving.")
-def plot_sa_triangles(today, file_name, transient):
+def plot_sa_trace(today, file_name, transient):
     #? Load results and generate file name if not set
     results: SuccAugResults = verify_and_load_results(
         today, generate_sa_results_file_name, SuccAugResults
@@ -39,19 +35,26 @@ def plot_sa_triangles(today, file_name, transient):
     intersection_sizes = list(results.intersection_results.collapse_to_list())
     sizes = list(results.size_results.collapse_to_list())
 
-    #? Need to mess around with the structure a bit
-    plot.initialize_figure("Subset Size (s)", "Intersection Size", "Size vs. Intersection", (20, 8))
-    plot_function(sizes, lambda x: x, LINE_FORMATTING)
-    plot_series(sizes, intersection_sizes, SIZE_FORMATTING)
+    #? Graph everything and add annotations
+    plot.initialize_figure("Step", "", "Size / Intersection", (20, 8))
+    plot_series(steps, sizes, SIZE_FORMATTING)
+    plot_series(steps, intersection_sizes, INTERSECTION_FORMATTING)
     plot.annotate_points(
+        steps, 
         sizes, 
-        intersection_sizes, 
         results.n // NUM_ANNOTATIONS, 
         lambda x, y : f"{y :.2f}",
         0,
         50
     )
-
+    plot.annotate_points(
+        steps, 
+        intersection_sizes, 
+        results.n // NUM_ANNOTATIONS, 
+        lambda x, y: f"{y :.2f}",
+        0,
+        30,
+    )
     plot.add_notes(
         f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\nSize: {results.final_size}\nIntersection: {results.final_intersection}", 
         0.05,
