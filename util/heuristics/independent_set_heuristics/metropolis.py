@@ -2,20 +2,20 @@ import math
 import random
 
 import util.formulas as formulas
-from util.heuristics.heuristic import Heuristic
+from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
 
 
-class Metropolis(Heuristic):
+class Metropolis(IndependentSetHeuristic):
 
     def __init__(self):
         super().__init__(expected_metadata_keys=["temperature", "max_steps"])
 
-
     """
         Calculates the threshold when presented with an option that increases density
     """
+
     def __calc_threshold(self, density: float, temperature: float) -> float:
-        threshold = math.e**(-density / temperature)
+        threshold = math.e ** (-density / temperature)
         if threshold > 1:
             raise Exception(f"Metropolis got a threshold {threshold} > 1.")
         return threshold

@@ -1,10 +1,7 @@
-import networkx as nx
-import numpy as np
-
-from util.heuristics.heuristic import SeededHeuristic
+from util.independent_set_heuristics.heuristic import SeededHeuristic
 
 """
-    Description: Heuristic which takes an initial set in it's solution, then proceeds
+    Description: IndependentSetHeuristic which takes an initial set in it's solution, then proceeds
     through hill climbing to minimize the number of edges within the set, while keeping
     the size of the set fixed.
 """

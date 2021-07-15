@@ -1,6 +1,6 @@
 #!env/bin/python3
-import copy
 import cProfile
+import copy
 import math
 import pstats
 import random
@@ -8,9 +8,8 @@ import sys
 
 import click
 
-import util.storage as storage
 from util.graph import generate_planted_independent_set_graph
-from util.heuristics.successive_augmentation import SuccessiveAugmentation
+from util.heuristics.independent_set_heuristics.successive_augmentation import SuccessiveAugmentation
 from util.results.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
 from util.storage import store

@@ -1,10 +1,7 @@
-import networkx as nx
-import numpy as np
-
-from util.heuristics.heuristic import SeededHeuristic
+from util.independent_set_heuristics.heuristic import SeededHeuristic
 
 """
-    Description: Heuristic which takes an initial set in it's solution, then greedily selects
+    Description: IndependentSetHeuristic which takes an initial set in it's solution, then greedily selects
     the highest degree vertex to remove, repeating until the set remaining is an independent
     set.
 """
