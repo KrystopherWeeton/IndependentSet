@@ -4,7 +4,7 @@ import sys
 import click
 
 import util.plot.heatmap as heatmap
-from util.results.size_results import (SizeResults,
+from independent_set.result_models.size_results import (SizeResults,
                                        generate_size_results_file_name)
 from util.storage import load
 

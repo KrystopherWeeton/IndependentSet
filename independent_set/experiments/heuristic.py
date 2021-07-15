@@ -9,11 +9,11 @@ import click
 import networkx as nx
 
 from util.graph import generate_planted_independent_set_graph
-from util.heuristics.independent_set_heuristics.fixed_gww import FixedGWW
-from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
-from util.heuristics.independent_set_heuristics.phase_heuristic import PhaseHeuristic
-from util.heuristics.independent_set_heuristics.successive_augmentation import SuccessiveAugmentation
-from util.results.heuristic_results import HeuristicResults
+from independent_set.heuristics.fixed_gww import FixedGWW
+from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.phase_heuristic import PhaseHeuristic
+from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
+from independent_set.result_models.heuristic_results import HeuristicResults
 from util.storage import store
 
 ##########################################

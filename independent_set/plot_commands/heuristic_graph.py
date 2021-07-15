@@ -9,7 +9,7 @@ import util.file_util as file_util
 import util.plot.plot as plot
 import util.plot.series as series
 import util.plot.scatter as scatter
-from util.results.heuristic_results import (
+from independent_set.result_models.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
 

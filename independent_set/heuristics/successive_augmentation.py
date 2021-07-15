@@ -2,7 +2,7 @@ import sys
 from typing import Callable
 
 from util.graph import count_edge_boundary
-from util.heuristics.independent_set_heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
@@ -40,19 +40,16 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         K: int = self.metadata["K"]
         intersection_oracle: Callable = self.metadata["intersection_oracle"]
         epsilon: int = self.metadata["epsilon"]
-
         #? Metadata validation
         if N <= 0 or K <= 0 or K > N:
             print(f"ERROR: Unable to run heuristic with metadata provided. N={N}, K={K}")
             sys.exit(1)
+        #? Set initial solution to empty value
+        self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
 
         #? Define inclusion predicate
         def f(v, S: GraphSubsetTracker) -> bool:
             m: int = S.size()
-            #! Somewhere near expectation?
-            #threshold: int = (math.sqrt(m) * (math.sqrt(m) - 1)) / 2
-            #! Oracle call here. Not realistic!
-            # threshold: int = (m - intersection_oracle(S.subset)) / 2 - 3
             threshold: int = (m - intersection_oracle(S.subset)) / 2 -  epsilon
             if threshold < 0:
                 threshold = 0
@@ -60,24 +57,15 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             return internal_degree <= threshold
 
         #? Run successive augmentation
-        subset: GraphSubsetTracker = self.solution
         step: int = 0
         for v in self.G.nodes:
-            if v in subset.subset:
+            if v in self.solution.subset:
                 continue
             # Determine whether or not to include v
-            include_v = f(v, subset)
+            include_v = f(v, self.solution)
             if include_v:
-                subset.add_node(v)
+                self.solution.add_node(v)
             
             #? Update results
-            self.call_post_step_hook(subset.subset, step)
+            self.call_post_step_hook(self.solution.subset, step)
             step += 1
-
-        #? Prune to get a final solution
-        #! Stop pruning for now. We can add this back in.
-        #self.solution = create_graph_subset_tracker(self.G, self.__greedily_get_ind_subset(subset))
-        self.solution = subset
-
-
-

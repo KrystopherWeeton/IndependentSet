@@ -5,8 +5,8 @@ import math
 import click
 
 from util.graph import generate_planted_independent_set_graph
-from util.heuristics.independent_set_heuristics.fixed_gww import FixedGWW
-from util.results.size_results import (SizeResults,
+from independent_set.heuristics.fixed_gww import FixedGWW
+from independent_set.result_models.size_results import (SizeResults,
                                        generate_size_results_file_name)
 from util.storage import store
 
