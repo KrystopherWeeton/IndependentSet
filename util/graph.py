@@ -193,3 +193,53 @@ class PerfectGraphGenerator:
         permutation = np.random.permutation(nodes)
         # Return permutted graph
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
+
+
+"""
+IMPORTANT: Returns color_to_nodes coloring
+"""
+
+
+def generate_random_color_partition(G: nx.Graph, num_colors: int) -> dict[int, list[int]]:
+    # Initialize stirling table
+    n: int = len(G)
+    stirling = np.zeros((n, n)).tolist()
+    for i in range(len(stirling) - 1):
+        for j in range(1, len(stirling[i])):
+            stirling[i + 1][j] = j * stirling[i][j] + stirling[i][j - 1]
+
+    def random_partition(S: set, parts: int) -> list[set[int]]:
+        if len(S) == 0 or parts == 0:
+            return
+        v: int = S.pop()
+
+        if len(S) == 0:
+            return [set([v])]
+
+        P: list = []
+
+        binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 0
+
+        # Put v in its own partition with P[Event] = binom_prob
+        if np.random.binomial(1, p=(binom_prob if (
+                binom_prob != None and
+                binom_prob != float('NaN') and
+                binom_prob >= 0 and
+                binom_prob <= 1
+        ) else 0)):
+            new_part: list = list(random_partition(S, parts - 1))
+            return [set([v])] if new_part == None else [set([v])] + new_part
+
+        # Otherwise, we put v into a partition that already exists (meaning we still need to partition into k parts
+        P = list(random_partition(S, parts))
+        P[random.randrange(len(P))].add(v)
+
+        return P
+
+    partition: list[set[int]] = random_partition(set(G.nodes), num_colors)
+
+    # Make sure its in the right format to return
+    coloring: dict[int, int] = {}
+    for i, color_set in enumerate(partition):
+        coloring[i] = list(color_set)
+    return coloring
