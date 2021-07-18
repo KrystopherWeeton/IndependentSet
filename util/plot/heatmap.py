@@ -33,8 +33,6 @@ def graph_heatmap(
     x: [int], 
     y: [int], 
     z: [int], 
-    directory: str,
-    file_name: str, 
     min: int = None, 
     max: int = None, 
     title: str = "Title", 
@@ -79,5 +77,3 @@ def graph_heatmap(
     fig = plt.gcf()
     fig.set_size_inches(plot_size, plot_size)
     plt.xticks(rotation=90)
-    plt.savefig(f"{directory}/{file_name}.png")
-    plt.clf()

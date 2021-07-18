@@ -61,4 +61,4 @@ def plot_sa_triangles(today, file_name, transient):
     if transient:
         plot.show_plot()
     else:
-        plot.save_plot(file_name, directory="results")
+        plot.save_plot(file_name, "independent_set")
