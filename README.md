@@ -18,7 +18,7 @@ Runs the heuristic experiment in independent set on a small instance, storing th
 
 
 ```
-python -i load_results.py --path "./independent_set/experiment_results/test.pkl"
+python -i load_results.py "./independent_set/experiment_results/test.pkl"
 ```
 
 Loads the result from the previous command into the python shell, allowing manual examination
