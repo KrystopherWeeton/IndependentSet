@@ -13,8 +13,11 @@ def store(obj, file_name: str, directory: str = None):
 
 # Loads an object from a pickle file
 def load(file_name: str, directory: str = None):
-    with open(__pickle_path(file_name, directory), "rb") as input:
+    return load_from_path(__pickle_path(file_name, directory))
+
+
+def load_from_path(path: str):
+    """ Loads a file from the provided path """
+    with open(path, "rb") as input:
         obj = pickle.load(input)
     return obj
-
-
