@@ -3,8 +3,10 @@ import os
 
 def load_project_config(project_name: str) -> dict:
     """ Loads the project config provided the project name """
-    path: str = f"{project_name}/config.json"
-    return json.load(path)
+    f = open(f"{project_name}/config.json")
+    data = json.load(f)
+    f.close()
+    return data
 
 
 def get_experiment_results_directory(project_name: str) -> str:
