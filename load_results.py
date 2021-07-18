@@ -1,15 +1,13 @@
 import sys
-import click
 import os
 from util.storage import load_from_path
 
-
-@click.command()
-@click.option("--path", required=True)
-def run(path):
-    if path is None:
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
         print("Error: No valid path provided. Results cannot be loaded.")
         sys.exit(1)
+    
+    path = sys.argv[1]
 
     if not os.path.isfile(path):
         click.echo("Error: Invalid path provided")
@@ -17,6 +15,4 @@ def run(path):
 
     result = load_from_path(path)
     print(f"The requested result has been loaded from {path}. It may be accessed through the `results` object")
-
-if __name__ == "__main__":
-    run()
+    print(f"Keys: {list(result.__dict__.keys())}")

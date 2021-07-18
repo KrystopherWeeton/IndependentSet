@@ -1,3 +1,4 @@
+import dill
 import pickle
 import os
 from util.config import get_experiment_results_directory
@@ -11,7 +12,7 @@ def __pickle_path(file_name: str, directory: str = None) -> str:
 def store(obj, file_name: str, directory: str = None):
     path = __pickle_path(file_name, directory)
     with open(path, "wb") as output:
-        pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
+        dill.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 
 # Loads an object from a pickle file
@@ -22,7 +23,7 @@ def load(file_name: str, directory: str = None):
 def load_from_path(path: str):
     """ Loads a file from the provided path """
     with open(path, "rb") as input:
-        obj = pickle.load(input)
+        obj = dill.load(input)
     return obj
 
 
