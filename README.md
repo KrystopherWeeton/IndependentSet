@@ -11,9 +11,7 @@ NOTE: The arguments and commands depend on the project in question
 ### Quick Reference / Testing Commands
 
 ```
-{
     ./exp.py ind-set heuristic -n 500 --num-trials 1 --file-name test --verbose
-}
 ```
 
 Runs the heuristic experiment in independent set on a small instance, storing the results in *test.pkl*
