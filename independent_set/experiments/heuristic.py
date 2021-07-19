@@ -14,7 +14,7 @@ from independent_set.heuristics.independent_set_heuristic import IndependentSetH
 from independent_set.heuristics.phase_heuristic import PhaseHeuristic
 from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
 from independent_set.result_models.heuristic_results import HeuristicResults
-from util.storage import store
+from util.storage import store_experiment
 
 ##########################################
 #       Configuration
@@ -158,8 +158,4 @@ def heuristic(profile, n: [int], min_n, max_n, step, num_trials, file_name, tran
     #? Run the heuristic, then persist results
     results = run_heuristic(n, num_trials, verbose) 
     if not transient:
-        store(obj=results, file_name=results.generate_file_name(override_name=file_name), directory="results")
-
-
-
-
+        store_experiment("independent_set", results.generate_file_name(override_name=file_name), results)
