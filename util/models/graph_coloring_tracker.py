@@ -6,6 +6,7 @@ import numpy as np
 
 from util.models.solution import Solution
 
+
 #TODO: Add proper getter, setter and deleter methods with properties
 
 class GraphColoringTracker(Solution):
@@ -47,7 +48,6 @@ class GraphColoringTracker(Solution):
         total # of collisions
         neighboring colors of v
     """
-
     def init_tables(self):
 
         self.init_saturation()
@@ -71,7 +71,7 @@ class GraphColoringTracker(Solution):
 
     def set_coloring_with_color_classes(self, coloring: dict):
         self.clear_coloring()
-        self.color_to_nodes = copy.deepcopy(coloring)
+        self.color_to_nodes = copy.copy(coloring)
         for color, nodes in coloring.items():
             for n in nodes:
                 self.uncolored_nodes.remove((n))
@@ -80,16 +80,21 @@ class GraphColoringTracker(Solution):
 
     def set_coloring_with_node_labels(self, labelling: dict):
         self.clear_coloring()
-        self.node_to_color = copy.deepcopy(labelling)
+        self.node_to_color = copy.copy(labelling)
         for node, color in labelling:
             self.uncolored_nodes.remove((node))
             self.color_to_nodes[color].add(node)
         self.init_tables()
 
     def color_node(self, node: int, color: int):
+        # TODO: There was a problem here... I think I fixed it
+
         old_color: int = self.node_to_color.get(node, default=None)
         # Update coloring labelling
         self.color_to_nodes[color].add(node)
+        # Need to remove old color
+        if old_color != None:
+            self.color_to_nodes[old_color].remove(node)
         self.node_to_color[node] = color
         self.uncolored_nodes.remove(node)
 
