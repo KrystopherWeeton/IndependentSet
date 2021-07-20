@@ -6,6 +6,7 @@ import numpy as np
 
 from util.models.solution import Solution
 
+#TODO: Add proper getter, setter and deleter methods with properties
 
 class GraphColoringTracker(Solution):
     def __init__(self, G: nx.Graph, coloring: defaultdict = None, labelling: dict = None):
@@ -18,6 +19,7 @@ class GraphColoringTracker(Solution):
         self.saturation: np.array = np.zeros(len(G))
         self.collisions_at: np.array = np.zeros(len(G))
         self.num_neighbor_colors: np.array = np.array([defaultdict(int)] * len(G))
+        self.num_conflicting_edges: int = self.G.number_of_edges()
 
         if coloring != None:
             self.set_coloring_with_color_classes(coloring)
@@ -30,16 +32,37 @@ class GraphColoringTracker(Solution):
     def clear_coloring(self):
         self.color_to_nodes: dict = defaultdict(set)
         self.node_to_color: dict = {}
+
+        # Reset tables and other coloring vars
         self.uncolored_nodes: set = set(list(self.G.nodes))
+        self.saturation: np.array = np.zeros(len(self.G))
+        self.collisions_at: np.array = np.zeros(len(self.G))
+        self.num_neighbor_colors: np.array = np.array([defaultdict(int)] * len(self.G))
+        self.num_conflicting_edges: int = self.G.number_of_edges()
+
+    """
+    Takes care of initializing:
+        saturation,
+        collisions at v
+        total # of collisions
+        neighboring colors of v
+    """
 
     def init_tables(self):
-        self.init_saturation()
-        self.init_collisions()
 
-    def init_collisions(self):
+        self.init_saturation()
+        self.init_collisions_and_nn_colors()
+
+    def get_num_conflicting_edges(self) -> int:
+        return self.num_conflicting_edges
+
+    def init_collisions_and_nn_colors(self):
         for v in self.G:
             for neighbor in self.G[v]:
+                self.num_neighbor_colors[v][self.node_to_color[neighbor]] += 1
                 self.collisions_at[v] += int(self.node_to_color[v] == self.node_to_color[neighbor])
+                self.num_conflicting_edges += int(self.node_to_color[v] == self.node_to_color[neighbor])
+        self.num_conflicting_edges /= 2  # Need to divide due to handshake lemma
 
     def init_saturation(self):
         # How to get saturation of v?
@@ -73,17 +96,26 @@ class GraphColoringTracker(Solution):
         # Update tables, complexity O(maxdeg(G))
         for neighbor in self.G[node]:
             # Update neighboring colors
-            if old_color != None:
+            if old_color is not None:
                 self.num_neighbor_colors[neighbor, old_color] -= 1
             self.num_neighbor_colors[neighbor, color] += 1
 
             # Update saturation
-            self.saturation[neighbor] -= int(old_color != None and self.num_neighbor_colors[neighbor, old_color] == 0)
+            self.saturation[neighbor] -= int(
+                old_color is not None and self.num_neighbor_colors[neighbor, old_color] == 0
+            )
             self.saturation[neighbor] += int(self.num_neighbor_colors[neighbor, color] == 1)
 
             # Update collisions table
-            self.collisions_at[neighbor] -= int(old_color != None and self.node_to_color[neighbor] == old_color)
+            self.collisions_at[neighbor] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
             self.collisions_at[neighbor] += int(self.node_to_color[neighbor] == color)
+
+            self.collisions_at[node] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
+            self.collisions_at[node] += int(self.node_to_color[neighbor] == color)
+
+            # Update the number of conflicts
+            self.num_conflicting_edges -= int(self.node_to_color[neighbor] == old_color)
+            self.num_conflicting_edges += int(self.node_to_color[neighbor] == color)
 
     def most_collisions_node(self) -> int:
         return self.collisions_at.argmax()
