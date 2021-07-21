@@ -5,6 +5,7 @@ import networkx as nx
 import numpy as np
 
 from util.models.solution import Solution
+from typing import List, Dict
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
@@ -78,10 +79,10 @@ class GraphColoringTracker(Solution):
             self.saturation[v] = np.count_nonzero(self.num_neighbor_colors[v])
 
     # TODO: Might be useful to add a way to color only a specific subgraph
-    def set_coloring_with_color_classes(self, coloring: dict[int, list[int]]):
+    def set_coloring_with_color_classes(self, coloring: Dict[int, List[int]]):
         """
         Sets the coloring given some partial (or complete coloring)
-        :param coloring: dict[int, list[int]], Must be a dictionary of color classes
+        :param coloring: Dict[int, List[int]], Must be a dictionary of color classes
         """
         self.clear_coloring()
         self.color_to_nodes = copy.copy(coloring)

@@ -4,6 +4,7 @@ import networkx as nx
 import sympy
 
 from util.graph import PerfectGraphGenerator, generate_random_color_partition
+from typing import List, Dict
 
 
 class MyTestCase(unittest.TestCase):
@@ -25,7 +26,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_random_color_partitioning(self):
         k: int = 5
-        partition: dict[int, list[int]] = generate_random_color_partition(self.G, k)
+        partition: Dict[int, List[int]] = generate_random_color_partition(self.G, k)
         self.assertEqual(k, len(partition.keys()), "Make sure we didn't add any colors")
         nodes_in_partition: set = set()
         for col_class in partition.values():

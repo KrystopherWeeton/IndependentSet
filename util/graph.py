@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
 from sympy.functions.combinatorial.numbers import stirling as stir
+from typing import List, Dict
 
 
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
@@ -202,7 +203,7 @@ class PerfectGraphGenerator:
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
 
 
-def generate_random_color_partition(G: nx.Graph, num_colors: int) -> dict[int, list[int]]:
+def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, List[int]]:
     """
     :param G: nx.Graph
     :param num_colors: int
@@ -217,7 +218,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> dict[int, l
         for j in range(1, len(stirling[i])):
             stirling[i + 1, j] = j * stirling[i, j] + stirling[i, j - 1]
 
-    def random_partition(S: list, parts: int) -> list[list[int]]:
+    def random_partition(S: list, parts: int) -> List[List[int]]:
         if len(S) == 0 or parts == 0:
             return
         # TODO: I think I actually need to permute S, otherwise there could be some fuckery...
@@ -257,10 +258,10 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> dict[int, l
 
         return P
 
-    partition: list[list[int]] = random_partition(list(G.nodes), num_colors)
+    partition: List[List[int]] = random_partition(list(G.nodes), num_colors)
 
     # Make sure its in the right format to return
-    coloring: dict[int, list[int]] = {}
+    coloring: dict[int, List[int]] = {}
     for i, color_set in enumerate(partition):
         coloring[i] = list(color_set)
     return coloring
