@@ -17,4 +17,4 @@ ind_set.add_command(successive_augmentation)
 #run.add_command(phase_heuristic)
 
 if __name__ == "__main__":
-    run()
+    ind_set()
