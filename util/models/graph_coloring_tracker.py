@@ -1,18 +1,18 @@
 import copy
 from collections import defaultdict
+from typing import List, Dict
 
 import networkx as nx
 import numpy as np
 
 from util.models.solution import Solution
-from typing import List, Dict
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
 
 class GraphColoringTracker(Solution):
 
-    # FIXME: whenever I try to access the color of an uncolored node, I can't do that, nope
+    # TODO: whenever I try to access the color of an uncolored node, I should throw an exception
     def __init__(self, G: nx.Graph, coloring: defaultdict = None, labelling: dict = None):
         super(GraphColoringTracker, self).__init__()
         self.G: nx.Graph = G
@@ -29,6 +29,11 @@ class GraphColoringTracker(Solution):
             self.set_coloring_with_color_classes(coloring)
         elif labelling != None:
             self.set_coloring_with_node_labels(labelling)
+
+    # TODO: Is complete coloring, and if so how many colors did we use?
+
+    def get_found_chromatic_number(self):
+        return len(self.color_to_nodes.keys())
 
     def get_uncolored_nodes(self):
         return self.uncolored_nodes
@@ -101,7 +106,6 @@ class GraphColoringTracker(Solution):
         self.init_tables()
 
     def color_node(self, node: int, color: int):
-        # TODO: There was a problem here... I think I fixed it
 
         old_color: int = self.node_to_color.get(node, None)
         # Update coloring labelling
@@ -147,7 +151,7 @@ class GraphColoringTracker(Solution):
         """
         return self.collisions_at.argmax()
 
-    # TODO: Add way to make recoloring loss function modular
+    # OPTIMIZEMe: Add way to make recoloring loss function modular
     # Complexity: O()
     def most_distinctly_saturated_node(self) -> int:
         # Essentially we're counting the number of non-zero entries in a given row
