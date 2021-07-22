@@ -29,7 +29,8 @@ class GuessAndOptimize(GraphColoringHeuristic):
         # TODO: do we need stirling table still?
 
         # Make initial guess
-        b: float = 1 / (1 - nx.density(G))
+        # TODO: Check out density condition here
+        b: float = 1 / (1 - nx.density(self.G))
         k: int = self.initial_guess if self.initial_guess != 0 else (n / math.log(n, b))
         iterations: int = n * k
         tries: int = n
@@ -42,7 +43,7 @@ class GuessAndOptimize(GraphColoringHeuristic):
             # Now try to optimize for iterations
             self._optimize(iterations)
             # If we got to a valid solution, don't need to go up any more
-            if self.solution.get_num_conflicting_edges() == 0 or len(self.solution.color_to_nodes):
+            if self.solution.get_num_conflicting_edges() == 0 or len(self.solution.color_to_nodes) == len(self.G):
                 break
             k = k + 1
 

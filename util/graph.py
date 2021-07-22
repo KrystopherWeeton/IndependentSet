@@ -2,12 +2,12 @@ import itertools
 import math
 import random
 from decimal import Decimal
+from typing import List, Dict
 
 import networkx as nx
 import numpy as np
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
 from sympy.functions.combinatorial.numbers import stirling as stir
-from typing import List, Dict
 
 
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
@@ -207,7 +207,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, L
     """
     :param G: nx.Graph
     :param num_colors: int
-    :return: dict[int, int], color_to_nodes coloring/partitoning
+    :return: Dict[int, list[int]], color_to_nodes coloring/partitoning
     """
     # Initialize stirling table
     n: int = len(G)
