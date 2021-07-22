@@ -4,8 +4,7 @@ import sys
 import click
 
 import util.plot.plot as plot
-from util.commands import 
-from util.plot.shapes import draw_polygon, LineFormatting
+from util.plot.shapes import draw_polygon, draw_line, LineFormatting
 from util.commands import prompt_file_name, verify_and_load_results
 from util.plot.series import SeriesFormatting, plot_function, plot_series
 from independent_set.result_models.sa_results import (SuccAugResults,
@@ -22,6 +21,8 @@ INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
 LINE_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Ideal Subset Line ", "green", 1, False, "-o"
 )
+
+TRIANGLE_FORMATTING: LineFormatting = LineFormatting(style="-", width="1", color="orange")
 
 NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
 
@@ -57,8 +58,7 @@ def plot_sa_triangles(today, file_name, transient):
         0.05,
         0.9,
     )
-    #? Add in lines for the s=k line
-    draw_polygon([(0, 0), (results.final_size, results.final_size)])
+    # TODO: Take in parameter for T and draw in triangles, without expectation.
 
     if transient:
         plot.show_plot()

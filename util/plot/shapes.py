@@ -16,7 +16,7 @@ class LineFormatting:
 DEFAULT_LINE_FORMATTING: LineFormatting = LineFormatting(style="-", width=2, color="r")
 
 
-def draw_line(start: point, end: point, formatting: LineFormatting):
+def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LINE_FORMATTING):
     """Draws a line in the current plot at the provided coordinates"""
     # TODO: Figure out how to respect color and make sure it is respected.
     plt.plot(
