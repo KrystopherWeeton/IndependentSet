@@ -22,7 +22,7 @@ def planted_ind_set_size(n: int) -> int:
 EDGE_PROBABILITY: float = 0.5
 BASE_METADATA: dict = {
     "K":                None,
-    "epsilon":          3,
+    "epsilon":          1,
 }
 HEADSTART_SIZE: int = 5
 

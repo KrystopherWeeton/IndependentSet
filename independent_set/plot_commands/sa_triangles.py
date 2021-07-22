@@ -9,6 +9,7 @@ from util.commands import prompt_file_name, verify_and_load_results
 from util.plot.series import SeriesFormatting, plot_function, plot_series
 from independent_set.result_models.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
+from typing import Callable, List, Tuple
 
 SIZE_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Subset Size", "gray", 1, False, "-o"
@@ -22,9 +23,32 @@ LINE_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Ideal Subset Line ", "green", 1, False, "-o"
 )
 
-TRIANGLE_FORMATTING: LineFormatting = LineFormatting(style="-", width="1", color="orange")
-
 NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
+
+
+####### TRIANGLE FORMATTING AND SUPPORT #############
+
+TRIANGLE_FORMATTING: LineFormatting = LineFormatting(style="-", width="1", color="orange")
+# The 'length' of each phase, allowed to be a function of n
+def T(m: int) -> int:
+    return m // 10
+
+
+def __generate_triangle(s: int, k: int, t: int) -> List[Tuple[int, int]]:
+    """ Generates a triangle from provided left point s, k """
+    return [(s, k), (s + t, k), (s + t, k + t)]
+
+def __expected_height(alpha: float, t: int) -> float:
+    # TODO: Make this the actual expected height
+    return t/2
+
+
+def __slack(alpha: float, t: int, m: int) -> float:
+    # TODO: What slack do we want to actually test?
+    # for now we can just ignore this and examine concentration
+    # around the expectation.
+    return t/4
+
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to set file name to load to today's file name.")
@@ -58,7 +82,20 @@ def plot_sa_triangles(today, file_name, transient):
         0.05,
         0.9,
     )
-    # TODO: Take in parameter for T and draw in triangles, without expectation.
+    # TODO: Allow option to, rather than average trials, graph every trial independently to get an idea about concentration
+
+    #? Calculate and then draw triangles
+    m: int = results.final_size
+    t: int = T(m)
+    num_triangles: int = (m - results.headstart_size) // t
+    origin = (results.headstart_size, results.headstart_size)
+    triangles = []
+    while origin[0] < m:
+        triangle = __generate_triangle(origin[0], origin[1], t)
+        draw_polygon(triangle, formatting=TRIANGLE_FORMATTING)
+        # TODO: What is alpha?
+        origin = (origin[0] + t, origin[1] + __expected_height(1, t))
+
 
     if transient:
         plot.show_plot()

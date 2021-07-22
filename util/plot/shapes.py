@@ -24,6 +24,7 @@ def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LIN
         [start[1], end[1]],
         linestyle=formatting.style,
         linewidth=formatting.width,
+        color=formatting.color
     )
 
 
@@ -37,6 +38,7 @@ def draw_polygon(points: [point], formatting: LineFormatting = DEFAULT_LINE_FORM
         # Draw line from prev to points[i]
         end: point = points[i]
         draw_line(start, end, formatting)
+        start = end
 
     # Draw the last point to the end
     draw_line(points[len(points) - 1], points[0], formatting)
