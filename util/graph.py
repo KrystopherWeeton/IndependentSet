@@ -8,9 +8,11 @@ import networkx as nx
 import numpy as np
 
 
+
+from sympy.functions.combinatorial.numbers import stirling as stir
+from typing import List, Dict
+
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
-
-
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
     planted: list = nx.get_node_attributes(g, planted_key)
     intersection: list = random.sample(planted, k)
@@ -219,9 +221,14 @@ class PerfectGraphGenerator:
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
 
 
-def random_partition(S: list, parts: int) -> List[List[int]]:
-    # Just gotta initialize the stirling table here
-    n = len(S)
+def random_partition(S: list, num_colors: int) -> Dict[int, List[int]]:
+    """
+    :param S: list, set we want to partition
+    :param num_colors: int
+    :return: dict[int, int], color_to_nodes coloring/partitoning
+    """
+    # Initialize stirling table
+    n: int = len(S)
     stirling: np.array = np.zeros((n, n))
     stirling[0, 0] = 1
 
