@@ -71,7 +71,7 @@ class ResultTensor:
                     "Wrong ordering of dimensions for accessing results dict."
                 )
             if k not in self.__dimension_keys[i]:
-                raise Exception("Bad key passed into results dict access")
+                raise Exception(f"Bad key passed into results dict access\nKey: {k}\tKeys:{self.__dimension_keys[i]}")
 
     def __to_indices(self, kwargs) -> Tuple:
         return tuple([self.__get_index(dim, k) for dim, k in kwargs.items()])

@@ -4,6 +4,7 @@ import sys
 import click
 
 import util.plot.plot as plot
+from util.commands import 
 from util.plot.shapes import draw_polygon, LineFormatting
 from util.commands import prompt_file_name, verify_and_load_results
 from util.plot.series import SeriesFormatting, plot_function, plot_series

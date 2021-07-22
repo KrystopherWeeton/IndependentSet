@@ -45,7 +45,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             print(f"ERROR: Unable to run heuristic with metadata provided. N={N}, K={K}")
             sys.exit(1)
         #? Set initial solution to empty value
-        self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
+        #self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
 
         #? Define inclusion predicate
         def f(v, S: GraphSubsetTracker) -> bool:

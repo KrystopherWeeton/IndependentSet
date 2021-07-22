@@ -12,7 +12,8 @@ from util.graph import generate_planted_independent_set_graph
 from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
 from independent_set.result_models.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
-from util.storage import store
+from util.storage import store_experiment
+from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -21,6 +22,7 @@ def planted_ind_set_size(n: int) -> int:
 EDGE_PROBABILITY: float = 0.5
 BASE_METADATA: dict = {
     "K":                None,
+    "epsilon":          3,
 }
 HEADSTART_SIZE: int = 5
 
@@ -46,7 +48,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
         def post_step_hook(subset: set, step: int):
             results.add_result(step, t, size=len(subset), intersection=len(subset.intersection(B)))
 
-        sa.run_heuristic(G, metadata, seed=set(random.sample(B, k=HEADSTART_SIZE)), post_step_hook=post_step_hook)
+        sa.run_heuristic(G, metadata, seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))), post_step_hook=post_step_hook)
         #? Gather final results and store
         intersection_size: int = len(sa.solution.subset.intersection(B))
         size: int = len(sa.solution.subset)
@@ -73,7 +75,7 @@ def successive_augmentation(n, num_trials, verbose, transient):
     results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose, transient)
 
     if not transient: 
-        store(obj=results, file_name=generate_sa_results_file_name(), directory="results")
+        store_experiment("independent_set", generate_sa_results_file_name(), results)
     elif verbose:
         print(f"[V] Skipping store step because transient was set to true.")
 

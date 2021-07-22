@@ -11,6 +11,7 @@ def __pickle_path(file_name: str, directory: str = None) -> str:
 # Stores an object into a pickle file
 def store(obj, file_name: str, directory: str = None):
     path = __pickle_path(file_name, directory)
+    print(path)
     with open(path, "wb") as output:
         dill.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
