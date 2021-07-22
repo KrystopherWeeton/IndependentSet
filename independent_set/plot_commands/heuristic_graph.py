@@ -42,7 +42,7 @@ def __generate_graphs(results: HeuristicResults, folder: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    plot.save_plot(file_name="intersection-sizes", "independent_set", folder=folder)
+    plot.save_plot(file_name="intersection-sizes", project_name="independent_set", folder=folder)
 
     scatter.plot_scatter_data(
         x_points=n_values,
@@ -55,7 +55,7 @@ def __generate_graphs(results: HeuristicResults, folder: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    plot.save_plot(file_name="subset-sizes", "independent_set", folder=folder)
+    plot.save_plot(file_name="subset-sizes", project_name="independent_set", folder=folder)
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
