@@ -18,7 +18,7 @@ class GlauberDynamics(GraphColoringHeuristic):
         self.solution.set_coloring_with_color_classes(generate_random_color_partition(self.G, self.G.degree + delta))
 
         # Just keep recoloring until we get to a proper coloring
-        while not self.solution.is_proper_and_complete():
+        while not self.solution.is_proper and self.solution.is_complete():
             self.solution.recolor_random_node_a_random_color()
 
         # Then we're done! Good job team

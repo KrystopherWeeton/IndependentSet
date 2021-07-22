@@ -168,8 +168,11 @@ class GraphColoringTracker(Solution):
             self.num_conflicting_edges -= int(self.node_to_color[neighbor] == old_color)
             self.num_conflicting_edges += int(self.node_to_color[neighbor] == color)
 
-    def is_proper_and_complete(self) -> bool:
-        return self.num_conflicting_edges == 0 and len(self.uncolored_nodes) == 0
+    def is_proper(self):
+        return self.num_conflicting_edges == 0
+
+    def is_complete(self):
+        return len(self.uncolored_nodes) == 0
 
     def recolor_random_node_a_random_color(self):
         # Pick a random node
