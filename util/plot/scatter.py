@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 
-from util.plot.series import SeriesFormatting
+from util.plot.series import SeriesFormatting, plot_series
 import util.plot.plot as plot
 
 def plot_scatter_data(

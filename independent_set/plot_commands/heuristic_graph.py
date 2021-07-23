@@ -9,13 +9,16 @@ import util.file_util as file_util
 import util.plot.plot as plot
 import util.plot.series as series
 import util.plot.scatter as scatter
+from util.commands import verify_and_load_results
 from independent_set.result_models.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
 
-
-def __generate_graphs(results: HeuristicResults, folder: str):
-
+@click.command()
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
+@click.option("--folder", required=True, help="The folder to save the graphs into")
+def plot_heuristics_graphs(today, folder):
+    results: HeuristicResults = verify_and_load_results(today, generate_heuristic_results_file_name, HeuristicResults, "independent_set")
     n_values: [int] = results.get_n_values()
 
     intersection_sizes: [StatInfo] = results.get_all_intersection_size_info()
@@ -30,6 +33,8 @@ def __generate_graphs(results: HeuristicResults, folder: str):
 
     intersection_data: [[float]] = results.get_intersection_data()
     subset_data: [[float]] = results.get_subset_size_data()
+    
+    folder = file_util.create_dir_in_experiment_results_directory(folder, "independent_set")
 
     scatter.plot_scatter_data(
         x_points=n_values,
@@ -56,23 +61,3 @@ def __generate_graphs(results: HeuristicResults, folder: str):
         y_spacing=0.25
     )
     plot.save_plot(file_name="subset-sizes", project_name="independent_set", folder=folder)
-
-@click.command()
-@click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
-@click.option("--folder", required=True, help="The folder to save the graphs into")
-def plot_heuristics_graphs(today, folder):
-    if not today:
-        pickle_name = click.prompt("Please enter the file for the results", type=str)
-    else:
-        pickle_name = f"results/{generate_heuristic_results_file_name()}"
-
-    if not os.path.isfile(f"{pickle_name}.pkl"):
-        click.secho(f"The file at {pickle_name}.pkl could not be found.", err=True)
-        sys.exit(0)
-    
-    results: HeuristicResults = load(pickle_name)
-    if not results:
-        click.secho("Could not load results.", err=True)
-        sys.exit(0)
-
-    __generate_graphs(results, folder)
