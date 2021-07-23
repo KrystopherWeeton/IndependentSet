@@ -63,6 +63,9 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
         frg.run_heuristic(G)
 
         # Add to results
+        if verbose:
+            print(
+                f"[V] The heuristic found a complete proper coloring using {frg.solution.get_found_chromatic_number()} color(s)")
 
         results.add_result(n, trial, cheat, frg.solution.get_found_chromatic_number())
 

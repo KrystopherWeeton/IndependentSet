@@ -1,14 +1,13 @@
 import copy
 import random
 from collections import defaultdict
-from typing import List, Dict, Set
+from typing import List, Dict
+from typing import Set
 
 import networkx as nx
 import numpy as np
 
-
 from util.models.solution import Solution
-from typing import List, Dict
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
@@ -30,8 +29,12 @@ class GraphColoringTracker(Solution):
         # FIXME: Could be potentially dangerous to be using defaultdicts
         self.saturation: np.array = np.zeros(len(G))
         self.collisions_at: np.array = np.zeros(len(G))
-        self.num_neighbor_colors: np.array = np.array([defaultdict(int)] * len(G))
-        self.available_colors_at: Dict[int, Set[int]] = dict(zip(list(G.nodes), {}))
+
+        """
+        Remember, num_neighbor_colors mandates that we keep our k-colors, (even if a color class is empty
+        """
+        self.num_neighbor_colors: np.array = np.array([defaultdict(int) for i in self.G])
+        self.available_colors_at: Dict[int, Set[int]] = dict(zip(list(self.G.nodes), [set() for i in self.G]))
 
         if coloring != None:
             self.set_coloring_with_color_classes(coloring)
@@ -54,8 +57,8 @@ class GraphColoringTracker(Solution):
         self.uncolored_nodes: set = set(list(self.G.nodes))
         self.saturation: np.array = np.zeros(len(self.G))
         self.collisions_at: np.array = np.zeros(len(self.G))
-        self.available_colors_at: Dict[int, Set[int]] = dict(zip(list(self.G.nodes), {}))
-        self.num_neighbor_colors: np.array = np.array([defaultdict(int)] * len(self.G))
+        self.available_colors_at: Dict[int, Set[int]] = dict(zip(list(self.G.nodes), [set() for i in self.G]))
+        self.num_neighbor_colors: np.array = np.array([defaultdict(int) for i in self.G])
         self.num_conflicting_edges: int = 0
 
     def init_tables(self):
@@ -81,15 +84,17 @@ class GraphColoringTracker(Solution):
                 if neighbor not in self.node_to_color or v == neighbor:
                     continue
 
-                self.num_neighbor_colors[v][self.node_to_color[neighbor]] += 1
+                neighbor_color: int = self.node_to_color[neighbor]
+
+                self.num_neighbor_colors[v][neighbor_color] += 1
                 if self.node_to_color[neighbor] in self.available_colors_at[v]:
-                    self.available_colors_at[v].remove(self.node_to_color[neighbor])
+                    self.available_colors_at[v].remove(neighbor_color)
 
                 # Skip the rest if v doesn't have a color (because then collisions would be impossible.
                 if v not in self.node_to_color:
                     continue
-                self.collisions_at[v] += int(self.node_to_color[v] == self.node_to_color[neighbor])
-                self.num_conflicting_edges += int(self.node_to_color[v] == self.node_to_color[neighbor])
+                self.collisions_at[v] += int(self.node_to_color[v] == neighbor_color)
+                self.num_conflicting_edges += int(self.node_to_color[v] == neighbor_color)
         self.num_conflicting_edges /= 2  # Need to divide due to handshake lemma
 
     def init_saturation(self):
@@ -112,15 +117,22 @@ class GraphColoringTracker(Solution):
         self.init_tables()
 
     def set_coloring_with_node_labels(self, labelling: dict):
+        if len(labelling.keys()) > len(self.G):
+            raise ValueError("Tried to color more nodes than are in the graph")
         self.clear_coloring()
         self.node_to_color = copy.copy(labelling)
-        for node, color in labelling:
-            self.uncolored_nodes.remove((node))
+        for node, color in labelling.items():
+            self.uncolored_nodes.remove(node)
             self.color_to_nodes[color].add(node)
         self.init_tables()
 
     # Question: Should we make a dedicated method for RECOLORING a node
     def color_node(self, node: int, color: int):
+
+        # FIXME: So I think the problem is that if we add a new color, we need to update the non-edges to give it a new possibility
+        if color not in self.color_to_nodes:
+            for non_neighbor in self.G_comp[node]:
+                self.available_colors_at[non_neighbor].add(color)
 
         old_color: int = self.node_to_color.get(node, None)
         # Update coloring labelling
@@ -129,11 +141,13 @@ class GraphColoringTracker(Solution):
         if old_color != None:
             self.color_to_nodes[old_color].remove(node)
         self.node_to_color[node] = color
-        self.uncolored_nodes.remove(node)
+        if node in self.uncolored_nodes:
+            self.uncolored_nodes.remove(node)
 
         # Update tables, complexity O(maxdeg(G))
         for neighbor in self.G[node]:
             # I guess we need to check if this node has a color Question: Can we skip it if it doesn't?
+            self.num_neighbor_colors[neighbor][color] += 1
             if neighbor not in self.node_to_color:
                 continue
 
@@ -151,7 +165,7 @@ class GraphColoringTracker(Solution):
                 try:
                     self.available_colors_at[neighbor].remove(color)
                 except KeyError:
-                    print(
+                    raise KeyError(
                         "We tried to remove a color that wasn't there, but this also means that a color is not "
                         "getting added back for some reason"
                     )
