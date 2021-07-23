@@ -18,12 +18,10 @@ class FriezeRandomGreedy(GraphColoringHeuristic):
         k: int = 0
         # Make independent sets
         while len(self.solution.get_uncolored_nodes()) != 0:
-            print("greedy step")
 
             ind_set: set = copy.copy(self.solution.get_uncolored_nodes())
 
             while len(ind_set) != 0:
-                print(len(ind_set))
                 v: int = random.choice(list(ind_set))
                 ind_set.remove(v)
 
