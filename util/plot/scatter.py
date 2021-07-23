@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
-
 from util.plot.series import SeriesFormatting
 import util.plot.plot as plot
+from typing import List, Callable, Tuple
 
 def plot_scatter_data(
     x_points: [float],
@@ -48,3 +48,26 @@ def plot_scatter_data(
         x_offset=x_spacing,
         y_offset=y_spacing
     )
+
+
+def plot_scatter_data_from_tuple(
+    points: List[Tuple[int, int]],
+    annotator: Callable = None,
+    x_offset: float = 10,
+    y_offset: float = 10
+):
+    """
+    """
+    x_values: [int] = [t[0] for t in points]
+    y_values: [int] = [t[1] for t in points]
+
+    plt.scatter(x_values, y_values, marker="o")
+    if annotator is not None:
+        plot.annotate_points(
+            x_points = x_values,
+            y_points = y_values,
+            k = 1,
+            annotator = annotator,
+            x_offset = x_offset,
+            y_offset = y_offset,
+        )

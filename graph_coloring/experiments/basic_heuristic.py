@@ -54,19 +54,20 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
     # TODO: Change to use metadata methodology
     # TODO: needs p value (maybe)
     frg: FriezeRandomGreedy = FriezeRandomGreedy()
-    for trial, n in enumerate(n_values):
-        # Generate a random graph with n nodes
-        generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randbytes(1)))
-        G, cheat = generator.generate_random_split_graph()
+    for n in n_values:
+        for trial in range(num_trials):
+            # Generate a random graph with n nodes
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
+            G, cheat = generator.generate_random_split_graph()
 
-        # Try coloring this graph with frg
-        frg.run_heuristic(G)
+            # Try coloring this graph with frg
+            frg.run_heuristic(G)
 
-        # Add to results
-        if verbose:
-            print(
-                f"[V] The heuristic found a complete proper coloring using {frg.solution.get_found_chromatic_number()} color(s)")
+            # Add to results
+            if verbose:
+                print(
+                    f"[V] The heuristic found a complete proper coloring using {frg.solution.get_found_chromatic_number()} color(s)")
 
-        results.add_result(n, trial, cheat, frg.solution.get_found_chromatic_number())
+            results.add_result(n, trial, cheat, frg.solution.get_found_chromatic_number())
 
     store_experiment("graph_coloring", "test", results)
