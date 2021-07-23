@@ -64,7 +64,7 @@ class Heuristic:
         # TODO: Find a better way to do this, as the seed should be allowed to be other types and the heuristic itself
         # TODO: should handle the mapping to the expected solution type. Probbaly just functions in heuristic that
         # TODO: should be implement at some point.
-        if not isinstance(seed, self.__solution_class):
+        if not isinstance(seed, self.__solution_class) and seed is not None:
             raise Exception(f"Unable to set object of type {type(seed)} when expected type is {self.__solution_class}.")
         self.solution = seed
         self.metadata = metadata

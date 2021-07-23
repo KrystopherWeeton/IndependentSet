@@ -11,7 +11,6 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
     def __init__(self):
         super().__init__(
             expected_metadata_keys=[
-                "K",
                 "intersection_oracle",
                 "epsilon"
             ]
@@ -37,14 +36,11 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
     def _run_heuristic(self):
         #? Pull metadata
         N: int = len(self.G.nodes)
-        K: int = self.metadata["K"]
         intersection_oracle: Callable = self.metadata["intersection_oracle"]
         epsilon: int = self.metadata["epsilon"]
-        #? Metadata validation
-        if N <= 0 or K <= 0 or K > N:
-            print(f"ERROR: Unable to run heuristic with metadata provided. N={N}, K={K}")
-            sys.exit(1)
         #? Set initial solution to empty value
+        if self.solution is None:
+            self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())
         #self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
 
         #? Define inclusion predicate
