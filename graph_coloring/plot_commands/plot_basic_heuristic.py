@@ -15,27 +15,31 @@ def plot_basic_heuristic(results: str):
     true_chr_numbers: list = results.get_all_true_chr_numbers()
     found_chr_numbers: list = results.get_all_found_chr_numbers()
 
+    # First initialize the figure 'canvas'
     plot.initialize_figure(
         x_label="Number of nodes",
         y_label="Chromatic #",
         title="FRG results"
     )
 
+    # Now, plot the actual data
     plot_scatter_data_from_tuple(
-        true_chr_numbers,
+        [true_chr_numbers, found_chr_numbers],
+        ["True", "Found"]
     )
 
-    annotations: [str] = []
-    for i in range(len(true_chr_numbers)):
-        n, true_chr_num = true_chr_numbers[i]
-        annotations.append(found_chr_numbers[i][1])
-
-    plot.annotate_all_points(
-        [t[0] for t in true_chr_numbers],
-        [t[1] for t in true_chr_numbers],
-        annotations,
-        x_offset=10,
-        y_offset=10
-    )
+    #
+    # annotations: [str] = []
+    # for i in range(len(true_chr_numbers)):
+    #     n, true_chr_num = true_chr_numbers[i]
+    #     annotations.append(found_chr_numbers[i][1])
+    #
+    # plot.annotate_all_points(
+    #     [t[0] for t in true_chr_numbers],
+    #     [t[1] for t in true_chr_numbers],
+    #     annotations,
+    #     x_offset=10,
+    #     y_offset=10
+    # )
 
     plot.show_plot()
