@@ -1,19 +1,9 @@
-import os
-import random
-from enum import Enum
-from typing import Callable, List, Tuple
+from typing import Callable, Tuple
 
-import matplotlib.cm as cmap  # Used for heatmaps
 import matplotlib.pyplot as plt  # Used for plotting results
-import numpy as np
-from matplotlib.axes import \
-    Axes  # Used for advanced plotting things (heatmaps)
-from mpl_toolkits import mplot3d
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from util.models.stat_info import StatInfo
-from util.plot.series import SeriesFormatting, plot_series
 from util.config import get_experiment_results_directory
+
 
 def draw_hist(values, file_name: str):
     plt.close()
@@ -34,7 +24,13 @@ def initialize_figure(x_label: str, y_label: str, title: str, figsize: Tuple = N
 """
     Shows the plot to the user and then clears it. Can be used for testing / short term results.
 """
+
+
 def show_plot():
+    plt.tight_layout()
+    fig = plt.gcf()
+    fig.set_size_inches(10, 10)
+    plt.autoscale(enable=True)
     plt.show()
     plt.clf()
 

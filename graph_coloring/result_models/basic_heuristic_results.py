@@ -1,6 +1,7 @@
 from datetime import date
-
 # TODO: Fix this and move result_tensor to util
+from typing import List
+
 from independent_set.result_models.result_tensor import ResultTensor
 
 
@@ -29,20 +30,22 @@ class BasicHeuristicResults:
         self.__chromatic_numbers.add_result(chromatic_number, n=n, trial=trial)
         self.__heuristic_results.add_result(result, n=n, trial=trial)
 
-    def get_all_true_chr_numbers(self):
+    def get_true_chr_numbers(self) -> List[List[tuple]]:
 
-        true_chr_numbers: list = []
+        true_chr_numbers: List[List[tuple]] = []
         for n in self.n_values:
+            add_trial = []
             for trial in self.trials:
-                true_chr_numbers.append((n, self.__chromatic_numbers.get_results(n=n, trial=trial)))
-
+                add_trial.append((n, self.__chromatic_numbers.get_results(n=n, trial=trial)))
+            true_chr_numbers.append(add_trial)
         return true_chr_numbers
 
-    def get_all_found_chr_numbers(self):
+    def get_found_chr_numbers(self) -> List[List[tuple]]:
 
-        found_chr_numbers: list = []
+        found_chr_numbers: List[List[tuple]] = []
         for n in self.n_values:
+            add_trial = []
             for trial in self.trials:
-                found_chr_numbers.append((n, self.__heuristic_results.get_results(n=n, trial=trial)))
-
+                add_trial.append((n, self.__heuristic_results.get_results(n=n, trial=trial)))
+            found_chr_numbers.append(add_trial)
         return found_chr_numbers
