@@ -11,7 +11,10 @@ from util.graph import generate_random_color_partition
 class GuessAndOptimize(GraphColoringHeuristic):
 
     def __init__(self, guess=-1):
-        super(GuessAndOptimize, self).__init__()
+        super(GuessAndOptimize, self).__init__([
+            "initial_guess",
+            "optimization_function"
+        ])
         self.initial_guess = guess
 
     def _optimize(self, iterations: int):
