@@ -1,6 +1,8 @@
 import itertools
 import math
 import random
+
+random.seed(1)
 from decimal import Decimal
 from typing import List, Dict
 from typing import Set
@@ -197,6 +199,7 @@ class PerfectGraphGenerator:
 
         # Make sure all parts are themselves cliques
         for par in partition:
+            par = list(par)
             for i in range(len(par)):
                 for j in range(i, len(par)):
                     G.add_edge(par[i], par[j])
