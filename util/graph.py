@@ -1,4 +1,5 @@
 import itertools
+import math
 import random
 
 random.seed(1)
@@ -93,10 +94,6 @@ def bell_table(n: int) -> list:
 class PerfectGraphGenerator:
 
     def __init__(self, n: int, p: float, co_split: bool = 0):
-
-        # TODO: Might be able to get this to work
-        self.binomial_table: np.array = self.init_binomial_table(n)
-
         self.n = n
         self.p = p
         self.co_split = co_split
@@ -108,21 +105,7 @@ class PerfectGraphGenerator:
         # Fill the A matrix (should take n^2 time I think)
         self.A.append(1)
         for i in range(1, n + 1):
-            self.A.append(sum([binomial_coefficient(i - 1, m) * self.A[m] for m in range(len(self.A))]))
-
-    def binomial_coefficient(self, n, k):
-        return self.binomial_table[n][k]
-
-    def init_binomial_table(self, n: int) -> np.array:
-        res: np.array = np.zeros((n + 1, n + 1))
-        for m in range(n + 1):
-            binom = 1
-            for x in range(m + 1):
-                if m == 0 or x == 0:
-                    continue
-                binom *= (m - x + 1) / x
-                res[m][x] = binom
-        return res
+            self.A.append(sum([math.comb(i - 1, m) * self.A[m] for m in range(len(self.A))]))
 
     def bell_number(self, n: int) -> int:
         if n < 0:
@@ -178,8 +161,7 @@ class PerfectGraphGenerator:
     # From https://www2.math.upenn.edu/~wilf/website/Method%20and%20two%20algorithms.pdf
     def get_central_clique_size(self, n: int) -> int:
         l: list = [
-            Decimal(self.binomial_coefficient(n, k)) * Decimal(self.bell_number(n - k)) * Decimal((2 ** (k * (n - k))))
-            for k
+            Decimal(binomial_coefficient(n, k)) * Decimal(self.bell_number(n - k)) * Decimal((2 ** (k * (n - k)))) for k
             in range(n + 1)]
         L: Decimal = Decimal(sum(l))
         k: Decimal = np.random.choice(a=range(n + 1), p=[Decimal(x / L) for x in l])
