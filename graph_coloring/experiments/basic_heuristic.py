@@ -56,8 +56,12 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
     for n in n_values:
         for trial in range(num_trials):
             # Generate a random graph with n nodes
+            if verbose:
+                print(f'[V]: Generating graph...')
             generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
             G, cheat = generator.generate_random_split_graph()
+            if verbose:
+                print(f'[V]: Graph generated with {cheat} colors')
 
             # Try coloring this graph with frg
             frg.run_heuristic(G)
