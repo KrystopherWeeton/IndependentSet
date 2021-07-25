@@ -3,7 +3,7 @@ import random
 
 import click
 
-from graph_coloring.heuristics.guess_and_optimize import GuessAndOptimize
+from graph_coloring.heuristics.frieze_random_greedy import FriezeRandomGreedy
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment
@@ -30,14 +30,12 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
-    # TODO: Verify arguments passed in min_n < max_n, etc.
     if (
             (n == None and (min_n == None or max_n == None)) or
             (min_n != None and max_n != None and min_n > max_n)
     ):
         raise KeyError("You gave bad arguments man. n: {}, min_n: {}, max_n: {}".format(n, min_n, max_n))
 
-    # TODO: Maybe you can?
     if (
             n != None and (min_n != None or max_n != None)
     ):
@@ -53,8 +51,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
     # 2. Run experiment
     # TODO: Change to use metadata methodology
     # TODO: needs p value (maybe)
-    #    frg: FriezeRandomGreedy = FriezeRandomGreedy()
-    frg: GuessAndOptimize = GuessAndOptimize()
+    frg: FriezeRandomGreedy = FriezeRandomGreedy()
+    # frg: GuessAndOptimize = GuessAndOptimize()
     for n in n_values:
         for trial in range(num_trials):
             # Generate a random graph with n nodes

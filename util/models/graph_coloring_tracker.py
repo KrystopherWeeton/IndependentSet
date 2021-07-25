@@ -1,5 +1,6 @@
 import copy
 import random
+random.seed(1)
 from collections import defaultdict
 from typing import Dict
 from typing import Set
@@ -40,8 +41,6 @@ class GraphColoringTracker(Solution):
             self.set_coloring_with_color_classes(coloring)
         elif labelling != None:
             self.set_coloring_with_node_labels(labelling)
-
-    # TODO: Is complete coloring, and if so how many colors did we use?
 
     def get_found_chromatic_number(self):
         return len(self.color_to_nodes.keys())
@@ -138,6 +137,7 @@ class GraphColoringTracker(Solution):
         # The case in which we're using a NEW color to color this node
         # Optimizeme: So I think the problem is that if we add a new color, we need to update the non-edges to give it a new possibility
         if color not in self.color_to_nodes:
+            assert True == True
             for non_neighbor in self.G_comp[node]:
                 self.available_colors_at[non_neighbor].add(color)
 
@@ -187,9 +187,10 @@ class GraphColoringTracker(Solution):
                 # NOTE: Ok, I'm almost positive that it's impossible for available colors to not have 'color' in it
                 #   since we're doing this check, so that means we want it to fail
                 # This is a special case in the case that neighbor had no other conflicts going into this recoloring
-                if self.num_neighbor_colors[neighbor][color] == 1:
+                if self.num_neighbor_colors[neighbor][color] == 1 and color in self.available_colors_at[neighbor]:
 
                     self.saturation += 1
+                    # QUESTION: Am I wrong about this? Maybe I am...
                     try:
                         self.available_colors_at[neighbor].remove(color)
                     except KeyError:
@@ -199,7 +200,6 @@ class GraphColoringTracker(Solution):
                         )
                 # Let's no see if we
 
-            # TODO: Change to if statements to avoid repeated code
             #
             # # Update collisions table
             # self.collisions_at[neighbor] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)

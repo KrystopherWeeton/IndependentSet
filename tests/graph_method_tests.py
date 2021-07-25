@@ -19,6 +19,9 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(self.generator.bell_number(0), sympy.bell(0))
         self.assertEqual(self.generator.bell_number(10), sympy.bell(10))
 
+    def test_binomial_coefficient(self):
+        self.assertEqual(self.generator.binomial_coefficient(7, 2), sympy.binomial(7, 2))
+
     def test_graph_generation(self):
         # NOTE: At the very least we can make sure that clique and chromatic number are the same
         self.assertEqual(nx.graph_clique_number(self.G), len(set(nx.greedy_color(self.G).values())),

@@ -1,9 +1,7 @@
-from typing import Union, Callable
+from typing import Callable
 
 import networkx as nx
 
-from util.models.graph_subset_tracker import GraphSubsetTracker
-from util.models.solution import Solution
 
 class Heuristic:
 
@@ -60,7 +58,7 @@ class Heuristic:
 
         # Set metadata
         self.G = G
-        # NOTE: Sets solution to NONE if no seed is passed in
+        # Note: Sets solution to NONE if no seed is passed in
         self.solution = seed
         self.metadata = metadata
         self.post_step_hook = post_step_hook

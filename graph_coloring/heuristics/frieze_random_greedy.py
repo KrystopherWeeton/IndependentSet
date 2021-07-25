@@ -1,5 +1,6 @@
 import copy
 import random
+random.seed(1)
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util.models.graph_coloring_tracker import GraphColoringTracker
