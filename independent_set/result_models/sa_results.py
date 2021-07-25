@@ -11,10 +11,11 @@ def generate_sa_results_file_name() -> str:
 
 class SuccAugResults:
 
-    def __init__(self, n: int, planted_size: int, trials: int, headstart_size: int):
+    def __init__(self, n: int, planted_size: int, epsilon: int, trials: int, headstart_size: int):
         # Store metadata
         self.trials = trials
         self.headstart_size: int = headstart_size
+        self.epsilon: int = epsilon
 
         # Store ranges / keys for tracker
         self.trial_values = list(range(trials))

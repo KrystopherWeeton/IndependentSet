@@ -38,9 +38,18 @@ def __generate_triangle(s: int, k: int, t: int) -> List[Tuple[int, int]]:
     """ Generates a triangle from provided left point s, k """
     return [(s, k), (s + t, k), (s + t, k + t)]
 
-def __expected_height(alpha: float, t: int) -> float:
-    # TODO: Make this the actual expected height
-    return t/2
+
+def __probability_of_good_move_estimator(omega: int, n: int, s: int, k: int, epsilon: int) -> float:
+    if s == k:
+        pg: float = omega / 2n
+        pb: float = (1 - omega / n) * e**(- s)
+    else:
+        pg: float = (omega / n) * e**( - (epsilon**2) / (s - k))
+        pb: float = (1 - omega / n) * e**( - ((k + 2 * epsilon)**2) / s)
+    return pg / (pg + pb)
+
+def __expected_height(omega: int, n: int, s: int, k: int, epsilon: int, t: int) -> float:
+    return t * __probability_of_good_move_estimator(omega, n, s, k, epsilon)
 
 
 def __slack(alpha: float, t: int, m: int) -> float:
@@ -87,14 +96,20 @@ def plot_sa_triangles(today, file_name, transient):
     #? Calculate and then draw triangles
     m: int = results.final_size
     t: int = T(m)
+    omega: int = results.planted_size
+    n: int = results.n
+    epsilon: int = results.epsilon
     num_triangles: int = (m - results.headstart_size) // t
     origin = (results.headstart_size, results.headstart_size)
     triangles = []
     while origin[0] < m:
         triangle = __generate_triangle(origin[0], origin[1], t)
         draw_polygon(triangle, formatting=TRIANGLE_FORMATTING)
+        s: int = origin[0]
+        k: int = origin[1]
         # TODO: What is alpha?
-        origin = (origin[0] + t, origin[1] + __expected_height(1, t))
+        expected_height: int = __expected_height(omega, n, s, k, epsilon, t)
+        origin = (origin[0] + t, origin[1] + expected_height)
 
 
     if transient:

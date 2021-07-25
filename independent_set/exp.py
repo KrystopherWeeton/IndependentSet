@@ -2,7 +2,6 @@
 import click
 
 from independent_set.experiments.heuristic import heuristic
-from independent_set.experiments.rep_suc_aug import repeated_successive_augmentation
 from independent_set.experiments.size import size
 from independent_set.experiments.successive_augmentation import successive_augmentation
 #from independent_set.experiments.phase_heuristic import phase_heuristic
@@ -15,7 +14,6 @@ def ind_set():
 ind_set.add_command(size)
 ind_set.add_command(heuristic)
 ind_set.add_command(successive_augmentation)
-ind_set.add_command(repeated_successive_augmentation)
 #run.add_command(phase_heuristic)
 
 if __name__ == "__main__":
