@@ -3,14 +3,11 @@ import math
 import random
 from decimal import Decimal
 from typing import List, Dict
+from typing import Set
 
 import networkx as nx
 import numpy as np
 
-
-
-from sympy.functions.combinatorial.numbers import stirling as stir
-from typing import List, Dict
 
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
@@ -221,7 +218,7 @@ class PerfectGraphGenerator:
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
 
 
-def random_partition(S: list, num_colors: int) -> Dict[int, List[int]]:
+def random_partition(S: set, num_colors: int) -> List[Set[int]]:
     """
     :param S: list, set we want to partition
     :param num_colors: int
@@ -229,27 +226,26 @@ def random_partition(S: list, num_colors: int) -> Dict[int, List[int]]:
     """
     # Initialize stirling table
     n: int = len(S)
-    stirling: np.array = np.zeros((n, n))
+    stirling: np.array = np.zeros((n + 1, n + 1))
     stirling[0, 0] = 1
 
     for i in range(len(stirling) - 1):
         for j in range(1, len(stirling[i])):
             stirling[i + 1, j] = j * stirling[i, j] + stirling[i, j - 1]
 
-    def rec_random_partition(S: list, parts: int) -> List[List[int]]:
+    def rec_random_partition(S: set, parts: int) -> List[Set[int]]:
         if len(S) == 0 or parts == 0:
             return
-        # TODO: I think I actually need to permute S, otherwise there could be some fuckery...
-        random.shuffle(S)
-        v: int = S.pop()
+        v = random.choice(list(S))
+        S.remove(v)
 
         # Question: Is there a reason why S needs to be a set?
         #   I feel like the reason is a remnant of older code
         #   NOTE: changed to list so I could shuffle it
         if len(S) == 0:
-            return [[v]]
+            return [{v}]
 
-        P: list = []
+        P: List[Set[int]] = []
 
         # FIXME: For some reason binom probability is greater than 1...
         binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 0
@@ -268,18 +264,18 @@ def random_partition(S: list, num_colors: int) -> Dict[int, List[int]]:
                 1 if binom_prob >= 1 else 0
         ))):
             new_part: list = list(rec_random_partition(S, parts - 1))
-            return [[v]] if new_part == None else [[v]] + new_part
+            return [{v}] if new_part == None else [{v}] + new_part
 
         # Otherwise, we put v into a partition that already exists (meaning we still need to partition into k parts
         P = list(rec_random_partition(S, parts))
-        P[random.randrange(len(P))].append(v)
+        P[random.randrange(len(P))].add(v)
 
         return P
 
-    return rec_random_partition(S, parts)
+    return rec_random_partition(S, num_colors)
 
 
-def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, List[int]]:
+def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, Set[int]]:
     """
     :param G: nx.Graph
     :param num_colors: int
@@ -288,10 +284,10 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, L
     # Initialize stirling table
     n: int = len(G)
 
-    partition: List[List[int]] = random_partition(list(G.nodes), num_colors)
+    partition: List[Set[int]] = random_partition(list(G.nodes), num_colors)
 
     # Make sure its in the right format to return
-    coloring: Dict[int, List[int]] = {}
+    coloring: Dict[int, Set[int]] = {}
     for i, color_set in enumerate(partition):
-        coloring[i] = list(color_set)
+        coloring[i] = color_set
     return coloring

@@ -49,3 +49,4 @@ class BasicHeuristicResults:
                 add_trial.append((n, self.__heuristic_results.get_results(n=n, trial=trial)))
             found_chr_numbers.append(add_trial)
         return found_chr_numbers
+

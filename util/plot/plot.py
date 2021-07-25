@@ -24,8 +24,6 @@ def initialize_figure(x_label: str, y_label: str, title: str, figsize: Tuple = N
 """
     Shows the plot to the user and then clears it. Can be used for testing / short term results.
 """
-
-
 def show_plot():
     plt.tight_layout()
     fig = plt.gcf()

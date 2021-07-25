@@ -3,7 +3,7 @@ import random
 
 import click
 
-from graph_coloring.heuristics.frieze_random_greedy import FriezeRandomGreedy
+from graph_coloring.heuristics.guess_and_optimize import GuessAndOptimize
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment
@@ -53,7 +53,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
     # 2. Run experiment
     # TODO: Change to use metadata methodology
     # TODO: needs p value (maybe)
-    frg: FriezeRandomGreedy = FriezeRandomGreedy()
+    #    frg: FriezeRandomGreedy = FriezeRandomGreedy()
+    frg: GuessAndOptimize = GuessAndOptimize()
     for n in n_values:
         for trial in range(num_trials):
             # Generate a random graph with n nodes
@@ -66,7 +67,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
             # Add to results
             if verbose:
                 print(
-                    f"[V] The heuristic found a complete proper coloring using {frg.solution.get_found_chromatic_number()} color(s)")
+                    f"[V] The heuristic found a complete proper coloring on a graph of {len(G)} nodes with chromatic "
+                    f"number {cheat} using {frg.solution.get_found_chromatic_number()} color(s)")
 
             results.add_result(n, trial, cheat, frg.solution.get_found_chromatic_number())
 

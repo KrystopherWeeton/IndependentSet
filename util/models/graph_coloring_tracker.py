@@ -1,7 +1,7 @@
 import copy
 import random
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict
 from typing import Set
 
 import networkx as nx
@@ -103,7 +103,7 @@ class GraphColoringTracker(Solution):
             self.saturation[v] = np.count_nonzero(self.num_neighbor_colors[v])
 
     # TODO: Might be useful to add a way to color only a specific subgraph
-    def set_coloring_with_color_classes(self, coloring: Dict[int, List[int]]):
+    def set_coloring_with_color_classes(self, coloring: Dict[int, Set[int]]):
         """
         Sets the coloring given some partial (or complete coloring)
         :param coloring: Dict[int, List[int]], Must be a dictionary of color classes
@@ -129,64 +129,88 @@ class GraphColoringTracker(Solution):
     # Question: Should we make a dedicated method for RECOLORING a node
     def color_node(self, node: int, color: int):
 
-        # FIXME: So I think the problem is that if we add a new color, we need to update the non-edges to give it a new possibility
+        old_color: int = self.node_to_color.get(node, None)
+
+        # Trivial recoloring case
+        if old_color == color:
+            return
+
+        # The case in which we're using a NEW color to color this node
+        # Optimizeme: So I think the problem is that if we add a new color, we need to update the non-edges to give it a new possibility
         if color not in self.color_to_nodes:
             for non_neighbor in self.G_comp[node]:
                 self.available_colors_at[non_neighbor].add(color)
 
-        old_color: int = self.node_to_color.get(node, None)
         # Update coloring labelling
+        # First change in partitioning table
         self.color_to_nodes[color].add(node)
-        # Need to remove old color
         if old_color != None:
             self.color_to_nodes[old_color].remove(node)
+
+        # Then we do in color labelling
         self.node_to_color[node] = color
         if node in self.uncolored_nodes:
             self.uncolored_nodes.remove(node)
 
-        # Update tables, complexity O(maxdeg(G))
+        # Update tables , complexity O(maxdeg(G))
         for neighbor in self.G[node]:
             # I guess we need to check if this node has a color Question: Can we skip it if it doesn't?
             self.num_neighbor_colors[neighbor][color] += 1
-            if neighbor not in self.node_to_color:
-                continue
 
             # Update neighboring colors
             if old_color is not None:
                 self.num_neighbor_colors[neighbor][old_color] -= 1
-            self.num_neighbor_colors[neighbor][color] += 1
 
-            if self.num_neighbor_colors[neighbor][old_color] == 0:
-                self.available_colors_at[neighbor].add(old_color)
+            if neighbor not in self.node_to_color:
+                continue
+            neighbor_color = self.node_to_color[neighbor]
 
-            # NOTE: Ok, I'm almost positive that it's impossible for available colors to not have 'color' in it
-            #   since we're doing this check, so that means we want it to fail
-            if self.num_neighbor_colors[neighbor][color] == 1:
-                try:
-                    self.available_colors_at[neighbor].remove(color)
-                except KeyError:
-                    raise KeyError(
-                        "We tried to remove a color that wasn't there, but this also means that a color is not "
-                        "getting added back for some reason"
-                    )
+            # In the case that we freed up a conflict by recoloring node
+            if old_color != None and old_color == neighbor_color:
+                self.collisions_at[neighbor] -= 1
+                self.collisions_at[node] -= 1
+                self.num_conflicting_edges -= 1
+
+                # This is explicitely in the special case where we completely freed up the neighbor
+                if self.num_neighbor_colors[neighbor][old_color] == 0:
+                    # Sanity checks TODO: remove these
+                    assert color != neighbor_color
+
+                    self.available_colors_at[neighbor].add(old_color)
+                    self.saturation[neighbor] -= 1
+
+            if color == neighbor_color:
+                self.collisions_at[neighbor] += 1
+                self.collisions_at[node] += 1
+                self.num_conflicting_edges += 1
+
+                # NOTE: Ok, I'm almost positive that it's impossible for available colors to not have 'color' in it
+                #   since we're doing this check, so that means we want it to fail
+                # This is a special case in the case that neighbor had no other conflicts going into this recoloring
+                if self.num_neighbor_colors[neighbor][color] == 1:
+
+                    self.saturation += 1
+                    try:
+                        self.available_colors_at[neighbor].remove(color)
+                    except KeyError:
+                        raise KeyError(
+                            "We tried to remove a color that wasn't there, but this also means that a color is not "
+                            "getting added back for some reason"
+                        )
+                # Let's no see if we
 
             # TODO: Change to if statements to avoid repeated code
-            # Update saturation
-            self.saturation[neighbor] -= int(
-                old_color is not None and self.num_neighbor_colors[neighbor][old_color] == 0
-            )
-            self.saturation[neighbor] += int(self.num_neighbor_colors[neighbor][color] == 1)
-
-            # Update collisions table
-            self.collisions_at[neighbor] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
-            self.collisions_at[neighbor] += int(self.node_to_color[neighbor] == color)
-
-            self.collisions_at[node] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
-            self.collisions_at[node] += int(self.node_to_color[neighbor] == color)
-
-            # Update the number of conflicts
-            self.num_conflicting_edges -= int(self.node_to_color[neighbor] == old_color)
-            self.num_conflicting_edges += int(self.node_to_color[neighbor] == color)
+            #
+            # # Update collisions table
+            # self.collisions_at[neighbor] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
+            # self.collisions_at[neighbor] += int(self.node_to_color[neighbor] == color)
+            #
+            # self.collisions_at[node] -= int(old_color is not None and self.node_to_color[neighbor] == old_color)
+            # self.collisions_at[node] += int(self.node_to_color[neighbor] == color)
+            #
+            # # Update the number of conflicts
+            # self.num_conflicting_edges -= int(self.node_to_color[neighbor] == old_color)
+            # self.num_conflicting_edges += int(self.node_to_color[neighbor] == color)
 
     def is_proper(self):
         return self.num_conflicting_edges == 0
@@ -230,4 +254,11 @@ class GraphColoringTracker(Solution):
         """
         # We want to pick the color that causes the least amount of conflicts for this node
         # That would be the argmin of this particular row? I think
-        return min(self.num_neighbor_colors[node], key=self.num_neighbor_colors[node].get)
+        old_color: int = self.node_to_color[node]
+        best_color: int = random.choice(list(self.color_to_nodes.keys()))
+        best_conflicts: float = float('inf')
+        for color, num_neighbors in self.num_neighbor_colors[node].items():
+            if num_neighbors < best_conflicts:
+                best_color = color
+                best_conflicts = num_neighbors
+        return best_color

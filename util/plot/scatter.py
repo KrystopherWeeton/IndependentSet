@@ -88,7 +88,7 @@ def plot_scatter_data_from_tuple_with_trial_labels(
             y_values += [t[1] for t in points]
 
         plt.scatter(x_values, y_values, marker="o", color=f"C{i % 10}", label=f"{data_legend[i]}")
-        #            plt.scatter(x_values, y_values, marker="o", label=f"{data_legend[i]}, Trial {trial_num}")
+#            plt.scatter(x_values, y_values, marker="o", label=f"{data_legend[i]}, Trial {trial_num}")
         plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left', ncol=2,
                    borderaxespad=0, frameon=False)
 
