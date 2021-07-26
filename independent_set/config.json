@@ -1,3 +1,4 @@
 {
-    "experiment_results_directory": "independent_set/experiment_results"
+    "experiment_results_directory": "independent_set/experiment_results",
+    "pre_processing_directory": "independent_set/pre_processing"
 }

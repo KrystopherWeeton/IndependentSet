@@ -6,7 +6,7 @@ import click
 from graph_coloring.heuristics.frieze_random_greedy import FriezeRandomGreedy
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import PerfectGraphGenerator
-from util.storage import store_experiment
+from util.storage import store_experiment, store_pre_processing, load_pre_processing
 
 
 ##########################################
@@ -18,19 +18,18 @@ from util.storage import store_experiment
 #       Commands / Experiments
 ##########################################
 
+@click.group()
+def basic_heuristic():
+    pass
 
-@click.command()
-@click.option("--verbose", required=False, is_flag=True, default=False)
+@basic_heuristic.command()
 @click.option("-n", required=False, multiple=False, type=int)
 @click.option("--min-n", required=False, multiple=False, type=int)
 @click.option("--max-n", required=False, multiple=False, type=int)
 @click.option("--step", required=False, multiple=False, type=int)
-@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
-    """
-        Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
-    """
-    if (
+@click.option("--file-name", required=True, multiple=False)
+def pre_process_perfect(n, min_n, max_n, step, file_name):
+     if (
             (n == None and (min_n == None or max_n == None)) or
             (min_n != None and max_n != None and min_n > max_n)
     ):
@@ -44,6 +43,24 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
         n_values: [int] = range(min_n, max_n, step)
     else:
         n_values: [int] = [n]
+    #! Generate pre-processing graphs
+    store_pre_processing()# perfect graphs)
+    pass
+
+@basic_heuristic.command()
+def pre_process_imperfect():
+    pass
+
+@basic_heuristic.command()
+@click.option("--verbose", required=False, is_flag=True, default=False)
+@click.option("--num-trials", required=False, multiple=False, type=int, default=1)
+@click.option("--pre-processing-file", required=True, default=None, help="...")
+def run(verbose, n, min_n, max_n, step, num_trials, pre_processing_file: str):
+    """
+        Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
+    """
+    #! Load pre-processing from file
+    #! Calculate n valeus from the pre-procesing list
     if verbose:
         print(f"[V] Running basic heuristic experiment with n values of {n_values} and num_trials={num_trials}")
     results: BasicHeuristicResults = BasicHeuristicResults(n_values, num_trials)

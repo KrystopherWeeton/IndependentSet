@@ -2,7 +2,7 @@ import pickle
 
 import dill
 
-from util.config import get_experiment_results_directory
+from util.config import get_experiment_results_directory, get_pre_processing_directory
 
 
 def __pickle_path(file_name: str, directory: str = None) -> str:
@@ -36,3 +36,14 @@ def store_experiment(project_name: str, file_name: str, obj: any):
 def load_experiment(project_name: str, file_name: str):
     results_dir: str = get_experiment_results_directory(project_name)
     return load_from_path(f"{results_dir}/{file_name}.pkl")
+
+
+def store_pre_processing(project_name: str, file_name: str, obj: any):
+    """ Stores a pre-processing object """
+    store(obj, file_name, get_pre_processing_directory(project_name))
+
+
+def load_pre_processing(project_name: str, file_name: str):
+    """ Loads a pre-processing object """
+    directory: str = get_pre_processing_directory(project_name)
+    return load_from_path(f"{directory}/{file_name}.pkl")

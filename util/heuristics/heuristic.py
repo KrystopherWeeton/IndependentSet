@@ -5,13 +5,14 @@ import networkx as nx
 
 class Heuristic:
 
-    def __init__(self, solution_class, expected_metadata_keys: [str] = []):
+    def __init__(self, solution_class, expected_metadata_keys: [str] = [], verbose: bool = False):
         self.__solution_class = solution_class
 
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
         self.solution = None
         self.metadata: dict = None
+        self.verbose: bool = verbose
 
         # The keys which are expected in every metadata passed in, e.g. raise warning
         # if the keys are not found within the provided metadata.
@@ -70,6 +71,13 @@ class Heuristic:
         
         # Run the actual heuristic
         self._run_heuristic()
+
+
+    def print_if_verbose(self, msg: str) -> bool:
+        """ Prints the provided message if the verbose flag is set to true """
+        if self.verbose:
+            print(msg)
+
 
     """
         Private function to actually run the heuristic which can be overwritten to 
