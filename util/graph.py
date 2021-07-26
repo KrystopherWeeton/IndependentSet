@@ -1,15 +1,17 @@
 import itertools
 import math
 import random
+
+random.seed(1)
 from decimal import Decimal
 from typing import List, Dict
+from typing import Set
 
 import networkx as nx
 import numpy as np
+
+
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
-from sympy.functions.combinatorial.numbers import stirling as stir
-
-
 def get_overlap_set(l: int, k: int, g: nx.graph, planted_key: str) -> list:
     planted: list = nx.get_node_attributes(g, planted_key)
     intersection: list = random.sample(planted, k)
@@ -169,11 +171,26 @@ class PerfectGraphGenerator:
         k: int = self.get_central_clique_size(n)
         return [list(range(0, k))] + self.generate_random_partition(list(range(k, n)))
 
-    def generate_random_split_graph(self) -> [nx.Graph, int]:
+    def generate_random_split_graph(self, preset_colors: int = -1) -> [nx.Graph, int]:
         """
+        :param: preset_colors: int, maybe we want to plant a coloring
         :return: [nx.Graph, int], generates random perfect graph with a cheat
         """
-        partition: list = self.generate_unipolar_partition(self.n)
+        if preset_colors == -1:
+            partition: list = self.generate_unipolar_partition(self.n)
+        else:
+            # TODO: Make it so we can plant a color in the base unipolar graph case (not the independent set case)
+            self.co_split = True
+
+            # Get central clique size
+            central_clique_size: int = self.get_central_clique_size(self.n)
+
+            # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
+            partition: List[List[int]] = random_partition(list(range(central_clique_size, self.n)), preset_colors - 1)
+
+            # Add the central clique to the beginning
+            partition.insert(0, list(range(central_clique_size)))
+
         # print(partition)
         G: nx.Graph = nx.Graph()
 
@@ -182,6 +199,7 @@ class PerfectGraphGenerator:
 
         # Make sure all parts are themselves cliques
         for par in partition:
+            par = list(par)
             for i in range(len(par)):
                 for j in range(i, len(par)):
                     G.add_edge(par[i], par[j])
@@ -203,35 +221,34 @@ class PerfectGraphGenerator:
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
 
 
-def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, List[int]]:
+def random_partition(S: set, num_colors: int) -> List[Set[int]]:
     """
-    :param G: nx.Graph
+    :param S: list, set we want to partition
     :param num_colors: int
-    :return: Dict[int, list[int]], color_to_nodes coloring/partitoning
+    :return: dict[int, int], color_to_nodes coloring/partitoning
     """
     # Initialize stirling table
-    n: int = len(G)
-    stirling: np.array = np.zeros((n, n))
+    n: int = len(S)
+    stirling: np.array = np.zeros((n + 1, n + 1))
     stirling[0, 0] = 1
 
     for i in range(len(stirling) - 1):
         for j in range(1, len(stirling[i])):
             stirling[i + 1, j] = j * stirling[i, j] + stirling[i, j - 1]
 
-    def random_partition(S: list, parts: int) -> List[List[int]]:
+    def rec_random_partition(S: set, parts: int) -> List[Set[int]]:
         if len(S) == 0 or parts == 0:
             return
-        # TODO: I think I actually need to permute S, otherwise there could be some fuckery...
-        random.shuffle(S)
-        v: int = S.pop()
+        v = random.choice(list(S))
+        S.remove(v)
 
         # Question: Is there a reason why S needs to be a set?
         #   I feel like the reason is a remnant of older code
         #   NOTE: changed to list so I could shuffle it
         if len(S) == 0:
-            return [[v]]
+            return [{v}]
 
-        P: list = []
+        P: List[Set[int]] = []
 
         # FIXME: For some reason binom probability is greater than 1...
         binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 0
@@ -239,7 +256,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, L
         # FIXME: Lets see for now if I can just use sympy stirling
         #   Seems like we can't...
 
-        binom_prob = stir(len(S), parts - 1) / stir(len(S), parts) if stir(len(S), parts) != 0 else 0
+        # binom_prob = stir(len(S), parts - 1) / stir(len(S), parts) if stir(len(S), parts) != 0 else 0
 
         # Put v in its own partition with P[Event] = binom_prob
         if np.random.binomial(1, p=(binom_prob if (
@@ -249,19 +266,31 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, L
         ) else (
                 1 if binom_prob >= 1 else 0
         ))):
-            new_part: list = list(random_partition(S, parts - 1))
-            return [[v]] if new_part == None else [[v]] + new_part
+            new_part: list = list(rec_random_partition(S, parts - 1))
+            return [{v}] if new_part == None else [{v}] + new_part
 
         # Otherwise, we put v into a partition that already exists (meaning we still need to partition into k parts
-        P = list(random_partition(S, parts))
-        P[random.randrange(len(P))].append(v)
+        P = list(rec_random_partition(S, parts))
+        P[random.randrange(len(P))].add(v)
 
         return P
 
-    partition: List[List[int]] = random_partition(list(G.nodes), num_colors)
+    return rec_random_partition(S, num_colors)
+
+
+def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, Set[int]]:
+    """
+    :param G: nx.Graph
+    :param num_colors: int
+    :return: dict[int, int], color_to_nodes coloring/partitoning
+    """
+    # Initialize stirling table
+    n: int = len(G)
+
+    partition: List[Set[int]] = random_partition(list(G.nodes), num_colors)
 
     # Make sure its in the right format to return
-    coloring: dict[int, List[int]] = {}
+    coloring: Dict[int, Set[int]] = {}
     for i, color_set in enumerate(partition):
-        coloring[i] = list(color_set)
+        coloring[i] = color_set
     return coloring
