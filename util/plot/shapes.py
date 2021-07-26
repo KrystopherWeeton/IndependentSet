@@ -1,4 +1,5 @@
 from typing import Callable, List, Tuple
+from util.misc import validate
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,13 +8,15 @@ point = Tuple[int, int]
 
 
 class LineFormatting:
-    def __init__(self, style: str, width: int, color: str):
+    def __init__(self, style: str, width: int, color: str, alpha: float):
+        validate(0 <= alpha and alpha <= 1, f"alpha={alpha} must be between 0 and 1")
         self.style = style
         self.width = width
         self.color = color
+        self.alpha = alpha
 
 
-DEFAULT_LINE_FORMATTING: LineFormatting = LineFormatting(style="-", width=2, color="r")
+DEFAULT_LINE_FORMATTING: LineFormatting = LineFormatting(style="-", width=2, color="r", alpha=1)
 
 
 def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LINE_FORMATTING):
@@ -24,7 +27,8 @@ def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LIN
         [start[1], end[1]],
         linestyle=formatting.style,
         linewidth=formatting.width,
-        color=formatting.color
+        color=formatting.color,
+        alpha=formatting.alpha
     )
 
 
