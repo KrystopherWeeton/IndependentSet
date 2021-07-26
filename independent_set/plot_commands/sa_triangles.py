@@ -10,6 +10,8 @@ from util.plot.series import SeriesFormatting, plot_function, plot_series
 from independent_set.result_models.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
 from typing import Callable, List, Tuple
+from math import e, ceil
+from decimal import *
 
 SIZE_FORMATTING: SeriesFormatting = SeriesFormatting(
     "Subset Size", "gray", 1, False, "-o"
@@ -41,12 +43,13 @@ def __generate_triangle(s: int, k: int, t: int) -> List[Tuple[int, int]]:
 
 def __probability_of_good_move_estimator(omega: int, n: int, s: int, k: int, epsilon: int) -> float:
     if s == k:
-        pg: float = omega / 2n
+        pg: float = omega / (2 * n)
         pb: float = (1 - omega / n) * e**(- s)
     else:
-        pg: float = (omega / n) * e**( - (epsilon**2) / (s - k))
-        pb: float = (1 - omega / n) * e**( - ((k + 2 * epsilon)**2) / s)
-    return pg / (pg + pb)
+        pg: Decimal = (omega / n) * e**( - (epsilon**2) / (s - k))
+        pb_exponent: Decimal = - ((k+2 * epsilon)**2 / s)
+        pb: Decimal = (1 - omega / n) * e**( pb_exponent)
+    return float(pg / (pg + pb))
 
 def __expected_height(omega: int, n: int, s: int, k: int, epsilon: int, t: int) -> float:
     return t * __probability_of_good_move_estimator(omega, n, s, k, epsilon)
@@ -68,31 +71,21 @@ def plot_sa_triangles(today, file_name, transient):
     results: SuccAugResults = verify_and_load_results(
         today, generate_sa_results_file_name, SuccAugResults, "independent_set"
     )
-    file_name = prompt_file_name(file_name)
-    #? Gather data for series
-    steps = results.step_values
-    intersection_sizes = list(results.intersection_results.collapse_to_list())
-    sizes = list(results.size_results.collapse_to_list())
+    if not transient:
+        file_name = prompt_file_name(file_name)
+
     #? Need to mess around with the structure a bit
     plot.initialize_figure("Subset Size (s)", "Intersection Size", "Size vs. Intersection", (20, 8))
-    plot_function(sizes, lambda x: x, LINE_FORMATTING)
-    plot_series(sizes, intersection_sizes, SIZE_FORMATTING)
-    plot.annotate_points(
-        sizes, 
-        intersection_sizes, 
-        results.n // NUM_ANNOTATIONS, 
-        lambda x, y : f"{y :.2f}",
-        0,
-        50
-    )
-    #? Add notes for the graph about the overall experiment
-    plot.add_notes(
-        f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\nSize: {results.final_size}\nIntersection: {results.final_intersection}", 
-        0.05,
-        0.9,
-    )
-    # TODO: Allow option to, rather than average trials, graph every trial independently to get an idea about concentration
 
+    #? For each trial, plot results for that trial
+    def f(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
+        plot_series(sizes, intersection_sizes, SIZE_FORMATTING)
+
+    results.for_each_trial_results(f)
+
+    #TODO: Plot ideal line s=k
+
+    """
     #? Calculate and then draw triangles
     m: int = results.final_size
     t: int = T(m)
@@ -107,10 +100,17 @@ def plot_sa_triangles(today, file_name, transient):
         draw_polygon(triangle, formatting=TRIANGLE_FORMATTING)
         s: int = origin[0]
         k: int = origin[1]
-        # TODO: What is alpha?
         expected_height: int = __expected_height(omega, n, s, k, epsilon, t)
-        origin = (origin[0] + t, origin[1] + expected_height)
+        min_location: int = expected_height - __slack(1, t, 1)
+        origin = (origin[0] + t, ceil(origin[1] + min_location))
+    """
 
+    #? Add notes for the graph about the overall experiment
+    plot.add_notes(
+        f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\nSize: {results.final_size}\nIntersection: {results.final_intersection}", 
+        0.05,
+        0.9,
+    )
 
     if transient:
         plot.show_plot()

@@ -5,6 +5,7 @@ from pprint import pprint
 from typing import List, Tuple
 
 import numpy as np
+import util.tensor as tensor
 
 
 def mean(X: np.array) -> float:
@@ -20,7 +21,7 @@ class ResultTensor:
         self.__num_dimensions = 0
         self.dimensions_fixed = False
 
-        self.results = None
+        self.results: np.ndarray = None
         self.results_total = -1
         self.results_collected = -1
         self.__index_list = []
@@ -31,11 +32,18 @@ class ResultTensor:
     # Might not be strictly necessary, but not bad to do overall
     def keys(self, dimension: str) -> [int]:
         return copy.copy(self.__dim_keys(dimension))
+    
+    def __get_dimension_index(self, dimension: str) -> int:
+        """ Returns the index of the dimension """
+        return self.__dimension_indices[dimension]
 
     def __dim_keys(self, dimension: str) -> [int]:
-        return self.__dimension_keys[self.__dimension_indices[dimension]]
+        """ Returns the keys for the specified dimension as a list """
+        dim_index: int = self.__get_dimension_index(dimension)
+        return self.__dimension_keys[dim_index]
 
     def __get_index(self, dimension: str, key: int) -> int:
+        """ Returns the appropriate index for the tensor from the provided key """
         return self.__dim_keys(dimension).index(key)
 
     def add_dimension(self, dimension_name: str, dimension_keys: [int]):
@@ -55,7 +63,7 @@ class ResultTensor:
         self.dimensions_fixed = True
 
         # Initialize the results object to track all the actual results now
-        self.results = np.zeros(self.__dimension_sizes)
+        self.results: np.ndarray = np.zeros(self.__dimension_sizes)
         self.results_collected = 0
         self.results_total = np.prod(self.__dimension_sizes)
         self.__index_list = list(itertools.product(*self.__dimension_keys))
@@ -128,6 +136,19 @@ class ResultTensor:
                 key = keys[row]
                 l.append((key, M[row][col]))
         return l
+    
+    def get_sub_tensor(self, dimension_name: str, index: int) -> tensor.tensor:
+        """
+            Returns a sub-tensor restricted to `index` at dimension `dimension_name`
+
+            EXAMPLE:
+                x.get_sub_tensor("trial", t)
+
+                > Returns sub-tensor corresponding to a specific trial
+        """
+        entry_index: int = self.__get_index(dimension_name, index)
+        dim_index: int = self.__get_dimension_index(dimension_name)
+        return tensor.get_sub_tensor(self.results, dim_index, entry_index)
 
     def get_index_list(self) -> List:
         return copy.copy(self.__index_list)
