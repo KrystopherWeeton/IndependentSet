@@ -26,9 +26,6 @@ LINE_FORMATTING: LineFormatting = LineFormatting(
     style="-", width="1", color="green", alpha=0.5
 )
 
-NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
-
-
 ####### TRIANGLE FORMATTING AND SUPPORT #############
 
 TRIANGLE_FORMATTING: LineFormatting = LineFormatting(style="-", width="1", color="orange", alpha=0.5)
@@ -76,7 +73,7 @@ def plot_sa_triangles(today, file_name, transient):
         file_name = prompt_file_name(file_name)
 
     #? Need to mess around with the structure a bit
-    plot.initialize_figure("Subset Size (s)", "Intersection Size", "Size vs. Intersection", (20, 8))
+    plot.initialize_figure("Subset Size (s)", "Intersection Size", "Size vs. Intersection", (40, 16))
 
     #? For each trial, plot results for that trial
     max_size: int = -1
@@ -93,7 +90,7 @@ def plot_sa_triangles(today, file_name, transient):
 
     """
     #? Calculate and then draw triangles
-    m: int = results.final_size
+    m: int = max_size
     t: int = T(m)
     omega: int = results.planted_size
     n: int = results.n
