@@ -26,8 +26,6 @@ def initialize_figure(x_label: str, y_label: str, title: str, figsize: Tuple = N
 """
 def show_plot():
     plt.tight_layout()
-    fig = plt.gcf()
-    fig.set_size_inches(10, 10)
     plt.autoscale(enable=True)
     plt.show()
     plt.clf()
@@ -54,7 +52,7 @@ def annotate_all_points(
     for i, label in enumerate(annotations):
         plt.annotate(
             label, 
-            (x_points[i], y_points[i]), 
+            (x_points[i], y_points[i]),
             xytext=(x_offset, y_offset), 
             textcoords="offset pixels"
         )

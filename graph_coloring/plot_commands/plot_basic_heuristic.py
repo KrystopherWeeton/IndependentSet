@@ -18,7 +18,8 @@ def plot_basic_heuristic(results: str):
     plot.initialize_figure(
         x_label="Number of nodes",
         y_label="Chromatic #",
-        title="FRG results"
+        title="FRG results",
+        figsize=(10, 10)
     )
 
     # Now, plot the actual data
