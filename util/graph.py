@@ -66,32 +66,8 @@ def count_edge_boundary(G: nx.Graph, v: int, subset: set) -> int:
 
 
 def binomial_coefficient(n: int, k: int) -> int:
-    # since C(n, k) = C(n, n - k)
-    # if (k > n - k):
-    #     k = n - k
-    # # initialize result
-    # res = 1
-    # # Calculate value of
-    # # [n * (n-1) *---* (n-k + 1)] / [k * (k-1) *----* 1]
-    # for i in range(k):
-    #     res = res * (n - i)
-    #     res = res / (i + 1)
-    # return res
     raise AttributeError("This function is no longer supported")
 
-
-# def bell_table(n: int) -> list:
-#     bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
-#     bell[0][0] = 1
-#     for i in range(1, n + 1):
-#
-#         # Explicitly fill for j = 0
-#         bell[i][0] = bell[i - 1][i - 1]
-#
-#         # Fill for remaining values of j
-#         for j in range(1, i + 1):
-#             bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
-#     return bell
 
 def bell_table(n: int) -> list:
     bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
@@ -313,7 +289,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, S
     # Initialize stirling table
     n: int = len(G)
 
-    partition: List[Set[int]] = random_partition(list(G.nodes), num_colors)
+    partition: List[Set[int]] = random_partition(set(G.nodes), num_colors)
 
     # Make sure its in the right format to return
     coloring: Dict[int, Set[int]] = {}
