@@ -9,13 +9,15 @@ class SeriesFormatting:
         color: str, 
         alpha: float, 
         include_markers: bool, 
-        marker_type: str
+        marker_type: str,
+        width: int = 1
     ):
         self.label = label
         self.color = color
         self.alpha = alpha
         self.include_markers = include_markers
         self.marker_type = marker_type
+        self.line_width = width
 
 
 DEFAULT_SERIES_FORMATTING: SeriesFormatting = SeriesFormatting("", "red", 1, False, "")
@@ -50,7 +52,8 @@ def plot_series(
         plt.plot(x_points, y_points, 
             label=formatting.label, 
             color=formatting.color,
-            alpha=formatting.alpha
+            alpha=formatting.alpha,
+            linewidth=formatting.line_width
         )
 
 

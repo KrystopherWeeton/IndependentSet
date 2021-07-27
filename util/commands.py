@@ -5,18 +5,20 @@ from typing import Callable
 import click
 
 from util.storage import load
+from util.config import get_experiment_results_directory
 
 """
     Verifies the provided pickle name, getting input from user if it is invalid
     and performing an os check to ensure it is a valid file.
         today - Used to mark that the pickle file is the default for today
 """
-def verify_pickle_name(today: str, gen_default_file_name: Callable) -> str:
+def verify_pickle_name(today: str, gen_default_file_name: Callable, project_name: str) -> str:
     #? Sets pickle_name to appropriate value using today flag
+    directory: str = get_experiment_results_directory(project_name)
     if not today:
-        pickle_name = click.prompt("Results File Name", type=str)
+        pickle_name = f"{directory}/{click.prompt('Results File Name', type=str)}"
     else:
-        pickle_name = f"results/{gen_default_file_name()}"
+        pickle_name = f"{directory}/{gen_default_file_name()}"
     #? Verifies valid file on the os and returns 
     if not os.path.isfile(f"{pickle_name}.pkl"):
         click.secho(f"The file provided could not be found.", err=True)
@@ -32,13 +34,17 @@ def verify_and_load_results(
     today: str,
     gen_default_file_name: Callable,
     results_class: type,
+    project_name: str,
 ):
     #? Verifies path and loads results
-    pickle_path = verify_pickle_name(today, gen_default_file_name)
+    pickle_path = verify_pickle_name(today, gen_default_file_name, project_name)
     results: results_class = load(pickle_path)
     #? Verifies results loaded correctly and returns
     if results is None:
-        click.secho("Could not load results.", err=True)
+        click.secho("Could not load results. Exiting.", err=True)
+        sys.exit(0)
+    if not isinstance(results, results_class):
+        click.secho("Results were of invalid type. Exiting.", err=True)
         sys.exit(0)
     return results
 

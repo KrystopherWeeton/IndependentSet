@@ -4,6 +4,8 @@ from datetime import date
 import numpy as np
 
 from independent_set.result_models.result_tensor import ResultTensor
+from typing import List, Tuple, Callable
+from util.tensor import tensor
 
 
 def generate_sa_results_file_name() -> str:
@@ -11,10 +13,11 @@ def generate_sa_results_file_name() -> str:
 
 class SuccAugResults:
 
-    def __init__(self, n: int, planted_size: int, trials: int, headstart_size: int):
+    def __init__(self, n: int, planted_size: int, epsilon: int, trials: int, headstart_size: int):
         # Store metadata
         self.trials = trials
         self.headstart_size: int = headstart_size
+        self.epsilon: int = epsilon
 
         # Store ranges / keys for tracker
         self.trial_values = list(range(trials))
@@ -45,6 +48,16 @@ class SuccAugResults:
     def add_final_results(self, size: int, intersection: int):
         self.final_size: int = size
         self.final_intersection: int = intersection
+
+
+    def for_each_trial_results(self, f: Callable):
+        """
+            Runs the provided function `f` on each trial value, where `f(trial_num, size_results, intersection_results) is the function structure
+        """
+        for t in self.trial_values:
+            sizes: List[int] = list(self.size_results.get_sub_tensor("trial", t))
+            intersections: List[int] = list(self.intersection_results.get_sub_tensor("trial", t))
+            f(t, sizes, intersections)
 
 
     def __iter__(self):

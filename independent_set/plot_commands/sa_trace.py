@@ -26,7 +26,7 @@ NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
 def plot_sa_trace(today, file_name, transient):
     #? Load results and generate file name if not set
     results: SuccAugResults = verify_and_load_results(
-        today, generate_sa_results_file_name, SuccAugResults
+        today, generate_sa_results_file_name, SuccAugResults, "independent_set"
     )
     file_name = prompt_file_name(file_name)
 
