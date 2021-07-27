@@ -71,9 +71,9 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
 
             if verbose:
                 print(
-                    f'[V] Glauber Dynamics found a complete proper coloring on a graph of {len(G)} nodes with '
-                    f'chromatic number {cheat} using Max_Deg + {2} colors after {gb.solution.count_recolorings} '
-                    f'recolorings.'
+                    f'[V] Glauber Dynamics found a coloring with {gb.solution.num_conflicting_edges} conflicts on a '
+                    f'graph of {len(G)} nodes with chromatic number {cheat} using Max_Deg + {2} colors after '
+                    f'{gb.solution.count_recolorings} recolorings.'
                 )
             results.add_result(n, trial, gb.solution.count_recolorings)
 
