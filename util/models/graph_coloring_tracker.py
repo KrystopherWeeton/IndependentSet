@@ -24,6 +24,7 @@ class GraphColoringTracker(Solution):
         self.node_to_color: dict = {}
         self.uncolored_nodes: set = set(list(G.nodes))
         self.num_conflicting_edges: int = 0
+        self.count_recolorings: int = 0
 
         # Heuristic Data Tables
 
@@ -219,9 +220,10 @@ class GraphColoringTracker(Solution):
         return len(self.uncolored_nodes) == 0
 
     def recolor_random_node_a_random_color(self):
+        self.count_recolorings += 1
         # Pick a random node
         # Question, is G an iterable like this?
-        node: int = random.choice(self.G.nodes)
+        node: int = random.choice(list(self.G.nodes))
 
         # Silently return if node has no available colors
         if len(self.available_colors_at[node]) == 0:
