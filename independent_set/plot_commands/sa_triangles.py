@@ -6,7 +6,7 @@ import click
 import util.plot.plot as plot
 from util.plot.shapes import draw_polygon, draw_line, LineFormatting
 from util.commands import prompt_file_name, verify_and_load_results
-from util.plot.series import SeriesFormatting, plot_function, plot_series
+from util.plot.series import plot_function, plot_series
 from util.plot.shapes import draw_line, LineFormatting
 from independent_set.result_models.sa_results import (SuccAugResults,
                                      generate_sa_results_file_name)
@@ -14,11 +14,11 @@ from typing import Callable, List, Tuple
 from math import e, ceil
 from decimal import *
 
-SIZE_FORMATTING: SeriesFormatting = SeriesFormatting(
+SIZE_FORMATTING: plot.Formatting = plot.Formatting(
     "Subset Size", "gray", 1, False, "-o"
 )
 
-INTERSECTION_FORMATTING: SeriesFormatting = SeriesFormatting(
+INTERSECTION_FORMATTING: plot.Formatting = plot.Formatting(
     "Intersection Size", "blue", 1, False, "-o"
     ) 
 
