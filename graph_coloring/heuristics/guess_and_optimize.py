@@ -12,10 +12,7 @@ from util.models.graph_coloring_tracker import GraphColoringTracker
 class GuessAndOptimize(GraphColoringHeuristic):
 
     def __init__(self, guess=-1):
-        super(GuessAndOptimize, self).__init__([
-            "initial_guess",
-            "optimization_function"
-        ])
+        super(GuessAndOptimize, self).__init__()
         self.initial_guess = guess
 
     def _optimize(self, iterations: int):
