@@ -6,6 +6,7 @@ import networkx as nx
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util.graph import generate_random_color_partition
+from util.models.graph_coloring_tracker import GraphColoringTracker
 
 
 class GuessAndOptimize(GraphColoringHeuristic):
@@ -19,6 +20,9 @@ class GuessAndOptimize(GraphColoringHeuristic):
 
     def _optimize(self, iterations: int):
         for i in range(iterations):
+            # if i % (iterations // 10) == 0:
+            print(f'[V] Iteration: {i}, Current Conflicting Edges: {self.solution.num_conflicting_edges}')
+
             # Find the most conflicted node
             most_conflicted: int = self.solution.most_collisions_node()
 
@@ -28,25 +32,30 @@ class GuessAndOptimize(GraphColoringHeuristic):
     def _run_heuristic(self):
 
         n: int = len(self.G)
+        self.solution: GraphColoringTracker = GraphColoringTracker(self.G)
 
         # TODO: do we need stirling table still?
 
         # Make initial guess
         # TODO: Check out density condition here
         b: float = 1 / (1 - nx.density(self.G))
-        k: int = self.initial_guess if self.initial_guess != 0 else (n / math.log(n, b))
-        iterations: int = n * k
+        k: int = self.initial_guess if self.initial_guess > 0 else round(n / math.log(n, b))
+        iterations: int = n * k * 10
         tries: int = n
 
         # Upper bound phase
         while True:
-
+            print(f'[V] Testing coloring with {k} colors')
             # Set the initial solution with a random partitioning into guess # of sets
             self.solution.set_coloring_with_color_classes(generate_random_color_partition(self.G, k))
             # Now try to optimize for iterations
             self._optimize(iterations)
             # If we got to a valid solution, don't need to go up any more
-            if self.solution.get_num_conflicting_edges() == 0 or len(self.solution.color_to_nodes) == len(self.G):
+            if (
+                    self.solution.get_num_conflicting_edges() == 0 or
+                    len(self.solution.color_to_nodes) == len(self.G) or
+                    k >= len(self.G)
+            ):
                 break
             k = k + 1
 
