@@ -93,20 +93,18 @@ def binomial_coefficient(n: int, k: int) -> int:
 #             bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
 #     return bell
 
+def bell_table(n: int) -> list:
+    bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
+    bell[0][0] = 1
+    for i in range(1, n + 1):
 
-def bell_table(n: int) -> List[List[int]]:
-    return [[mpmath.bell(i, j) for i in range(n + 1)] for j in range(n + 1)]
-    # bell[0][0] = 1
-    # for i in range(1, n + 1):
-    #
-    #     # Explicitly fill for j = 0
-    #     bell[i][0] = bell[i - 1][i - 1]
-    #
-    #     # Fill for remaining values of j
-    #     for j in range(1, i + 1):
-    #         bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
-    # return bell
+        # Explicitly fill for j = 0
+        bell[i][0] = bell[i - 1][i - 1]
 
+        # Fill for remaining values of j
+        for j in range(1, i + 1):
+            bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
+    return bell
 
 def binom_table(n: int) -> List[List[int]]:
     return [[special.comb(i, j) for i in range(n + 1)] for j in range(n + 1)]
@@ -137,9 +135,23 @@ class PerfectGraphGenerator:
             raise IndexError("Bell number is beyond what we have initialized")
         return self.bell[n][0]
 
+    def bell_table(n: int) -> list:
+
+        bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
+        bell[0][0] = 1
+        for i in range(1, n + 1):
+
+            # Explicitly fill for j = 0
+            bell[i][0] = bell[i - 1][i - 1]
+
+            # Fill for remaining values of j
+            for j in range(1, i + 1):
+                bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
+        return bell
+
     def get_partition_prob(self, n: int, m: int) -> list:
 
-        r = [self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
+        r = [binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
         return r
 
     def generate_random_partition(self, U: [int]) -> list:
@@ -170,8 +182,11 @@ class PerfectGraphGenerator:
     # From https://www2.math.upenn.edu/~wilf/website/Method%20and%20two%20algorithms.pdf
     def get_central_clique_size(self, n: int) -> int:
         l: list = [
-            self.binomial_coefficient(n, k) * self.bell_number(n - k) * (2 ** (k * (n - k))) for k
-            in range(n + 1)]
+            mpmath.fmul(
+                self.binomial_coefficient(n, k), mpmath.fmul(
+                    self.bell_number(n - k), mpmath.power(2, (k * (n - k)))
+                )
+            ) for k in range(n + 1)]
         L: int = sum(l)
         k: int = np.random.choice(a=range(n + 1), p=[(x / L) for x in l])
         return int(k)
