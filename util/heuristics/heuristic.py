@@ -58,7 +58,16 @@ class Heuristic:
 
         # Set metadata
         self.G = G
+<<<<<<< HEAD
+        # NOTE: Sets solution to NONE if no seed is passed in
+        # TODO: Find a better way to do this, as the seed should be allowed to be other types and the heuristic itself
+        # TODO: should handle the mapping to the expected solution type. Probbaly just functions in heuristic that
+        # TODO: should be implement at some point.
+        if not isinstance(seed, self.__solution_class) and seed is not None:
+            raise Exception(f"Unable to set object of type {type(seed)} when expected type is {self.__solution_class}.")
+=======
         # Note: Sets solution to NONE if no seed is passed in
+>>>>>>> master
         self.solution = seed
         self.metadata = metadata
         self.post_step_hook = post_step_hook
