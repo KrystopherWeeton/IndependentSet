@@ -2,24 +2,12 @@ from typing import Callable, List, Tuple
 from util.misc import validate
 
 import matplotlib.pyplot as plt
+from util.plot import Formatting, DEFAULT_FORMATTING
 import numpy as np
 
 point = Tuple[int, int]
 
-
-class LineFormatting:
-    def __init__(self, style: str, width: int, color: str, alpha: float):
-        validate(0 <= alpha and alpha <= 1, f"alpha={alpha} must be between 0 and 1")
-        self.style = style
-        self.width = width
-        self.color = color
-        self.alpha = alpha
-
-
-DEFAULT_LINE_FORMATTING: LineFormatting = LineFormatting(style="-", width=2, color="r", alpha=1)
-
-
-def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LINE_FORMATTING):
+def draw_line(start: point, end: point, formatting: Formatting = DEFAULT_FORMATTING):
     """Draws a line in the current plot at the provided coordinates"""
     # TODO: Figure out how to respect color and make sure it is respected.
     plt.plot(
@@ -32,7 +20,7 @@ def draw_line(start: point, end: point, formatting: LineFormatting = DEFAULT_LIN
     )
 
 
-def draw_polygon(points: [point], formatting: LineFormatting = DEFAULT_LINE_FORMATTING):
+def draw_polygon(points: [point], formatting: Formatting = DEFAULT_FORMATTING):
     """Draws a polygon in the current plot at the provided coorinates"""
     if points is None or len(points) <= 2:
         raise Exception(f"Cannot plot polygon with less than 3 points.")
