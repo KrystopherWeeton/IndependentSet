@@ -30,6 +30,30 @@ class SimpleTestCases(unittest.TestCase):
         self.assertIn(node, self.solution.color_to_nodes[0])
         self.assertCountEqual(self.solution.uncolored_nodes, set(range(self.n)).difference({node}))
 
+class CompleteColoringTests(unittest.TestCase):
+    def setUp(self):
+        initialize_basic_graph(self)
+        self.solution.set_coloring_with_node_labels({
+            0: 0,
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4
+        })
+
+    def test_nn_colors(self):
+        # self.assertCountEqual(self.solution.num_neighbor_colors[0], {0: 0, 1: 1, 2: 0, 3: 0, 4: 0})
+        # self.assertCountEqual(self.solution.num_neighbor_colors[2], {0: 0, 1: 1, 2: 0, 3: 1, 4: 0})
+        self.assertEqual(self.solution.num_neighbor_colors[0][0], 0)
+        self.assertEqual(self.solution.num_neighbor_colors[0][1], 1)
+
+    # @unittest.skip("Skipping simple tests")
+    def test_available_colors(self):
+        self.assertEqual(len(self.solution.available_colors_at[1]), 3)
+
+        # Ok, now try coloring a node
+        self.solution.color_node(2, 0)
+        self.assertEqual(len(self.solution.available_colors_at[1]), 4)
 
 class PartialColoringTests(unittest.TestCase):
 

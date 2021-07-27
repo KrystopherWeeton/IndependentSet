@@ -1,6 +1,7 @@
-import dill
 import pickle
-import os
+
+import dill
+
 from util.config import get_experiment_results_directory
 
 
@@ -31,3 +32,8 @@ def load_from_path(path: str):
 def store_experiment(project_name: str, file_name: str, obj: any):
     """ Stores an experiment provided only the project name and file """
     store(obj, file_name, get_experiment_results_directory(project_name))
+
+
+def load_experiment(project_name: str, file_name: str):
+    results_dir: str = get_experiment_results_directory(project_name)
+    return load_from_path(f"{results_dir}/{file_name}.pkl")
