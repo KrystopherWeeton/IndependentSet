@@ -3,8 +3,23 @@ import click
 import subprocess
 
 @click.command()
-def run():
-    subprocess.run("pytest tests", shell=True)
+@click.option("--maxfail", required=False, type=int, default=None, help="The max number of tests to fail before stopping execution.")
+@click.option("--locals", required=False, is_flag=True, default=False, help="Shows local variables when a test fails. Helps with debugging.")
+@click.option("--traceback", required=False, type=str, default="no", help="The amount of traceback to include when printing output. (long, short, line)")
+@click.option("--output", required=False, type=str, default=None, help="The file to output the test results to. Leave blank to print to stdout.")
+def run(maxfail, locals, traceback, output):
+    command = ["pytest", "tests", f"--tb={traceback}"]
+    if maxfail is not None:
+        command.append(f"--maxfail={maxfail}")
+    if locals:
+        command.append(f"--showlocals")
+
+    print(command) 
+    if output is not None:
+        with open(f"{output}.txt", "w+") as f:
+            subprocess.run(command, shell=True, stdout=f)
+    else:
+        subprocess.run(command)
 
 
 if __name__ == "__main__":
