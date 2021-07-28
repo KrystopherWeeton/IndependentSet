@@ -86,6 +86,7 @@ def binom_table(n: int) -> List[List[int]]:
     return [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
 
 
+
 class PerfectGraphGenerator:
 
     def __init__(self, n: int, p: float, co_split: bool = 0):
@@ -189,7 +190,7 @@ class PerfectGraphGenerator:
             partition: List[Set[int]] = random_partition(set(range(central_clique_size, self.n)), preset_colors - 1)
 
             # Add the central clique to the beginning
-            partition.insert(0, list(range(central_clique_size)))
+            partition.insert(0, set(range(central_clique_size)))
 
         # print(partition)
         G: nx.Graph = nx.Graph()
