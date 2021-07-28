@@ -7,11 +7,11 @@ from util.config import get_experiment_results_directory
 
 @dataclass
 class Formatting:
-    label: str = None
     color: str
     alpha: float
     include_markers: bool = False
     marker_type: str = None
+    label: str = None
     width: int = 1
 
 
