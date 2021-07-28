@@ -186,10 +186,10 @@ class PerfectGraphGenerator:
             central_clique_size: int = self.get_central_clique_size(self.n)
 
             # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-            partition: List[List[int]] = random_partition(list(range(central_clique_size, self.n)), preset_colors - 1)
+            partition: List[Set[int]] = random_partition(set(range(central_clique_size, self.n)), preset_colors - 1)
 
             # Add the central clique to the beginning
-            partition.insert(0, list(range(central_clique_size)))
+            partition.insert(0, set(range(central_clique_size)))
 
         # print(partition)
         G: nx.Graph = nx.Graph()

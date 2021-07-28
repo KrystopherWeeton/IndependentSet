@@ -17,7 +17,6 @@ class TimeGenerateGraph(unittest.TestCase):
         self.assertEqual(-1, nx.density(self.G))
 
 
-@unittest.skip("bruh")
 class MyTestCase(unittest.TestCase):
     def setUp(self):
         self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=10, p=.5, co_split=False)
@@ -47,7 +46,6 @@ class MyTestCase(unittest.TestCase):
             self.assertIn(n, nodes_in_partition)
 
 
-@unittest.skip("bruh")
 class TestPlantColoring(unittest.TestCase):
     def setUp(self):
 
