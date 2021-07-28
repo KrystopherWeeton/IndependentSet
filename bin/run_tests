@@ -1,9 +1,10 @@
 #!env/bin/python3
 import click
+import subprocess
 
 @click.command()
 def run():
-    pass
+    subprocess.run("pytest tests", shell=True)
 
 
 if __name__ == "__main__":
