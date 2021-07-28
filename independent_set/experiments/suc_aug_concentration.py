@@ -23,12 +23,12 @@ def planted_ind_set_size(n: int) -> int:
 EDGE_PROBABILITY: float = 0.5
 HEADSTART_SIZE: int = 5
 
-def _run_trial(n: int, planted_ind_set_size: int, trial_num: int, verbose: bool, result: SucAugConcentrationResults):
+def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result: SucAugConcentrationResults):
     sa: SuccessiveAugmentation = SuccessiveAugmentation()
     if verbose:
-        print(f"[V] Running trial {t+1}")
-    
-    (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size, "planted")
+        print(f"[V] Running trial {trial_num+1}")
+
+    (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_size, "planted")
 
     # ? For each epsilon value, run the experiment on the SAME Graph provided above
     for epsilon in result.epsilon_values:
@@ -63,11 +63,11 @@ def suc_aug_concentration(n, min_epsilon, max_epsilon, num_trials, verbose, tran
     validate(num_trials > 0, f"Cannot run experiment with ({num_trials} < 1) trials")
     validate(min_epsilon < max_epsilon, f"min_epsilon cannot be less than max_epsilon")
     validate(n > 0, f"n={n} must be positive.")
-    planted_ind_set_size: int = planted_ind_set_size(n)
-    result: SucAugConcentrationResults = SucAugConcentrationResults(n, min_epsilon, max_epsilon, num_trails, headstart_size, planted_ind_set_size)
+    planted_size: int = planted_ind_set_size(n)
+    result: SucAugConcentrationResults = SucAugConcentrationResults(n, min_epsilon, max_epsilon, num_trials, HEADSTART_SIZE, planted_size)
 
-    for t in results.trial_values:
-        _run_trial(n, planted_ind_set_size, t, verbose, result)
+    for t in result.trial_values:
+        _run_trial(n, planted_size, t, verbose, result)
     
     if not transient: 
         store_experiment("independent_set", generate_suc_aug_concentration_results_file_name(), result)
