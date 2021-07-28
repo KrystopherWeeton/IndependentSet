@@ -7,8 +7,8 @@ from util.config import get_experiment_results_directory
 
 @dataclass
 class Formatting:
-    color: str
-    alpha: float
+    color: str = "red"
+    alpha: float = None
     style: str = None
     include_markers: bool = False
     marker_type: str = None

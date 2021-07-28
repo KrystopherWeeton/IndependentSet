@@ -12,7 +12,7 @@ from independent_set.result_models.suc_aug_concentration_results import SucAugCo
 from independent_set.result_models.sa_results import SuccAugResults 
 from typing import Callable, List, Tuple
 
-SIZE_FORMATTING: Formatting = Formatting("Subset Size", "gray", 1, False, "-o")
+SIZE_FORMATTING: Formatting = Formatting(color="gray", alpha=1, label="Subset Size")
 LINE_FORMATTING: Formatting = Formatting(style="-", width="1", color="green", alpha=0.5)
 
 

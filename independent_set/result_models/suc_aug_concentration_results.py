@@ -3,6 +3,7 @@ from datetime import date
 
 import numpy as np
 
+from util.misc import validate
 from independent_set.result_models.result_tensor import ResultTensor
 from independent_set.result_models.sa_results import SuccAugResults
 from typing import List, Tuple, Callable, Dict
@@ -22,15 +23,15 @@ class SucAugConcentrationResults:
         self.num_trials = num_trials
         self.headstart_size = headstart_size
         self.planted_ind_set_size = planted_ind_set_size
-        self.epsilon_values: [int] = list(range(max_epsilon + 1, min_epsilon))
+        self.epsilon_values: [int] = list(range(min_epsilon, max_epsilon + 1))
         self.trial_values: [int] = list(range(num_trials))
-        self.results: Dict[int, SuccAugResults] = { epsilon: SuccAugResults(self.n, self.planted_size, epsilon, self.num_trials, self.headstart_size) for epsilon in self.epsilon_values}
+        self.results: Dict[int, SuccAugResults] = { epsilon: SuccAugResults(self.n, self.planted_ind_set_size, epsilon, self.num_trials, self.headstart_size) for epsilon in self.epsilon_values}
 
     def add_result(self, epsilon: int, step: int, trial: int, size: int, intersection: int) -> bool:
-        validate(epsilon in self.epsilon_values, f"Cannot add result for {epsilon} which is not in the set epsilon values of {epsilon_values}")
+        validate(epsilon in self.epsilon_values, f"Cannot add result for {epsilon} which is not in the set epsilon values of {self.epsilon_values}")
         result: SuccAugResults = self.results[epsilon]
         return result.add_result(step, trial, size, intersection)
 
     def get_results_for_epsilon(self, epsilon: int) -> SuccAugResults:
-        validate(epsilon in self.epsilon_values, f"Cannot add result for {epsilon} which is not in the set epsilon values of {epsilon_values}")
+        validate(epsilon in self.epsilon_values, f"Cannot add result for {epsilon} which is not in the set epsilon values of {self.epsilon_values}")
         return self.results[epsilon]
