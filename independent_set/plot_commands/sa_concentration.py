@@ -46,6 +46,7 @@ COLOR_LIST: [str] = [
     default=False,
     help="Shows the plot instead of saving.",
 )
+# TODO: Put into separate graphs through an option.
 def plot_sa_concentration(today, file_name, transient):
     # ? Load results and generate file name if not set
     result: SucAugConcentrationResults = verify_and_load_results(
@@ -60,11 +61,11 @@ def plot_sa_concentration(today, file_name, transient):
     )
 
     # ? Go throughe ach epsilon and graph appropriately for each
-    # TODO: Set different colors for each different graph here
     max_size: int = -1
     counter: int = 0
     for epsilon in result.epsilon_values:
         # Choose formatting for this epsilon value
+        formatting: Formatting = Formatting(color=COLOR_LIST[counter], alpha=0.75, label=f"epsilon={epsilon}")
         formatting: Formatting = Formatting(color=COLOR_LIST[counter], alpha=0.75, label=f"epsilon={epsilon}")
         counter = 0 if counter + 1 == len(COLOR_LIST) else counter + 1
         # Graph the results for this epsilon

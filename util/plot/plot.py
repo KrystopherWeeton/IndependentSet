@@ -125,6 +125,11 @@ def add_notes(
     )
 
 
-def draw_legend():
+def draw_legend(plot_duplicate_labels: bool = False):
     ax = plt.gca()
-    ax.legend()
+    if plot_duplicate_labels:
+        ax.legend()
+    else:
+        handles, labels = ax.get_legend_handles_labels()
+        unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if l not in labels[:i]]
+        ax.legend(*zip(*unique))

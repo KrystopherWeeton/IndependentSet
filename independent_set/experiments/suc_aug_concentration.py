@@ -32,6 +32,8 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
 
     # ? For each epsilon value, run the experiment on the SAME Graph provided above
     for epsilon in result.epsilon_values:
+        if verbose:
+            print(f"[V] Running epsilon={epsilon}")
         sa.clear()
 
         def post_step_hook(subset: set, step: int):
