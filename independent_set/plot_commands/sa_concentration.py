@@ -39,7 +39,7 @@ LINE_FORMATTING: Formatting = Formatting(style="-", width="1", color="green", al
 def plot_sa_concentration(today, file_name, transient):
     # ? Load results and generate file name if not set
     result: SucAugConcentrationResults = verify_and_load_results(
-        today, generate_sa_results_file_name, SucAugConcentrationResults, "independent_set"
+        today, generate_suc_aug_concentration_results_file_name, SucAugConcentrationResults, "independent_set"
     )
     if not transient:
         file_name = prompt_file_name(file_name)
@@ -54,7 +54,7 @@ def plot_sa_concentration(today, file_name, transient):
     max_size: int = -1
     for epsilon in result.epsilon_values:
         sa: SuccAugResults = result.get_results_for_epsilon(epsilon)
-        def f(trial_num: int, sizes: List[int], intersection_sizes: List[int])
+        def f(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
             nonlocal max_size
             final_size: int = sizes[len(sizes) - 1]
             max_size = max_size if final_size < max_size else final_size
@@ -64,7 +64,7 @@ def plot_sa_concentration(today, file_name, transient):
     # ? Add notes for the graph about the overall experiment
     draw_line((0, 0), (max_size, max_size), LINE_FORMATTING)
     plot.add_notes(
-        f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\n",
+        f"Graph Size: {result.n}\nPlanted Size: {result.planted_ind_set_size}\n",
         0.05,
         0.9,
     )

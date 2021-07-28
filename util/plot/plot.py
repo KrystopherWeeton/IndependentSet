@@ -9,6 +9,7 @@ from util.config import get_experiment_results_directory
 class Formatting:
     color: str
     alpha: float
+    style: str = None
     include_markers: bool = False
     marker_type: str = None
     label: str = None
