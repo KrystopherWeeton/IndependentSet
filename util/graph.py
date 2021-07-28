@@ -83,7 +83,7 @@ def bell_table(n: int) -> list:
     return bell
 
 def binom_table(n: int) -> List[List[int]]:
-    return [[special.comb(i, j) for i in range(n + 1)] for j in range(n + 1)]
+    return [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
 
 
 class PerfectGraphGenerator:
@@ -127,7 +127,7 @@ class PerfectGraphGenerator:
 
     def get_partition_prob(self, n: int, m: int) -> list:
 
-        r = [binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
+        r = [self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
         return r
 
     def generate_random_partition(self, U: [int]) -> list:
@@ -186,7 +186,7 @@ class PerfectGraphGenerator:
             central_clique_size: int = self.get_central_clique_size(self.n)
 
             # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-            partition: List[List[int]] = random_partition(list(range(central_clique_size, self.n)), preset_colors - 1)
+            partition: List[Set[int]] = random_partition(set(range(central_clique_size, self.n)), preset_colors - 1)
 
             # Add the central clique to the beginning
             partition.insert(0, list(range(central_clique_size)))
