@@ -1,7 +1,7 @@
 from typing import Callable
 
 import matplotlib.pyplot as plt
-from util.plot import Formatting, DEFAULT_FORMATTING
+from util.plot.plot import Formatting, DEFAULT_FORMATTING
 
 
 def plot_series(
