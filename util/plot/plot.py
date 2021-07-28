@@ -1,8 +1,33 @@
 from typing import Callable, Tuple
 
 import matplotlib.pyplot as plt  # Used for plotting results
-
+from dataclasses import dataclass
 from util.config import get_experiment_results_directory
+
+
+@dataclass
+class Formatting
+    label: str = None
+    color: str
+    alpha: float
+    include_markers: bool = False
+    marker_type: str = None
+    width: int = 1
+
+
+DEFAULT_FORMATTING: Formatting = Formatting(label=None, color="gray", alpha="1", width=1)
+
+def LIGHT_GRAY(label: str) -> Formatting:
+    return Formatting(label=label, color="gray", alpha=0.2, include_markers=True, marker_type="-o")
+
+def LIGHT_RED(label: str) -> Formatting:
+    return Formatting(label=label, color="red", alpha=0.2, include_markers=True, marker_type="-o")
+
+def LIGHT_BLUE(label: str) -> Formatting:
+    return Formatting(label=label, color="blue", alpha=0.2, include_markers=True, marker_type="-o")
+
+def LIGHT_GREEN(label: str) -> Formatting:
+    return Formatting(label=label, color="green", alpha=0.2, include_markers=True, marker_type="-o")
 
 
 def draw_hist(values, file_name: str):
