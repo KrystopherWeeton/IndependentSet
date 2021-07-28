@@ -83,7 +83,8 @@ def bell_table(n: int) -> list:
     return bell
 
 def binom_table(n: int) -> List[List[int]]:
-    return [[special.comb(i, j) for i in range(n + 1)] for j in range(n + 1)]
+    return [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
+
 
 
 class PerfectGraphGenerator:
@@ -127,7 +128,7 @@ class PerfectGraphGenerator:
 
     def get_partition_prob(self, n: int, m: int) -> list:
 
-        r = [binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
+        r = [self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
         return r
 
     def generate_random_partition(self, U: [int]) -> list:
