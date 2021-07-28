@@ -2,7 +2,7 @@ from typing import Callable, List, Tuple
 from util.misc import validate
 
 import matplotlib.pyplot as plt
-from util.plot import Formatting, DEFAULT_FORMATTING
+from util.plot.plot import Formatting, DEFAULT_FORMATTING
 import numpy as np
 
 point = Tuple[int, int]
