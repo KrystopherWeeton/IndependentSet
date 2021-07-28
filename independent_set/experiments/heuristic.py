@@ -37,10 +37,6 @@ PERCENT_INCREMENT: float = 0.05
 # The actual heuristic to run
 # ! HEURISTIC: IndependentSetHeuristic = FixedGWW()
 HEURISTIC: IndependentSetHeuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
-BASE_SUCC_METADATA = {
-    "K": None,
-    "epsilon": 3  # The extra requirement for threshold to be more stringent about vertices added
-}
 BASE_GWW_METADATA = {
     "num_particles": lambda n: 2 * int(math.sqrt(n)),
     "subset_size": lambda n: int(n ** (2 / 3)),
@@ -49,8 +45,22 @@ BASE_GWW_METADATA = {
     "min_threshold": 0.1,
     "verbose": True,
 }
+
+
+HEURISTIC: IndependentSetHeuristic = PhaseHeuristic(SuccessiveAugmentation(), SuccessiveAugmentation())
 HEURISTIC_METADATA = {
-    "metadata": [BASE_SUCC_METADATA, BASE_GWW_METADATA]
+    "metadata": [
+        {
+            "K": None,
+            "epsilon": 3,
+            "intersection_oracle": None
+        },
+        {
+            "K": None,
+            "epsilon": 0,
+            "intersection_oracle": None
+        }
+    ]
 }
 
 """
@@ -96,13 +106,10 @@ def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
             # Run the heuristic
             HEURISTIC.clear()
 
-            #! Setting heuristic dependent metadata here
-            sa_metadata = copy.copy(BASE_SUCC_METADATA)
-            sa_metadata["K"] = planted_ind_set_size(n_value)
-            sa_metadata["intersection_oracle"] = lambda x : len(x.intersection(B))
+            HEURISTIC_METADATA["metadata"][0]["intersection_oracle"] = lambda x : len(x.intersection(B))
+            HEURISTIC_METADATA["metadata"][1]["intersection_oracle"] = lambda x : len(x.intersection(B))
 
-
-            HEURISTIC.run_heuristic(G, {"metadata": [sa_metadata, BASE_GWW_METADATA]})
+            HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
 
             # Take the results, collect data, store the results
             solution: set = HEURISTIC.solution.subset

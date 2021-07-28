@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 from cycler import cycler
 from matplotlib.colors import hsv_to_rgb
 
+<<<<<<< HEAD
+from util.plot.series import SeriesFormatting, plot_series
+=======
+>>>>>>> master
 import util.plot.plot as plot
 from util.plot.series import SeriesFormatting
 

@@ -4,14 +4,17 @@ import sys
 import click
 
 import util.plot.scatter as scatter
+from util.commands import verify_and_load_results
 import util.plot.series as series
 from independent_set.result_models.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
 
-
-def __generate_graphs(results: HeuristicResults, folder: str):
-
+@click.command()
+@click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
+@click.option("--folder", required=True, help="The folder to save the graphs into")
+def plot_heuristics_graphs(today, folder):
+    results: HeuristicResults = verify_and_load_results(today, generate_heuristic_results_file_name, HeuristicResults, "independent_set")
     n_values: [int] = results.get_n_values()
 
     intersection_sizes: [StatInfo] = results.get_all_intersection_size_info()
@@ -26,6 +29,8 @@ def __generate_graphs(results: HeuristicResults, folder: str):
 
     intersection_data: [[float]] = results.get_intersection_data()
     subset_data: [[float]] = results.get_subset_size_data()
+    
+    folder = file_util.create_dir_in_experiment_results_directory(folder, "independent_set")
 
     scatter.plot_scatter_data(
         x_points=n_values,
@@ -38,7 +43,7 @@ def __generate_graphs(results: HeuristicResults, folder: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    # plot.save_plot(file_name="intersection-sizes", "independent_set", folder=folder)
+    plot.save_plot(file_name="intersection-sizes", project_name="independent_set", folder=folder)
 
     scatter.plot_scatter_data(
         x_points=n_values,
@@ -51,7 +56,7 @@ def __generate_graphs(results: HeuristicResults, folder: str):
         x_spacing=5,
         y_spacing=0.25
     )
-    # plot.save_plot(file_name="subset-sizes", "independent_set", folder=folder)
+    plot.save_plot(file_name="subset-sizes", project_name="independent_set", folder=folder)
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
