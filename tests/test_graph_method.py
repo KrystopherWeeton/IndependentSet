@@ -1,10 +1,20 @@
 import unittest
-from typing import List, Dict
+from typing import Dict, Set
 
 import networkx as nx
 import sympy
 
 from util.graph import PerfectGraphGenerator, generate_random_color_partition
+
+
+class TimeGenerateGraph(unittest.TestCase):
+    def setUp(self):
+        self.G, _ = PerfectGraphGenerator(n=500, p=.5, co_split=False).generate_random_split_graph()
+
+    def test_time_generation(self):
+        # self.assertEqual(False, True)
+        self.assertEqual(len(self.G), 500)
+        self.assertEqual(-1, nx.density(self.G))
 
 
 class MyTestCase(unittest.TestCase):
@@ -19,8 +29,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(self.generator.bell_number(0), sympy.bell(0))
         self.assertEqual(self.generator.bell_number(10), sympy.bell(10))
 
-    def test_binomial_coefficient(self):
-        self.assertEqual(self.generator.binomial_coefficient(7, 2), sympy.binomial(7, 2))
 
     def test_graph_generation(self):
         # NOTE: At the very least we can make sure that clique and chromatic number are the same
@@ -29,7 +37,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_random_color_partitioning(self):
         k: int = 5
-        partition: Dict[int, List[int]] = generate_random_color_partition(self.G, k)
+        partition: Dict[int, Set[int]] = generate_random_color_partition(self.G, k)
         self.assertEqual(k, len(partition.keys()), "Make sure we didn't add any colors")
         nodes_in_partition: set = set()
         for col_class in partition.values():
@@ -54,14 +62,13 @@ class TestPlantColoring(unittest.TestCase):
 
     def test_random_color_partitioning(self):
         k: int = 5
-        partition: Dict[int, List[int]] = generate_random_color_partition(self.G, k)
+        partition: Dict[int, Set[int]] = generate_random_color_partition(self.G, k)
         self.assertEqual(k, len(partition.keys()), "Make sure we didn't add any colors")
         nodes_in_partition: set = set()
         for col_class in partition.values():
             nodes_in_partition = nodes_in_partition.union(set(col_class))
         for n in self.G:
             self.assertIn(n, nodes_in_partition)
-
 
 if __name__ == '__main__':
     unittest.main()

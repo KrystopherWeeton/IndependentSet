@@ -2,13 +2,15 @@ import itertools
 import math
 import random
 
+import mpmath
+
 random.seed(1)
-from decimal import Decimal
 from typing import List, Dict
 from typing import Set
 
 import networkx as nx
 import numpy as np
+from scipy import special
 
 
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
@@ -64,17 +66,7 @@ def count_edge_boundary(G: nx.Graph, v: int, subset: set) -> int:
 
 
 def binomial_coefficient(n: int, k: int) -> int:
-    # since C(n, k) = C(n, n - k)
-    if (k > n - k):
-        k = n - k
-    # initialize result
-    res = 1
-    # Calculate value of
-    # [n * (n-1) *---* (n-k + 1)] / [k * (k-1) *----* 1]
-    for i in range(k):
-        res = res * (n - i)
-        res = res / (i + 1)
-    return res
+    raise AttributeError("This function is no longer supported")
 
 
 def bell_table(n: int) -> list:
@@ -90,6 +82,10 @@ def bell_table(n: int) -> list:
             bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
     return bell
 
+def binom_table(n: int) -> List[List[int]]:
+    return [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
+
+
 
 class PerfectGraphGenerator:
 
@@ -98,7 +94,9 @@ class PerfectGraphGenerator:
         self.p = p
         self.co_split = co_split
 
+        # TODO:
         self.bell = bell_table(self.n)
+        self.binom = binom_table(self.n)
 
         self.A = []
 
@@ -130,7 +128,7 @@ class PerfectGraphGenerator:
 
     def get_partition_prob(self, n: int, m: int) -> list:
 
-        r = [binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
+        r = [self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
         return r
 
     def generate_random_partition(self, U: [int]) -> list:
@@ -161,10 +159,13 @@ class PerfectGraphGenerator:
     # From https://www2.math.upenn.edu/~wilf/website/Method%20and%20two%20algorithms.pdf
     def get_central_clique_size(self, n: int) -> int:
         l: list = [
-            Decimal(binomial_coefficient(n, k)) * Decimal(self.bell_number(n - k)) * Decimal((2 ** (k * (n - k)))) for k
-            in range(n + 1)]
-        L: Decimal = Decimal(sum(l))
-        k: Decimal = np.random.choice(a=range(n + 1), p=[Decimal(x / L) for x in l])
+            mpmath.fmul(
+                self.binomial_coefficient(n, k), mpmath.fmul(
+                    self.bell_number(n - k), mpmath.power(2, (k * (n - k)))
+                )
+            ) for k in range(n + 1)]
+        L: int = sum(l)
+        k: int = np.random.choice(a=range(n + 1), p=[(x / L) for x in l])
         return int(k)
 
     def generate_unipolar_partition(self, n: int) -> list:
@@ -186,10 +187,10 @@ class PerfectGraphGenerator:
             central_clique_size: int = self.get_central_clique_size(self.n)
 
             # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-            partition: List[List[int]] = random_partition(list(range(central_clique_size, self.n)), preset_colors - 1)
+            partition: List[Set[int]] = random_partition(set(range(central_clique_size, self.n)), preset_colors - 1)
 
             # Add the central clique to the beginning
-            partition.insert(0, list(range(central_clique_size)))
+            partition.insert(0, set(range(central_clique_size)))
 
         # print(partition)
         G: nx.Graph = nx.Graph()
@@ -220,6 +221,8 @@ class PerfectGraphGenerator:
         # Return permutted graph
         return nx.relabel_nodes(G, dict(zip(nodes, permutation)), copy=True), cheat
 
+    def binomial_coefficient(self, n: int, k: int) -> int:
+        return self.binom[n][k]
 
 def random_partition(S: set, num_colors: int) -> List[Set[int]]:
     """
@@ -287,7 +290,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, S
     # Initialize stirling table
     n: int = len(G)
 
-    partition: List[Set[int]] = random_partition(list(G.nodes), num_colors)
+    partition: List[Set[int]] = random_partition(set(G.nodes), num_colors)
 
     # Make sure its in the right format to return
     coloring: Dict[int, Set[int]] = {}
