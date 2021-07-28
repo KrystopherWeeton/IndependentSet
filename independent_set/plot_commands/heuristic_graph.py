@@ -5,7 +5,7 @@ import click
 
 import util.plot.scatter as scatter
 from util.commands import verify_and_load_results
-import util.plot.series as series
+import util.plot as plot
 from independent_set.result_models.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
 from util.storage import load
@@ -39,7 +39,7 @@ def plot_heuristics_graphs(today, folder):
         x_title="Number of Vertices (n)",
         y_title="Planted Ind. Set Intersection Size",
         other_y_series=[intersection_means, planted_sizes],
-        other_y_formatting=[series.LIGHT_GRAY("Average"), series.LIGHT_GREEN("Planted Size")],
+        other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Size")],
         x_spacing=5,
         y_spacing=0.25
     )
@@ -52,7 +52,7 @@ def plot_heuristics_graphs(today, folder):
         x_title="Number of Vertices (n)",
         y_title="Resulting Subset Size",
         other_y_series=[[x.mean for x in subset_sizes]],
-        other_y_formatting=[series.LIGHT_GRAY("Average")],
+        other_y_formatting=[plot.LIGHT_GRAY("Average")],
         x_spacing=5,
         y_spacing=0.25
     )
