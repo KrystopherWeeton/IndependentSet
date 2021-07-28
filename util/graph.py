@@ -60,6 +60,7 @@ def generate_planted_independent_set_graph(n: int, p: float, planted_size: int, 
 
 
 def count_edge_boundary(G: nx.Graph, v: int, subset: set) -> int:
+    # testing
     return len(set(G.neighbors(v)).intersection(subset))
 
 
