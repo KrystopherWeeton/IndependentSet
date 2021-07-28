@@ -12,9 +12,19 @@ from independent_set.result_models.suc_aug_concentration_results import SucAugCo
 from independent_set.result_models.sa_results import SuccAugResults 
 from typing import Callable, List, Tuple
 
-SIZE_FORMATTING: Formatting = Formatting(color="gray", alpha=1, label="Subset Size")
-LINE_FORMATTING: Formatting = Formatting(style="-", width="1", color="green", alpha=0.5)
+LINE_FORMATTING: Formatting = Formatting(style="-", width="1", color="green", alpha=0.25)
 
+COLOR_LIST: [str] = [
+    "aqua",
+    "blue",
+    "crimson",
+    "darkgreen",
+    "gold",
+    "lavender",
+    "lime",
+    "violet",
+    "yellowgreen",
+]
 
 @click.command()
 @click.option(
@@ -52,22 +62,28 @@ def plot_sa_concentration(today, file_name, transient):
     # ? Go throughe ach epsilon and graph appropriately for each
     # TODO: Set different colors for each different graph here
     max_size: int = -1
+    counter: int = 0
     for epsilon in result.epsilon_values:
+        # Choose formatting for this epsilon value
+        formatting: Formatting = Formatting(color=COLOR_LIST[counter], alpha=0.75, label=f"epsilon={epsilon}")
+        counter = 0 if counter + 1 == len(COLOR_LIST) else counter + 1
+        # Graph the results for this epsilon
         sa: SuccAugResults = result.get_results_for_epsilon(epsilon)
         def f(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
             nonlocal max_size
             final_size: int = sizes[len(sizes) - 1]
             max_size = max_size if final_size < max_size else final_size
-            plot_series(sizes, intersection_sizes, SIZE_FORMATTING)
+            plot_series(sizes, intersection_sizes, formatting)
         sa.for_each_trial_results(f)
     
     # ? Add notes for the graph about the overall experiment
-    draw_line((0, 0), (max_size, max_size), LINE_FORMATTING)
+    # draw_line((0, 0), (max_size, max_size), LINE_FORMATTING)
     plot.add_notes(
         f"Graph Size: {result.n}\nPlanted Size: {result.planted_ind_set_size}\n",
         0.05,
         0.9,
     )
+    plot.draw_legend()
 
     # ? Save / show plot
     if transient:

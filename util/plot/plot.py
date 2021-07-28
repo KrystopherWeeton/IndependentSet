@@ -123,3 +123,8 @@ def add_notes(
         verticalalignment="center",
         transform=ax.transAxes
     )
+
+
+def draw_legend():
+    ax = plt.gca()
+    ax.legend()
