@@ -7,6 +7,7 @@ import sympy
 from util.graph import PerfectGraphGenerator, generate_random_color_partition
 
 
+@unittest.skip("Don't need to time generation anymore")
 class TimeGenerateGraph(unittest.TestCase):
     def setUp(self):
         self.G, _ = PerfectGraphGenerator(n=500, p=.5, co_split=False).generate_random_split_graph()
@@ -19,7 +20,7 @@ class TimeGenerateGraph(unittest.TestCase):
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=10, p=.5, co_split=False)
+        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=50, p=.5, co_split=False)
         self.G, _ = self.generator.generate_random_split_graph()
 
     def test_bell_number(self):
@@ -34,6 +35,7 @@ class MyTestCase(unittest.TestCase):
         # NOTE: At the very least we can make sure that clique and chromatic number are the same
         self.assertEqual(nx.graph_clique_number(self.G), len(set(nx.greedy_color(self.G).values())),
                          "Make sure that the graph is perfect")
+        self.assertEqual(-1, nx.graph_clique_number(self.G))
 
     def test_random_color_partitioning(self):
         k: int = 5
