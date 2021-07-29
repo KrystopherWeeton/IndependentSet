@@ -109,7 +109,7 @@ class GraphColoringTracker(Solution):
         else:
             raise AttributeError("You're trying to set information that you didn't request!")
 
-    def get_colored_nodes(self):
+    def get_colored_nodes(self) -> Set[int]:
         if COLORED_NODES in self.requested_data:
             return self._colored_nodes
         else:
@@ -123,7 +123,7 @@ class GraphColoringTracker(Solution):
         else:
             raise AttributeError("You're trying to set information that you didn't request!")
 
-    def get_uncolored_nodes(self):
+    def get_uncolored_nodes(self) -> Set[int]:
         if UNCOLORED_NODES in self.requested_data:
             return self._uncolored_nodes
         else:
@@ -145,7 +145,7 @@ class GraphColoringTracker(Solution):
 
     num_neighboring_colors: List[List[int]] = property(get_num_neighboring_colors, set_num_neighboring_colors)
 
-    def get_available_colors_at(self):
+    def get_available_colors_at(self) -> List[Set[int]]:
         if AVAILABLE_COLORS_AT in self.requested_data:
             return self._available_colors_at
         else:
@@ -173,7 +173,7 @@ class GraphColoringTracker(Solution):
         else:
             raise AttributeError("You're trying to access data you didn't request!")
 
-    def set_num_conflicting_edges(self, new_num: int) -> int:
+    def set_num_conflicting_edges(self, new_num: int):
         if NUM_CONFLICTING_EDGES in self.requested_data:
             self._num_conflicting_edges = new_num
         else:
