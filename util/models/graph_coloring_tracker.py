@@ -63,14 +63,14 @@ class GraphColoringTracker(Solution):
             self.colored_nodes: set = set()
 
     def init_requested_data_POSTCOLORING(self):
-        self.num_conflicting_edges: int = 0
         if NUM_CONFLICTING_EDGES in self.requested_data:
+            self.num_conflicting_edges: int = 0
             for v in self.colored_nodes:
                 neighborhood_set: set = set(self.G[v])
                 for neighbor in self.colored_nodes.intersection(set(self.G[v])):
                     if self.node_to_color[v] == self.node_to_color[neighbor]:
                         self.num_conflicting_edges += 1
-        self.num_conflicting_edges /= 2
+            self.num_conflicting_edges /= 2
 
         if AVAILABLE_COLORS_AT in self.requested_data or NUM_NEIGHBORING_COLORS in self.requested_data:
 
