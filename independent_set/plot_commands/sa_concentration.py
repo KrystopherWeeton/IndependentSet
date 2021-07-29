@@ -93,3 +93,19 @@ def plot_sa_concentration(today, transient, dir_name):
     plot.draw_legend()
     # ? Show the plot
     plot.show_or_save(transient, f"{dir_name}/all", "independent_set")
+
+
+    # ? Go through each epsilon again and create individual graphs
+    for epsilon in result.epsilon_values:
+        sa: SuccAugResults = result.get_results_for_epsilon(epsilon) 
+        plot.initialize_figure(
+            "Subset Size (s)", "Intersection Size (k)", f"Concentration for epsilon={epsilon}, n={result.n}", (20, 8)
+        )
+        __plot_result(sa, "green", series_label=None)
+        plot.add_notes(
+            f"Graph Size: {result.n}\nPlanted Size: {result.planted_ind_set_size}\n",
+            0.05,
+            0.9,
+        )
+        # ? Show the plot
+        plot.show_or_save(transient, f"{dir_name}/epsilon={epsilon}", "independent_set")
