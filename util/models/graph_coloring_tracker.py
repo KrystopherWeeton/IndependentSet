@@ -103,11 +103,33 @@ class GraphColoringTracker(Solution):
     def num_colors_used(self):
         return len(self.color_to_nodes.keys())
 
-    def get_uncolored_nodes(self):
-        if UNCOLORED_NODES in self.requested_data:
-            return self.uncolored_nodes
+    def set_colored_nodes(self, new_value: set):
+        if COLORED_NODES in self.requested_data:
+            self._colored_nodes = new_value
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    def get_colored_nodes(self):
+        if COLORED_NODES in self.requested_data:
+            return self._colored_nodes
         else:
             raise AttributeError("You're trying to get information that you didn't request!")
+
+    colored_nodes = property(get_colored_nodes, set_colored_nodes)
+
+    def set_uncolored_nodes(self, new_value: set):
+        if UNCOLORED_NODES in self.requested_data:
+            self._uncolored_nodes = new_value
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    def get_uncolored_nodes(self):
+        if UNCOLORED_NODES in self.requested_data:
+            return self._uncolored_nodes
+        else:
+            raise AttributeError("You're trying to get information that you didn't request!")
+
+    uncolored_nodes = property(get_uncolored_nodes, set_uncolored_nodes)
 
     def clear_coloring(self):
         self.color_to_nodes: dict = defaultdict(set)
@@ -117,11 +139,19 @@ class GraphColoringTracker(Solution):
         self.uncolored_nodes: set = set(list(self.G.nodes))
         self.colored_nodes: set = set()
 
-    def init_tables(self):
-        pass
-
     def get_num_conflicting_edges(self) -> int:
-        return self.num_conflicting_edges
+        if NUM_CONFLICTING_EDGES in self.requested_data:
+            return self._num_conflicting_edges
+        else:
+            raise AttributeError("You're trying to access data you didn't request!")
+
+    def set_num_conflicting_edges(self, new_num: int) -> int:
+        if NUM_CONFLICTING_EDGES in self.requested_data:
+            self._num_conflicting_edges = new_num
+        else:
+            raise AttributeError("You're trying to change data you didn't request!")
+
+    num_conflicting_edges = property(get_num_conflicting_edges, set_num_conflicting_edges)
 
     # TODO: Might be useful to add a way to color only a specific subgraph
     def set_coloring_with_color_classes(self, coloring: Dict[int, Set[int]]):
