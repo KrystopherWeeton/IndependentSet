@@ -202,7 +202,7 @@ class PerfectGraphGenerator:
         for par in partition:
             par = list(par)
             for i in range(len(par)):
-                for j in range(i, len(par)):
+                for j in range(i + 1, len(par)):
                     G.add_edge(par[i], par[j])
 
         # Add the edges from the central clique
@@ -254,7 +254,7 @@ def random_partition(S: set, num_colors: int) -> List[Set[int]]:
         P: List[Set[int]] = []
 
         # FIXME: For some reason binom probability is greater than 1...
-        binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 0
+        binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 1
 
         # FIXME: Lets see for now if I can just use sympy stirling
         #   Seems like we can't...
@@ -279,6 +279,10 @@ def random_partition(S: set, num_colors: int) -> List[Set[int]]:
         return P
 
     return rec_random_partition(S, num_colors)
+
+
+def max_degree(G: nx.Graph) -> int:
+    return max(G.degree, key=lambda x: x[1])[1]
 
 
 def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, Set[int]]:

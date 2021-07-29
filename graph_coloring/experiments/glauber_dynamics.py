@@ -4,7 +4,7 @@ import click
 
 from graph_coloring.heuristics.glauber_dynamics import GlauberDynamics
 from graph_coloring.result_models.glauber_dynamics_results import GlauberDynamicsResults
-from util.graph import PerfectGraphGenerator
+from util.graph import PerfectGraphGenerator, max_degree
 from util.storage import store_experiment
 
 
@@ -25,7 +25,7 @@ from util.storage import store_experiment
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("--delta", required=False, multiple=False, type=int, default=2)
-@click.option("--max_iter", required=False, multiple=False, type=int, default=100000)
+@click.option("--max_iter", required=False, multiple=False, type=int, default=10000)
 @click.option("-n", required=False, multiple=False, type=int, default=500)
 def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n):
     # TODO: reorder the arguments
@@ -63,6 +63,8 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
                 print(f'[V] Generating graph...')
             generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
             G, cheat = generator.generate_random_split_graph()
+            # TODO remove
+            # delta = cheat - max_degree(G) - 10
             gb.run_heuristic(G, {
                 'delta': delta,
                 'max_iterations': max_iter
@@ -71,9 +73,9 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
             if verbose:
                 print(
                     f'[V] Glauber Dynamics found a coloring with {gb.solution.num_conflicting_edges} conflicts on a '
-                    f'graph of {len(G)} nodes with chromatic number {cheat} using Max_Deg + {2} colors after '
-                    f'{gb.solution.count_recolorings} recolorings.'
+                    f'graph of {len(G)} nodes with chromatic number {cheat} using {max_degree(G)} + {delta} colors after '
+                    f'{gb.solution.calls_to_color_node} recolorings.'
                 )
-            results.add_result(n, trial, gb.solution.count_recolorings)
+            results.add_result(n, trial, gb.solution.calls_to_color_node)
 
     store_experiment('graph_coloring', 'Glauber Dynamics Test', results)
