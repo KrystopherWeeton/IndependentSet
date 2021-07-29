@@ -5,6 +5,8 @@ import click
 
 import util.plot.plot as plot
 from util.plot.plot import Formatting
+from util.misc import validate
+import util.file_util as file_util
 from util.commands import prompt_file_name, verify_and_load_results
 from util.plot.series import plot_function, plot_series
 from util.plot.shapes import draw_polygon, draw_line
@@ -26,6 +28,16 @@ COLOR_LIST: [str] = [
     "yellowgreen",
 ]
 
+
+def __plot_result(sa: SuccAugResults, color: str, series_label: str):
+    # Choose formatting
+    formatting: Formatting = Formatting(color=color, alpha=0.75, label=series_label)
+    # Define function and then run to graph
+    def f(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
+        final_size: int = sizes[len(sizes) - 1]
+        plot_series(sizes, intersection_sizes, formatting)
+    sa.for_each_trial_results(f) 
+
 @click.command()
 @click.option(
     "--today",
@@ -35,47 +47,41 @@ COLOR_LIST: [str] = [
     help="Flag to set file name to load to today's file name.",
 )
 @click.option(
-    "--file-name",
-    required=False,
-    help="The file name to save the graph as. Prompt will be provided if option not provided.",
-)
-@click.option(
     "--transient",
     required=False,
     is_flag=True,
     default=False,
     help="Shows the plot instead of saving.",
 )
+@click.option(
+    "--dir-name",
+    required=False,
+    
+)
 # TODO: Put into separate graphs through an option.
-def plot_sa_concentration(today, file_name, transient):
+def plot_sa_concentration(today, transient, dir_name):
+    validate(transient or (dir_name is not None), f"Concentration graphs require either transient output or a directory name.")
     # ? Load results and generate file name if not set
     result: SucAugConcentrationResults = verify_and_load_results(
         today, generate_suc_aug_concentration_results_file_name, SucAugConcentrationResults, "independent_set"
     )
+    # ? Create directory to store files in
     if not transient:
-        file_name = prompt_file_name(file_name)
+        file_util.create_dir_in_experiment_results_directory(dir_name, "independent_set")
 
     # ? Need to mess around with the structure a bit
     plot.initialize_figure(
         "Subset Size (s)", "Intersection Size", "Successive Augmentation Concentration", (40, 16)
     )
 
-    # ? Go throughe ach epsilon and graph appropriately for each
-    max_size: int = -1
+
+    # ? Go through each epsilon and graph appropriately for each
     counter: int = 0
     for epsilon in result.epsilon_values:
-        # Choose formatting for this epsilon value
-        formatting: Formatting = Formatting(color=COLOR_LIST[counter], alpha=0.75, label=f"epsilon={epsilon}")
-        formatting: Formatting = Formatting(color=COLOR_LIST[counter], alpha=0.75, label=f"epsilon={epsilon}")
+        color: str = COLOR_LIST[counter]
         counter = 0 if counter + 1 == len(COLOR_LIST) else counter + 1
-        # Graph the results for this epsilon
         sa: SuccAugResults = result.get_results_for_epsilon(epsilon)
-        def f(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
-            nonlocal max_size
-            final_size: int = sizes[len(sizes) - 1]
-            max_size = max_size if final_size < max_size else final_size
-            plot_series(sizes, intersection_sizes, formatting)
-        sa.for_each_trial_results(f)
+        __plot_result(sa, color, series_label=f"epsilon={epsilon}")
     
     # ? Add notes for the graph about the overall experiment
     # draw_line((0, 0), (max_size, max_size), LINE_FORMATTING)
@@ -85,9 +91,5 @@ def plot_sa_concentration(today, file_name, transient):
         0.9,
     )
     plot.draw_legend()
-
-    # ? Save / show plot
-    if transient:
-        plot.show_plot()
-    else:
-        plot.save_plot(file_name, "independent_set")
+    # ? Show the plot
+    plot.show_or_save(transient, f"{dir_name}/all", "independent_set")

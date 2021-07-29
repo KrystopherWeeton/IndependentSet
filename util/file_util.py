@@ -13,7 +13,7 @@ def create_dir(path: str, dir_name: str, agressive: bool = False) -> str:
 
         while os.path.isdir(total_path):
             number += 1
-            dir_name = f"{dir_name}({number})"
+            dir_name = f"{orig_dir_name}({number})"
             total_path = f"{path}/{dir_name}"
 
     if not os.path.isdir(total_path):

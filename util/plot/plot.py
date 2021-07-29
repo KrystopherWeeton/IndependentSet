@@ -133,3 +133,14 @@ def draw_legend(plot_duplicate_labels: bool = False):
         handles, labels = ax.get_legend_handles_labels()
         unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if l not in labels[:i]]
         ax.legend(*zip(*unique))
+    
+
+def show_or_save(transient: bool, file_name: str, project_name: str):
+    """
+        If transient is set to true, shows the plot. Otherwise saves the file in the
+        appropriate folder in project name's configured directory for exp. results.
+    """
+    if transient:
+        show_plot()
+    else:
+        save_plot(file_name, project_name)
