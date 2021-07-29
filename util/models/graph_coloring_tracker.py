@@ -103,7 +103,7 @@ class GraphColoringTracker(Solution):
     def num_colors_used(self):
         return len(self.color_to_nodes.keys())
 
-    def set_colored_nodes(self, new_value: set):
+    def set_colored_nodes(self, new_value: Set[int]):
         if COLORED_NODES in self.requested_data:
             self._colored_nodes = new_value
         else:
@@ -115,9 +115,9 @@ class GraphColoringTracker(Solution):
         else:
             raise AttributeError("You're trying to get information that you didn't request!")
 
-    colored_nodes = property(get_colored_nodes, set_colored_nodes)
+    colored_nodes: Set[int] = property(get_colored_nodes, set_colored_nodes)
 
-    def set_uncolored_nodes(self, new_value: set):
+    def set_uncolored_nodes(self, new_value: Set[int]):
         if UNCOLORED_NODES in self.requested_data:
             self._uncolored_nodes = new_value
         else:
@@ -129,7 +129,35 @@ class GraphColoringTracker(Solution):
         else:
             raise AttributeError("You're trying to get information that you didn't request!")
 
-    uncolored_nodes = property(get_uncolored_nodes, set_uncolored_nodes)
+    uncolored_nodes: Set[int] = property(get_uncolored_nodes, set_uncolored_nodes)
+
+    def get_num_neighboring_colors(self):
+        if NUM_NEIGHBORING_COLORS in self.requested_data:
+            return self._num_neighboring_colors
+        else:
+            raise AttributeError("You're trying to get information that you didn't request!")
+
+    def set_num_neighboring_colors(self, new_matrix: List[List[int]]):
+        if NUM_NEIGHBORING_COLORS in self.requested_data:
+            self._num_neighboring_colors = new_matrix
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    num_neighboring_colors: List[List[int]] = property(get_num_neighboring_colors, set_num_neighboring_colors)
+
+    def get_available_colors_at(self):
+        if AVAILABLE_COLORS_AT in self.requested_data:
+            return self._available_colors_at
+        else:
+            raise AttributeError("You're trying to get information that you didn't request!")
+
+    def set_available_colors_at(self, new_matrix: List[Set[int]]):
+        if AVAILABLE_COLORS_AT in self.requested_data:
+            self._available_colors_at = new_matrix
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    available_colors_at: List[Set[int]] = property(get_available_colors_at, set_available_colors_at)
 
     def clear_coloring(self):
         self.color_to_nodes: dict = defaultdict(set)
