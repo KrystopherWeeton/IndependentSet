@@ -2,8 +2,7 @@
 import click
 
 from graph_coloring.experiments.basic_heuristic import basic_heuristic
-# Can't ifnd the heuristic, so I am commenting out so I can run my stuff
-#from graph_coloring.experiments.glauber_dynamics import glauber_dynamics
+from graph_coloring.experiments.glauber_dynamics import glauber_dynamics
 
 
 @click.group()
