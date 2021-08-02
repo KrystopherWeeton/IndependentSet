@@ -14,6 +14,7 @@ def plot_series(
             formatting.marker_type, 
             label=formatting.label, 
             color=formatting.color,
+            linestyle=formatting.style,
             alpha=formatting.alpha
         )
     else:
@@ -21,6 +22,7 @@ def plot_series(
             label=formatting.label, 
             color=formatting.color,
             alpha=formatting.alpha,
+            linestyle=formatting.style,
             linewidth=formatting.width
         )
 
