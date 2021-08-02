@@ -9,8 +9,7 @@ class SwapHillClimbing(SeededHeuristic):
     def __init__(self, include_purge: bool = True):
         super().__init__(expected_metadata_keys=["verbose"])
     
-    def _run_heuristic(self):
-        verbose: bool = self.metadata["verbose"]
+    def _run_heuristic(self, verbose):
         rem, rem_deg = self.solution.max_internal_degree(self.solution.subset)
         add, add_deg = self.solution.min_internal_degree(self.solution.subset_complement)
         while rem_deg > add_deg:
