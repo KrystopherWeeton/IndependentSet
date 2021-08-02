@@ -3,7 +3,7 @@ import random
 
 random.seed(1)
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Callable
 from typing import Set
 
 import networkx as nx
@@ -305,3 +305,35 @@ class GraphColoringTracker(Solution):
 
     def is_complete(self) -> bool:
         return len(self.uncolored_nodes) == 0
+
+    def get_best_move(self, loss_function: Callable) -> [int, int]:
+        """
+
+        :param loss_function (curr color, neighboring color) For now, must be implemented to work on a PAIR of individual entries in num_neighboring_colors
+        :return [node_to_be_colored, color]
+        """
+        max_loss: float = -float('inf')
+        node_for_max_loss: int = -1
+        color_for_max_loss: int = -1
+
+        for this_node, nodes_neighboring_colors in enumerate(self.num_neighboring_colors):
+            max_loss_for_this_node: float = -float('inf')
+            color_for_max_loss_for_this_node: int = -1
+
+            # This is where the node is currently
+            curr_color_node_neighbors = nodes_neighboring_colors[self.node_to_color[this_node]]
+
+            for color, num_neighbors in enumerate(nodes_neighboring_colors):
+
+                # So we want to call the loss function to compare, I guess this one coloring to the other coloring...
+                curr_loss = loss_function(curr_color_node_neighbors, num_neighbors)
+                if curr_loss > max_loss_for_this_node:
+                    max_loss_for_this_node = curr_loss
+                    color_for_max_loss_for_this_node = color
+
+            if max_loss_for_this_node > max_loss:
+                max_loss = max_loss_for_this_node
+                node_for_max_loss = this_node
+                color_for_max_loss = color_for_max_loss_for_this_node
+
+        return node_for_max_loss, color_for_max_loss
