@@ -70,8 +70,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
             if verbose:
                 print(
                     f"[V] The heuristic found a complete proper coloring on a graph of {len(G)} nodes with chromatic "
-                    f"number {cheat} using {frg.solution.get_found_chromatic_number()} color(s)")
+                    f"number {cheat} using {frg.solution.num_colors_used()} color(s)")
 
-            results.add_result(n, trial, cheat, frg.solution.get_found_chromatic_number())
+            results.add_result(n, trial, cheat, frg.solution.num_colors_used())
 
     store_experiment("graph_coloring", "test", results)
