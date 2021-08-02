@@ -7,8 +7,9 @@ from util.config import get_experiment_results_directory
 
 @dataclass
 class Formatting:
-    color: str
-    alpha: float
+    color: str = "red"
+    alpha: float = None
+    style: str = None
     include_markers: bool = False
     marker_type: str = None
     label: str = None
@@ -122,3 +123,24 @@ def add_notes(
         verticalalignment="center",
         transform=ax.transAxes
     )
+
+
+def draw_legend(plot_duplicate_labels: bool = False):
+    ax = plt.gca()
+    if plot_duplicate_labels:
+        ax.legend()
+    else:
+        handles, labels = ax.get_legend_handles_labels()
+        unique = [(h, l) for i, (h, l) in enumerate(zip(handles, labels)) if l not in labels[:i]]
+        ax.legend(*zip(*unique))
+    
+
+def show_or_save(transient: bool, file_name: str, project_name: str):
+    """
+        If transient is set to true, shows the plot. Otherwise saves the file in the
+        appropriate folder in project name's configured directory for exp. results.
+    """
+    if transient:
+        show_plot()
+    else:
+        save_plot(file_name, project_name)
