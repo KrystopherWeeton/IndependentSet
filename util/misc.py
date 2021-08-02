@@ -22,5 +22,5 @@ def pull_values(d: dict, *args) -> List:
         `args` the keys to pull from the dictionary
     NOTE: Validates keys beforehand and throws an error if a key isn't found.
     """
-    validate(all(args) in d.keys(), f"Can't pull {args} from {d} because a key wasn't found.")
+    validate(all([key in d.keys() for key in args]), f"Can't pull {args} from {d} because a key wasn't found.")
     return [d[key] for key in args]
