@@ -20,9 +20,7 @@ class GlauberDynamics(GraphColoringHeuristic):
             "max_iterations"
         ])
 
-    def _run_heuristic(self):
-        delta: int = self.metadata["delta"]
-        max_iterations = self.metadata['max_iterations']
+    def _run_heuristic(self, delta, max_iterations):
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
             requested_data={

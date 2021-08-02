@@ -39,10 +39,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         return return_value
 
 
-    def _run_heuristic(self):
-        #? Pull metadata
-        intersection_oracle: Callable = self.metadata["intersection_oracle"]
-        epsilon: int = self.metadata["epsilon"]
+    def _run_heuristic(self, intersection_oracle, epsilon):
         #? Set initial solution to empty value
         if self.solution is None:
             self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())

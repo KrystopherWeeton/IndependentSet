@@ -58,15 +58,11 @@ class FixedGWW(IndependentSetHeuristic):
     def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
         return min(subsets, key = lambda t: t.num_edges())
 
-    def _run_heuristic(self):
-        #? Pull metadata
+    def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold, verbose):
         n: int = len(self.G.nodes)
-        num_particles: int = self.metadata["num_particles"](n)
-        random_walk_steps: int = self.metadata["random_walk_steps"](n)
-        subset_size: int = self.metadata["subset_size"](n)
-        threshold_added_change: float = self.metadata["threshold_added_change"]
-        min_threshold: float = self.metadata["min_threshold"]
-        verbose: bool = self.metadata["verbose"]
+        num_particles: int = num_particles(n)
+        random_walk_steps: int = random_walk_steps(n)
+        subset_size: int = subset_size(n)
 
         if verbose:
             print(

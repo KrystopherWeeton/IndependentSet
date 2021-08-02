@@ -72,15 +72,11 @@ class GWW(IndependentSetHeuristic):
     def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
         return min(subsets, key = lambda t: t.num_edges())
 
-    def _run_heuristic(self):
+    def _run_heuristic(self, num_particles, min_subset_size, threshold_added_change, random_walk_steps, min_threshold, verbose):
         #? Pull metadata
         n: int = len(self.G.nodes)
-        num_particles: int = self.metadata["num_particles"](n)
-        random_walk_steps: int = self.metadata["random_walk_steps"](n)
-        min_subset_size: int = self.metadata["min_subset_size"]
-        threshold_added_change: float = self.metadata["threshold_added_change"]
-        min_threshold: float = self.metadata["min_threshold"]
-        verbose: bool = self.metadata["verbose"]
+        num_particles: int = num_particles(n)
+        random_walk_steps: int = random_walk_steps(n)
 
         if verbose:
             print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")

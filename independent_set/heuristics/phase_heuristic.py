@@ -7,12 +7,10 @@ class PhaseHeuristic(IndependentSetHeuristic):
         super().__init__(expected_metadata_keys=["metadata"])
         self.heuristics: [IndependentSetHeuristic] = argv
 
-    def _run_heuristic(self):
+    def _run_heuristic(self, metadata):
         """
             Runs h1, then passes whatever h1 finds as a solution to h2
         """
-        metadata: [dict] = self.metadata["metadata"]
-
         if len(metadata) != len(self.heuristics):
             raise RuntimeError("Phase independent_set_heuristics was run with invalid length of metadata.")
 

@@ -1,9 +1,20 @@
-from typing import Callable
+from typing import Callable, List
+from util.misc import pull_values
 
 import networkx as nx
 
 
 class Heuristic:
+    """
+    Abstract class for all heuristics to provide some baseline behavior and structure.
+    Initialization takes in a class that is referenced as the type of solution this
+    heuristic should return, along with a list of the keys which are expected to
+    be passed in when this heuristic is run.
+
+    NOTE: The order in which metadata is passed to the child's `run_heuristic` function
+    is precisely the same as the keys are provided in `expected_metadata_keys` so take
+    care with the order of the elements of this argument.
+    """
 
     def __init__(self, solution_class, expected_metadata_keys: [str] = []):
         self.__solution_class = solution_class
@@ -73,8 +84,11 @@ class Heuristic:
             if key not in self.metadata.keys():
                 raise Warning(f"Call to heuristic that does not contain expected key of {key}")
         
+        # Pull appropriate values out of metadata and pass to _run_heuristic
+        # Note: Uses the order of expecteD_metadata_keys to pull values
+        metadata_list: List = pull_values(metadata, *self.expected_metadata_keys)
         # Run the actual heuristic
-        self._run_heuristic()
+        self._run_heuristic(*metadata_list)
 
     """
         Private function to actually run the heuristic which can be overwritten to 
