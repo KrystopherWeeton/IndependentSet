@@ -27,13 +27,9 @@ class Metropolis(IndependentSetHeuristic):
         return set([x])
 
 
-    def _run_heuristic(self):
+    def _run_heuristic(self, temperature, max_steps):
         # Set initial solution to initial subset selected
         self.solution.set_subset(self.__select_initial_subset())
-
-        # Load metadata into variables
-        max_steps: int = self.metadata["max_steps"]
-        temperature: float = self.metadata["temperature"]
 
         # Perform actual metropolis process
         for i in range(max_steps):
