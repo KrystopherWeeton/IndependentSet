@@ -42,7 +42,9 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
     if (
             n != None and (min_n != None or max_n != None)
     ):
-        raise KeyError("You can't give both one trial and a range of trials!")
+        n = None
+        print('You gave a single n and a range, so we\'re prioritizing the range')
+        # raise KeyError("You can't give both one trial and a range of trials!")
     if n == None:
         n_values: [int] = range(min_n, max_n, step)
     else:
