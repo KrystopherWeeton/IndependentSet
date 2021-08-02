@@ -7,14 +7,20 @@ from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
 class SuccessiveAugmentation(IndependentSetHeuristic):
+    """
+    Successive augmentation heuristic which runs successive augmentation on a planted ind
+    set problem. Uses `prune_final_solution` to determine whether or not to greedily
+    find a planted_independent subset in the final solution.
+    """
 
-    def __init__(self):
+    def __init__(self, prune_final_solution: bool = False):
         super().__init__(
             expected_metadata_keys=[
                 "intersection_oracle",
                 "epsilon"
             ]
         )
+        self.prune_final_solution: bool = prune_final_solution
     
     """
         Pulls an independent set from the provided subset, by sorting the vertices
@@ -35,23 +41,16 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
 
     def _run_heuristic(self):
         #? Pull metadata
-        N: int = len(self.G.nodes)
         intersection_oracle: Callable = self.metadata["intersection_oracle"]
         epsilon: int = self.metadata["epsilon"]
         #? Set initial solution to empty value
         if self.solution is None:
             self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())
-        #self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G)
-
         #? Define inclusion predicate
         def f(v, S: GraphSubsetTracker) -> bool:
-            m: int = S.size()
-            threshold: int = (m - intersection_oracle(S.subset)) / 2 -  epsilon
-            if threshold < 0:
-                threshold = 0
+            threshold: int = max((S.size() - intersection_oracle(S.subset)) / 2 -  epsilon, 0)
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
-
         #? Run successive augmentation
         step: int = 0
         for v in self.G.nodes:
@@ -65,3 +64,6 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             #? Update results
             self.call_post_step_hook(self.solution.subset, step)
             step += 1
+        #? Prune final solution if required 
+        if self.prune_final_solution:
+            self.solution = GraphSubsetTracker(self.__greedily_get_ind_subset(self.solution))
