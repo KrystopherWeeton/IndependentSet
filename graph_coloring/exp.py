@@ -11,7 +11,7 @@ def coloring():
 
 
 coloring.add_command(basic_heuristic)
-#coloring.add_command(glauber_dynamics)
+coloring.add_command(glauber_dynamics)
 
 if __name__ == "__main__":
     coloring()
