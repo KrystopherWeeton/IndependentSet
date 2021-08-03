@@ -50,9 +50,9 @@ class GlauberDynamics(GraphColoringHeuristic):
 
             conflicts_before = self.solution.num_conflicting_edges
 
-            if self.solution.calls_to_color_node % 1000 == 0:
-                print(f'Trying to recolor a node at iteration {self.solution.calls_to_color_node}')
-                print(f'Current Conflicts: {self.solution.num_conflicting_edges}')
+            # if self.solution.calls_to_color_node % 1000 == 0:
+            # print(f'Trying to recolor a node at iteration {self.solution.calls_to_color_node}')
+            # print(f'Current Conflicts: {self.solution.num_conflicting_edges}')
 
             # Get a random node
             node = self.solution.get_random_node()

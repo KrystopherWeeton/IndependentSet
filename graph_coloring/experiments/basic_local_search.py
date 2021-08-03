@@ -27,7 +27,8 @@ from util.storage import store_experiment
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("-n", required=False, multiple=False, type=int, default=500)
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
-def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split):
+@click.option("--store-name", required=False, multiple=False, type=str, default=None)
+def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, store_name):
     # TODO: reorder the arguments
 
     """
@@ -83,7 +84,11 @@ def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split):
                 )
             results.add_result(n, trial, bsl.solution.calls_to_color_node, bsl.solution.num_conflicting_edges, cheat)
 
-    store_experiment('graph_coloring', 'Basic Local Search Test', results)
+    results_name = store_name if store_name != None else (
+        f'min_n{min_n}max_n{max_n}n{n}num_trials{num_trials}co_split{co_split}'
+    )
+
+    store_experiment('graph_coloring', results_name, results)
 
 
 def l_1_norm(original: float, proposed: float) -> float:
