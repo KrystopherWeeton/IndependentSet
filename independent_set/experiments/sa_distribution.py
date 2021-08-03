@@ -56,7 +56,7 @@ def sa_distribution(n, num_trials, verbose, transient):
             },
             seed=GraphSubsetTracker(G, set(random.sample(I, k=HEADSTART_SIZE)))
         )
-        results.add_result(sa.node_list, sa.solution.subset)
+        results.add_result(t, sa.node_list, sa.solution.subset)
 
     if not transient: 
         store_experiment("independent_set", results.generate_file_name(), results)

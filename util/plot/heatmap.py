@@ -30,17 +30,14 @@ Draws a heatmap of results.
     z: the matrix of values to draw
 """
 def graph_heatmap(
-    x: [int], 
-    y: [int], 
-    z: [int], 
+    x: List[int], 
+    y: List[int], 
+    z: List[int], 
     min: int = None, 
     max: int = None, 
-    title: str = "Title", 
-    x_axis_title: str = "x_axis", 
-    y_axis_title: str = "y_axis",
     color: HeatMapColor = HeatMapColor.REDS,
     include_annotation: bool = True,
-    plot_size: float = 10.0
+    include_tick_labels: bool = True,
 ):
     # Generate plot and set ticks
     plt.imshow(z, color.value, vmin=min, vmax=max)
@@ -65,15 +62,12 @@ def graph_heatmap(
         # plt.colorbar(cax=cax)
         # plt.colorbar()
 
-    # Set title of the heatmap and axes
-    plt.title(title)
-    plt.xlabel(x_axis_title)
-    plt.ylabel(y_axis_title)
+    if not include_tick_labels:
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
 
     # Do not include colorbar right now
     # plt.colorbar()
 
     # Save the plot to a figure
-    fig = plt.gcf()
-    fig.set_size_inches(plot_size, plot_size)
     plt.xticks(rotation=90)

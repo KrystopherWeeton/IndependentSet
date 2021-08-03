@@ -3,12 +3,13 @@ import sys
 
 import click
 
+import util.plot.plot as plot
 import util.plot.scatter as scatter
-from util.commands import verify_and_load_results
-import util.plot as plot
 from independent_set.result_models.heuristic_results import (
     HeuristicResults, StatInfo, generate_heuristic_results_file_name)
+from util.commands import verify_and_load_results
 from util.storage import load
+
 
 @click.command()
 @click.option("--today", required=False, is_flag=True, default=False, help="Flag to indicate to use results from today")
@@ -32,12 +33,15 @@ def plot_heuristics_graphs(today, folder):
     
     folder = file_util.create_dir_in_experiment_results_directory(folder, "independent_set")
 
+
+    plot.initialize_figure(
+        x_label="Number of Vertices (n)",
+        y_label="Planted Ind. Set Intersection Size",
+        title="Resulting Planted Independent Set Intersection",
+    )
     scatter.plot_scatter_data(
         x_points=n_values,
         y_points=intersection_data,
-        title="Resulting Planted Independent Set Intersection",
-        x_title="Number of Vertices (n)",
-        y_title="Planted Ind. Set Intersection Size",
         other_y_series=[intersection_means, planted_sizes],
         other_y_formatting=[plot.LIGHT_GRAY("Average"), plot.LIGHT_GREEN("Planted Size")],
         x_spacing=5,
@@ -45,12 +49,14 @@ def plot_heuristics_graphs(today, folder):
     )
     plot.save_plot(file_name="intersection-sizes", project_name="independent_set", folder=folder)
 
+    plot.initialize_figure(
+        x_label="Number of Vertices (n)",
+        y_label="Resulting Subset Size",
+        title="Resulting Subset Sizes",
+    )
     scatter.plot_scatter_data(
         x_points=n_values,
         y_points=subset_data,
-        title="Resulting Subset Sizes",
-        x_title="Number of Vertices (n)",
-        y_title="Resulting Subset Size",
         other_y_series=[[x.mean for x in subset_sizes]],
         other_y_formatting=[plot.LIGHT_GRAY("Average")],
         x_spacing=5,

@@ -1,20 +1,18 @@
-from typing import List, Callable, Tuple
+from typing import Callable, List, Tuple
 
 import matplotlib.pyplot as plt
 from cycler import cycler
 from matplotlib.colors import hsv_to_rgb
 
 import util.plot.plot as plot
+from util.plot.series import plot_series
 
 
 def plot_scatter_data(
-        x_points: [float],
-        y_points: [[float]],
-        title: str,
-        x_title: str,
-        y_title: str,
-        other_y_series: [[float]] = [],
-        other_y_formatting: [plot.Formatting] = [],
+        x_points: List[float],
+        y_points: List[List[float]],
+        other_y_series: List[List[float]] = [],
+        other_y_formatting: List[plot.Formatting] = [],
         x_spacing: float = 0,
         y_spacing: float = 0
 ):
@@ -22,15 +20,12 @@ def plot_scatter_data(
         Plots the provided scatter data
     """
     # ? Initialize Figure
-    plot.initialize_figure(
-        x_label=x_title, y_label=y_title, title=title, figsize=(10, 8)
-    )
     # ? Flatten out the data points
-    x_values: [float] = []
-    y_values: [float] = []
+    x_values: List[float] = []
+    y_values: List[float] = []
     for i, x in enumerate(x_points):
         # Get a list of the y points corresponding to the x point
-        ys: [float] = y_points[i]
+        ys: List[float] = y_points[i]
         for y in ys:
             x_values.append(x)
             y_values.append(y)
@@ -41,15 +36,6 @@ def plot_scatter_data(
         plot_series(x_points, series, formatting)
     plt.legend()
 
-    # ? Annotate the scatter points
-    plot.annotate_points(
-        x_points=x_values,
-        y_points=y_values,
-        k=1,
-        annotator=lambda x, y: y,
-        x_offset=x_spacing,
-        y_offset=y_spacing
-    )
 
 
 # Add support for graphing multiple trials with SAME x values

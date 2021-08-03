@@ -1,12 +1,13 @@
-from typing import Callable
+from typing import Callable, List
 
 import matplotlib.pyplot as plt
-from util.plot.plot import Formatting, DEFAULT_FORMATTING
+
+from util.plot.plot import DEFAULT_FORMATTING, Formatting
 
 
 def plot_series(
-    x_points: [float],
-    y_points: [float],
+    x_points: List[float],
+    y_points: List[float],
     formatting: Formatting = DEFAULT_FORMATTING
 ):
     if formatting.include_markers:
