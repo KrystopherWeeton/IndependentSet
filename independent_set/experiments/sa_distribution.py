@@ -24,7 +24,7 @@ def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 1
 
 EDGE_PROBABILITY: float = 0.5
-EPSILON: int = 1
+EPSILON: int = 3
 HEADSTART_SIZE: int = 5
 
 
