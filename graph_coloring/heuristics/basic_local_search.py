@@ -1,4 +1,4 @@
-from typing import Dict, Set, Callable
+from typing import Dict, Set
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util import graph
@@ -19,9 +19,9 @@ class BasicLocalSearch(GraphColoringHeuristic):
             'loss_function'
         ])
 
-    def _run_heuristic(self):
-        k: int = self.metadata['k']
-        loss_function: Callable = self.metadata['loss_function']
+    def _run_heuristic(self, k, loss_function):
+        # k: int = self.metadata['k']
+        # loss_function: Callable = self.metadata['loss_function']
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
             requested_data={

@@ -3,7 +3,8 @@ import random
 import click
 
 from graph_coloring.heuristics.basic_local_search import BasicLocalSearch
-from graph_coloring.result_models.basic_local_search_results import BasicLocalSearchResults
+from graph_coloring.result_models.basic_local_search_results import \
+    BasicLocalSearchResults
 from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment
 
@@ -25,7 +26,8 @@ from util.storage import store_experiment
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("-n", required=False, multiple=False, type=int, default=500)
-def basic_local_search(verbose, min_n, max_n, step, num_trials, n):
+@click.option("co_split", required=False, multiple=False, type=int, default=-1)
+def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split):
     # TODO: reorder the arguments
 
     """
@@ -61,10 +63,11 @@ def basic_local_search(verbose, min_n, max_n, step, num_trials, n):
         for trial in range(num_trials):
             if verbose:
                 print(f'[V] Generating graph...')
-            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
+            co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split=co_split)
             G, cheat = generator.generate_random_split_graph()
             if verbose:
-                print(f'[V] Graph generated with chromatic number {cheat}.')
+                print(f'[V] {"co_split" if co_split else "Split"} Graph generated with chromatic number {cheat}.')
             # TODO remove
             # delta = cheat - max_degree(G) - 10
             bsl.run_heuristic(G, {
@@ -78,7 +81,7 @@ def basic_local_search(verbose, min_n, max_n, step, num_trials, n):
                     f'graph of {len(G)} nodes with chromatic number {cheat} using {cheat} colors after '
                     f'{bsl.solution.calls_to_color_node} recolorings.'
                 )
-            results.add_result(n, trial, bsl.solution.calls_to_color_node, bsl.solution.num_conflicting_edges)
+            results.add_result(n, trial, bsl.solution.calls_to_color_node, bsl.solution.num_conflicting_edges, cheat)
 
     store_experiment('graph_coloring', 'Basic Local Search Test', results)
 

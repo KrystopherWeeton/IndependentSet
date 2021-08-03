@@ -3,22 +3,23 @@ from typing import List
 import click
 
 import util.plot.plot as plot
-from graph_coloring.result_models.basic_local_search_results import BasicLocalSearchResults
-from util.plot.scatter import plot_scatter_data_from_tuple_with_trial_labels, plot_scatter_data
+from graph_coloring.result_models.basic_local_search_results import \
+    BasicLocalSearchResults, \
+    ITERATIONS, \
+    NUM_CONFLICTING_EDGES, \
+    CHROMATIC_NUMBER
+from util.plot.scatter import plot_scatter_data_from_tuple_with_trial_labels
 from util.storage import load_experiment
 
 
 @click.command()
-@click.option("--results", required=True)
-def plot_basic_heuristic(results: str):
+@click.option("--results", type=str, required=True)
+def plot_basic_local_search(results: str):
     results: BasicLocalSearchResults = load_experiment("graph_coloring", results)
 
-    num_conflicting_edges: List[List[tuple]] = results.get_num_conflicting_edges()
-    iterations_taken: List[List[tuple]] = results.get_iterations_taken()
-
-    plot_scatter_data(
-        x_points=[num_conflicting_edges]
-    )
+    num_conflicting_edges: List[List[tuple]] = results.get_results(NUM_CONFLICTING_EDGES)
+    iterations_taken: List[List[tuple]] = results.get_results(ITERATIONS)
+    chromatic_numbers: List[List[tuple]] = results.get_results(CHROMATIC_NUMBER)
 
     # First initialize the figure 'canvas'
     plot.initialize_figure(
@@ -30,10 +31,11 @@ def plot_basic_heuristic(results: str):
 
     # Now, plot the actual data
     plot_scatter_data_from_tuple_with_trial_labels(
-        [true_chr_numbers],
+        [chromatic_numbers, num_conflicting_edges],
+        ['Chromatic Number (k)', '# Conf.']
 
     )
-    for trial_num, trial in enumerate(zip(true_chr_numbers, found_chr_numbers)):
+    for trial_num, trial in enumerate(zip(num_conflicting_edges, chromatic_numbers)):
         true_trial, found_trial = trial[0], trial[1]
         plot.annotate_all_points(
             [t[0] for t in found_trial],
