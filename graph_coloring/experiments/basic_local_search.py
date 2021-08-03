@@ -26,7 +26,7 @@ from util.storage import store_experiment
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("-n", required=False, multiple=False, type=int, default=500)
-@click.option("co_split", required=False, multiple=False, type=int, default=-1)
+@click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split):
     # TODO: reorder the arguments
 
