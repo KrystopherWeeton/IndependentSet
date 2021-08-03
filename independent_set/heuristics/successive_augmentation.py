@@ -1,19 +1,24 @@
+import copy
+import random
 import sys
-from typing import Callable
+from typing import Callable, List
 
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 from util.graph import count_edge_boundary
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
 class SuccessiveAugmentation(IndependentSetHeuristic):
     """
     Successive augmentation heuristic which runs successive augmentation on a planted ind
-    set problem. Uses `prune_final_solution` to determine whether or not to greedily
-    find a planted_independent subset in the final solution.
+    set problem.
+
+        prune_final_solution        Whether or not to greedily construct final solution out of result
+        permute_vertices            Whether or not to permute vertices at the start of each run
     """
 
-    def __init__(self, prune_final_solution: bool = False):
+    def __init__(self, prune_final_solution: bool = False, permute_vertices: bool = False):
         super().__init__(
             expected_metadata_keys=[
                 "intersection_oracle",
@@ -21,6 +26,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             ]
         )
         self.prune_final_solution: bool = prune_final_solution
+        self.permute_vertices: bool = permute_vertices
     
     """
         Pulls an independent set from the provided subset, by sorting the vertices
@@ -48,9 +54,13 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             threshold: int = max((S.size() - intersection_oracle(S.subset)) / 2 -  epsilon, 0)
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
+        # Generate node list and permute if appropriate 
+        self.node_list: List[int] = list(self.G.nodes)
+        if self.permute_vertices:
+            random.shuffle(self.node_list)
         #? Run successive augmentation
         step: int = 0
-        for v in self.G.nodes:
+        for v in self.node_list:
             if v in self.solution.subset:
                 continue
             # Determine whether or not to include v
@@ -63,4 +73,4 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             step += 1
         #? Prune final solution if required 
         if self.prune_final_solution:
-            self.solution = GraphSubsetTracker(self.__greedily_get_ind_subset(self.solution))
+            self.solution = GraphSubsetTracker(self.G, self.__greedily_get_ind_subset(self.solution))

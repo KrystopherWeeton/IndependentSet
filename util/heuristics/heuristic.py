@@ -1,7 +1,8 @@
 from typing import Callable, List
-from util.misc import pull_values
 
 import networkx as nx
+
+from util.misc import pull_values
 
 
 class Heuristic:
@@ -16,7 +17,7 @@ class Heuristic:
     care with the order of the elements of this argument.
     """
 
-    def __init__(self, solution_class, expected_metadata_keys: [str] = []):
+    def __init__(self, solution_class, expected_metadata_keys: List[str] = []):
         self.__solution_class = solution_class
 
         # Trackers that are set on a per-run basis
@@ -63,7 +64,7 @@ class Heuristic:
         metadata: dict = None, 
         seed = None, 
         post_step_hook: Callable = None
-    ):
+    ) -> None:
         # Clear self just to be completely sure that there is no bad info.
         self.clear()
 
