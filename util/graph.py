@@ -1,3 +1,4 @@
+import copy
 import itertools
 import math
 import random
@@ -239,7 +240,7 @@ def random_partition(S: set, num_colors: int) -> List[Set[int]]:
     waiting: List[Tuple[int, int]] = []
 
     partition: List[Set[int]] = []
-    while len(S) != 0 and parts != 0:
+    while len(S) != 0 and parts != 1:
         v: int = random.choice(list(S))
         S.discard(v)
 
@@ -258,8 +259,17 @@ def random_partition(S: set, num_colors: int) -> List[Set[int]]:
         else:
             waiting.append((v, len(partition)))
 
+    if parts == 1:
+        parts -= 1
+        partition.append(copy.copy(S))
+        S = set()
+
+    assert len(S) == 0 and parts == 0
+
     for v, starting in waiting:
         partition[random.randrange(starting, len(partition))].add(v)
+
+    return partition
 
 
 def recursive_random_partition(S: set, num_colors: int) -> List[Set[int]]:
