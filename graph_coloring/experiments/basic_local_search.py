@@ -2,9 +2,10 @@ import random
 
 import click
 
-from graph_coloring.heuristics.glauber_dynamics import GlauberDynamics
-from graph_coloring.result_models.basic_local_search_results import BasicLocalSearchResults
-from util.graph import PerfectGraphGenerator, max_degree
+from graph_coloring.heuristics.basic_local_search import BasicLocalSearch
+from graph_coloring.result_models.basic_local_search_results import \
+    BasicLocalSearchResults
+from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment
 
 
@@ -24,12 +25,10 @@ from util.storage import store_experiment
 @click.option("--max-n", required=False, multiple=False, type=int)
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-@click.option("--delta", required=False, multiple=False, type=int, default=2)
-@click.option("--max_iter", required=False, multiple=False, type=int, default=10000)
 @click.option("-n", required=False, multiple=False, type=int, default=500)
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
-def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n, co_split, store_name):
+def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, store_name):
     # TODO: reorder the arguments
 
     """
@@ -58,36 +57,39 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
     if verbose:
         print(f"[V] Running basic heuristic experiment with n values of {n_values} and num_trials={num_trials}")
     results: BasicLocalSearchResults = BasicLocalSearchResults(n_values, num_trials)
-    # results: GlauberDynamicsResults = GlauberDynamicsResults(n_values, num_trials)
 
-    gb: GlauberDynamics = GlauberDynamics()
+    bsl: BasicLocalSearch = BasicLocalSearch()
 
     for n in n_values:
         for trial in range(num_trials):
             if verbose:
                 print(f'[V] Generating graph...')
-            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
+            co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split=co_split)
             G, cheat = generator.generate_random_split_graph()
-            G_max_deg: int = max_degree(G)
-            delta = -G_max_deg + cheat
+            if verbose:
+                print(f'[V] {"co_split" if co_split else "Split"} Graph generated with chromatic number {cheat}.')
             # TODO remove
             # delta = cheat - max_degree(G) - 10
-            gb.run_heuristic(G, {
-                'delta': delta,
-                'max_iterations': max_iter
+            bsl.run_heuristic(G, {
+                'k': cheat,
+                'loss_function': l_1_norm
             })
 
             if verbose:
                 print(
-                    f'[V] Glauber Dynamics found a coloring with {gb.solution.num_conflicting_edges} conflicts on a '
-                    f'graph of {len(G)} nodes with chromatic number {cheat} using {G_max_deg} + {delta} colors after '
-                    f'{gb.solution.calls_to_color_node} recolorings.'
+                    f'[V] Basic Local Search found a coloring with {bsl.solution.num_conflicting_edges} conflicts on a '
+                    f'graph of {len(G)} nodes with chromatic number {cheat} using {cheat} colors after '
+                    f'{bsl.solution.calls_to_color_node} recolorings.'
                 )
-            results.add_result(n, trial, gb.solution.calls_to_color_node, gb.solution.num_conflicting_edges,
-                               G_max_deg - delta)
+            results.add_result(n, trial, bsl.solution.calls_to_color_node, bsl.solution.num_conflicting_edges, cheat)
 
     results_name = store_name if store_name != None else (
         f'min_n{min_n}max_n{max_n}n{n}num_trials{num_trials}co_split{co_split}'
     )
 
     store_experiment('graph_coloring', results_name, results)
+
+
+def l_1_norm(original: float, proposed: float) -> float:
+    return original - proposed

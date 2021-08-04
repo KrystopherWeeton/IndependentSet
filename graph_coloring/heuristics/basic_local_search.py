@@ -2,7 +2,6 @@ from typing import Dict, Set
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util import graph
-from util.graph import max_degree
 from util.models.graph_coloring_tracker import \
     GraphColoringTracker, \
     AVAILABLE_COLORS_AT, \
@@ -12,15 +11,17 @@ from util.models.graph_coloring_tracker import \
     NUM_NEIGHBORING_COLORS
 
 
-class GlauberDynamics(GraphColoringHeuristic):
+class BasicLocalSearch(GraphColoringHeuristic):
 
     def __init__(self):
-        super(GlauberDynamics, self).__init__(expected_metadata_keys=[
-            "delta",
-            "max_iterations"
+        super(BasicLocalSearch, self).__init__(expected_metadata_keys=[
+            "k",
+            'loss_function'
         ])
 
-    def _run_heuristic(self, delta, max_iterations):
+    def _run_heuristic(self, k, loss_function):
+        # k: int = self.metadata['k']
+        # loss_function: Callable = self.metadata['loss_function']
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
             requested_data={
@@ -32,8 +33,6 @@ class GlauberDynamics(GraphColoringHeuristic):
             }
         )
 
-        k: int = min(max_degree(self.G) + delta, len(self.G))
-
         # Start with a random MAX_DEGREE + delta coloring
         # Note: this is NOT a proper coloring
         partition: Dict[int, Set[int]] = graph.generate_random_color_partition(self.G, k)
@@ -42,27 +41,21 @@ class GlauberDynamics(GraphColoringHeuristic):
         # TODO: remove
         assert len(set(self.solution.node_to_color.values())) == k
 
-        # Just keep recoloring until we get to a proper coloring
-        while (
-                (not self.solution.is_proper() and self.solution.is_complete()) and
-                self.solution.calls_to_color_node < max_iterations
-        ):
-
+        i: int = 0
+        while True:
+            if i % 1000 == 0:
+                print(f'[V] On step {i} with {self.solution.num_conflicting_edges} conflicts')
+            # improved: bool = False
             conflicts_before = self.solution.num_conflicting_edges
 
-            # if self.solution.calls_to_color_node % 1000 == 0:
-            # print(f'Trying to recolor a node at iteration {self.solution.calls_to_color_node}')
-            # print(f'Current Conflicts: {self.solution.num_conflicting_edges}')
+            node, color = self.solution.get_best_move(loss_function)
+            old_color = self.solution.node_to_color[node]
 
-            # Get a random node
-            node = self.solution.get_random_node()
-
-            # and color it a random AVAILABLE color (but only if we can
-            if len(self.solution.available_colors_at[node]) == 0:
-                pass
-                # print(f'Couldn\'t recolor a node at iteration {self.solution.calls_to_color_node}')
+            if color == self.solution.node_to_color[node]:
+                break
             else:
-                self.solution.color_node(node, self.solution.get_random_available_color(node))
+                self.solution.color_node(node, color)
+            i += 1
 
             assert self.solution.num_conflicting_edges <= conflicts_before
 

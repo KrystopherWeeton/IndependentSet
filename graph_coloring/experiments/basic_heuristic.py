@@ -26,7 +26,9 @@ from util.storage import store_experiment
 @click.option("--max-n", required=False, multiple=False, type=int)
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
+@click.option("--co_split", required=False, multiple=False, type=int, default=-1)
+@click.option("--store-name", required=False, multiple=False, type=str, default=None)
+def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
@@ -58,7 +60,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
             # Generate a random graph with n nodes
             if verbose:
                 print(f'[V]: Generating graph...')
-            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
+            comp_split: bool = bool(random.randint(0, 1)) if co_split == -1 else co_split
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split=comp_split)
             G, cheat = generator.generate_random_split_graph()
             if verbose:
                 print(f'[V]: Graph generated with {cheat} colors')
@@ -74,4 +77,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials):
 
             results.add_result(n, trial, cheat, frg.solution.num_colors_used())
 
-    store_experiment("graph_coloring", "test", results)
+    results_name = store_name if store_name != None else (
+        f'min_n{min_n}max_n{max_n}n{n}num_trials{num_trials}co_split{co_split}'
+    )
+
+    store_experiment('graph_coloring', results_name, results)
