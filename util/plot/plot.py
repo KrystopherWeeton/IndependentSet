@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 from typing import Callable, Tuple
 
 import matplotlib.pyplot as plt  # Used for plotting results
-from dataclasses import dataclass
+
 from util.config import get_experiment_results_directory
 
 
@@ -16,7 +17,7 @@ class Formatting:
     width: int = 1
 
 
-DEFAULT_FORMATTING: Formatting = Formatting(label=None, color="gray", alpha="1", width=1)
+DEFAULT_FORMATTING: Formatting = Formatting(label=None, color="gray", alpha=1, width=1)
 
 def LIGHT_GRAY(label: str) -> Formatting:
     return Formatting(label=label, color="gray", alpha=0.2, include_markers=True, marker_type="-o")

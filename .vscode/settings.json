@@ -1,0 +1,13 @@
+{
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+    "--enable=W0614", "--disable=W0101"],
+    "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+},
+"python.linting.enabled": true,
+"python.linting.flake8Enabled": false,
+    "python.languageServer": "Pylance"
+}

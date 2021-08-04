@@ -62,7 +62,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
 """
     Experiment which attempts to solve a planted clique problem from start to end.
 """
-@click.command()
+@click.command("sa")
 @click.option("-n", required=True, multiple=False, type=int)
 @click.option("--num-trials", required=True, multiple=False, type=int)
 @click.option("--verbose", required=False, is_flag=True, default=False)
