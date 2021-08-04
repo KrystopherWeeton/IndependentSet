@@ -5,7 +5,7 @@ import random
 import mpmath
 
 random.seed(1)
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from typing import Set
 
 import networkx as nx
@@ -223,8 +223,46 @@ class PerfectGraphGenerator:
 
     def binomial_coefficient(self, n: int, k: int) -> int:
         return self.binom[n][k]
+   
 
 def random_partition(S: set, num_colors: int) -> List[Set[int]]:
+    n: int = len(S)
+    stirling: np.array = np.zeros((n + 1, n + 1))
+    stirling[0, 0] = 1
+
+    for i in range(len(stirling) - 1):
+        for j in range(1, len(stirling[i])):
+            stirling[i + 1, j] = j * stirling[i, j] + stirling[i, j - 1]
+
+    # Initialize data tables
+    parts: int = num_colors
+    waiting: List[Tuple[int, int]] = []
+
+    partition: List[Set[int]] = []
+    while len(S) != 0 and parts != 0:
+        v: int = random.choice(list(S))
+        S.discard(v)
+
+        # Either we assign v to its own partition
+        # Put v in its own partition with P[Event] = binom_prob
+        binom_prob: float = stirling[len(S), parts - 1] / stirling[len(S)][parts] if stirling[len(S), parts] != 0 else 1
+        if np.random.binomial(1, p=(binom_prob if (
+                binom_prob != None and
+                binom_prob != float('NaN') and
+                0 <= binom_prob <= 1
+        ) else (
+                1 if binom_prob >= 1 else 0
+        ))):
+            partition.append({v})
+            parts -= 1
+        else:
+            waiting.append((v, len(partition)))
+
+    for v, starting in waiting:
+        partition[random.randrange(starting, len(partition))].add(v)
+
+
+def recursive_random_partition(S: set, num_colors: int) -> List[Set[int]]:
     """
     :param S: list, set we want to partition
     :param num_colors: int
