@@ -1,16 +1,17 @@
 import copy
 import random
-random.seed(1)
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util.models.graph_coloring_tracker import GraphColoringTracker
 
 
-class FriezeRandomGreedy(GraphColoringHeuristic):
+class GreedyColor(GraphColoringHeuristic):
 
     def __init__(self):
         # Frieze Random Greedy doesn't really need anything
-        super(FriezeRandomGreedy, self).__init__()
+        super(GreedyColor, self).__init__(expected_metadata_keys=[
+            'greedy_strategy'
+        ])
 
     def _run_heuristic(self):
 

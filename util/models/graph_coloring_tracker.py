@@ -1,7 +1,5 @@
 import copy
 import random
-
-random.seed(1)
 from collections import defaultdict
 from typing import Dict, List, Callable
 from typing import Set

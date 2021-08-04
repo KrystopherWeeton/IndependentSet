@@ -3,7 +3,7 @@ import random
 
 import click
 
-from graph_coloring.heuristics.frieze_random_greedy import FriezeRandomGreedy
+from graph_coloring.heuristics.greedy_color import GreedyColor
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment
@@ -28,6 +28,7 @@ from util.storage import store_experiment
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
+@click.option("--greedy-strategy", required=False, multiple=False, type=str, default='random')
 def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
@@ -53,8 +54,8 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
     # 2. Run experiment
     # TODO: Change to use metadata methodology
     # TODO: needs p value (maybe)
-    frg: FriezeRandomGreedy = FriezeRandomGreedy()
-    # frg: GuessAndOptimize = GuessAndOptimize()
+    greedy: GreedyColor = GreedyColor()
+    # greedy: GuessAndOptimize = GuessAndOptimize()
     for n in n_values:
         for trial in range(num_trials):
             # Generate a random graph with n nodes
@@ -66,16 +67,16 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
             if verbose:
                 print(f'[V]: Graph generated with {cheat} colors')
 
-            # Try coloring this graph with frg
-            frg.run_heuristic(G)
+            # Try coloring this graph with greedy
+            greedy.run_heuristic(G)
 
             # Add to results
             if verbose:
                 print(
                     f"[V] The heuristic found a complete proper coloring on a graph of {len(G)} nodes with chromatic "
-                    f"number {cheat} using {frg.solution.num_colors_used()} color(s)")
+                    f"number {cheat} using {greedy.solution.num_colors_used()} color(s)")
 
-            results.add_result(n, trial, cheat, frg.solution.num_colors_used())
+            results.add_result(n, trial, cheat, greedy.solution.num_colors_used())
 
     results_name = store_name if store_name != None else (
         f'min_n{min_n}max_n{max_n}n{n}num_trials{num_trials}co_split{co_split}'
