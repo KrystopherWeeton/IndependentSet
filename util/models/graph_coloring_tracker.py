@@ -112,7 +112,7 @@ class GraphColoringTracker(Solution):
             for node in self.G:
                 # We have to reverse the ordering because python is a goddamn min heap
                 self.saturation_max[node] = (
-                    self.num_colors_used() - len(self.available_colors_at[node]),
+                    len(self.available_colors_at[node]),
                     len(self.G) - 1 - self.G.degree[node]
                 )
 
@@ -329,7 +329,7 @@ class GraphColoringTracker(Solution):
                     # remember, we have to do a plus to go along with python's dumb rules
                     if SATURATION in self.requested_data:
                         self.saturation_max[neighbor] = (
-                            self.saturation_max[neighbor][0] + 1, self.saturation_max[neighbor][1]
+                            self.saturation_max[neighbor][0] - 1, self.saturation_max[neighbor][1]
                         )
 
                     # We only freed up the neighbor if we brought its neighboring colors down to zero
@@ -343,7 +343,7 @@ class GraphColoringTracker(Solution):
                         # remember, we have to do a plus to go along with python's dumb rules
                         if SATURATION in self.requested_data:
                             self.saturation_max[neighbor] = (
-                                self.saturation_max[neighbor][0] - 1, self.saturation_max[neighbor][1]
+                                self.saturation_max[neighbor][0] + 1, self.saturation_max[neighbor][1]
                             )
 
                 if NUM_CONFLICTING_EDGES in self.requested_data:
