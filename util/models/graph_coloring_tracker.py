@@ -5,6 +5,7 @@ from typing import Dict, List, Callable
 from typing import Set
 
 import networkx as nx
+from heapdict import heapdict
 
 from util.models.solution import Solution
 
@@ -14,6 +15,7 @@ NUM_CONFLICTING_EDGES = 'num_conflicting_edges'
 COLORED_NODES = 'colored_nodes'
 AVAILABLE_COLORS_AT = 'available_colors_at'
 NUM_NEIGHBORING_COLORS = 'num_neighboring_colors'
+SATURATION = 'saturation'
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
@@ -30,7 +32,8 @@ class GraphColoringTracker(Solution):
             NUM_CONFLICTING_EDGES,
             COLORED_NODES,
             AVAILABLE_COLORS_AT,
-            NUM_NEIGHBORING_COLORS
+            NUM_NEIGHBORING_COLORS,
+            SATURATION
         }
 
         # Basic information that all coloring trackers must utilize
@@ -44,6 +47,15 @@ class GraphColoringTracker(Solution):
         # Make sure we didn't get asked for more/wrong data then we wanted
         if (len(available_data.union(requested_data)) != len(available_data)):
             raise AttributeError("You requested some data that is not available!")
+
+        # Init all the instance variables
+        self.uncolored_nodes: List[int] = None
+        self.num_conflicting_edges: int = None
+        self.colored_nodes: set = None
+        self.uncolored_nodes: set = None
+        self.available_colors_at: Dict[int, list] = None
+        self.num_neighboring_colors: List[List[int]] = None
+        self.max_saturation: heapdict = None
 
         self.init_requested_data_PRECOLORING()
 
@@ -94,6 +106,32 @@ class GraphColoringTracker(Solution):
 
                     if NUM_NEIGHBORING_COLORS in self.requested_data and neighbor_color != -1:
                         self.num_neighboring_colors[v][neighbor_color] += 1
+
+        if SATURATION in self.requested_data:
+            self.saturation_max: heapdict = heapdict()
+            for node in self.G:
+                # We have to reverse the ordering because python is a goddamn min heap
+                self.saturation_max[node] = (
+                    self.num_colors_used() - len(self.available_colors_at[node]),
+                    len(self.G) - 1 - self.G.degree[node]
+                )
+
+    def get_saturation_max(self):
+        if SATURATION in self.requested_data:
+            return self._saturation_max
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    def set_saturation_max(self, new_val):
+        if SATURATION in self.requested_data:
+            self._saturation_max = new_val
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    saturation_max: heapdict = property(get_saturation_max, set_saturation_max)
+
+    def get_most_saturated_node(self) -> int:
+        return self.saturation_max.peekitem()[0]
 
     def get_calls_to_color_node(self):
         return self.calls_to_color_node
@@ -266,7 +304,8 @@ class GraphColoringTracker(Solution):
         if (
                 NUM_CONFLICTING_EDGES in self.requested_data or
                 AVAILABLE_COLORS_AT in self.requested_data or
-                NUM_NEIGHBORING_COLORS in self.requested_data
+                NUM_NEIGHBORING_COLORS in self.requested_data or
+                SATURATION in self.requested_data
         ):
             for neighbor in self.G[node_changed]:
                 neighbor_color = self.node_to_color.get(neighbor, -1)
@@ -280,6 +319,12 @@ class GraphColoringTracker(Solution):
                     # Since we recolored the node, the neighbor has lost a possible color
                     self.available_colors_at[neighbor].discard(new_color)
 
+                    # remember, we have to do a plus to go along with python's dumb rules
+                    if SATURATION in self.requested_data:
+                        self.saturation_max[neighbor] = (
+                            self.saturation_max[neighbor][0] + 1, self.saturation_max[neighbor][1]
+                        )
+
                     # We only freed up the neighbor if we brought its neighboring colors down to zero
                     if (
                             old_color != None and
@@ -287,6 +332,12 @@ class GraphColoringTracker(Solution):
                             self.num_neighboring_colors[neighbor][old_color] == 0
                     ):
                         self.available_colors_at[neighbor].add(old_color)
+
+                        # remember, we have to do a plus to go along with python's dumb rules
+                        if SATURATION in self.requested_data:
+                            self.saturation_max[neighbor] = (
+                                self.saturation_max[neighbor][0] - 1, self.saturation_max[neighbor][1]
+                            )
 
                 if NUM_CONFLICTING_EDGES in self.requested_data:
                     if new_color == neighbor_color:
@@ -304,7 +355,7 @@ class GraphColoringTracker(Solution):
     def is_complete(self) -> bool:
         return len(self.uncolored_nodes) == 0
 
-    def get_best_move(self, loss_function: Callable) -> [int, int]:
+    def get_best_ls_move(self, loss_function: Callable) -> [int, int]:
         """
 
         :param loss_function (curr color, neighboring color) For now, must be implemented to work on a PAIR of individual entries in num_neighboring_colors
