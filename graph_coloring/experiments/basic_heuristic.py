@@ -29,7 +29,7 @@ from util.storage import store_experiment
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
 @click.option("--greedy-strategy", required=False, multiple=False, type=str, default='random')
-def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name):
+def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name, greedy_strategy):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
@@ -68,7 +68,9 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
                 print(f'[V]: Graph generated with {cheat} colors')
 
             # Try coloring this graph with greedy
-            greedy.run_heuristic(G)
+            greedy.run_heuristic(G, {
+                'greedy_strategy': greedy_strategy
+            })
 
             # Add to results
             if verbose:

@@ -49,13 +49,13 @@ class GraphColoringTracker(Solution):
             raise AttributeError("You requested some data that is not available!")
 
         # Init all the instance variables
-        self.uncolored_nodes: List[int] = None
-        self.num_conflicting_edges: int = None
-        self.colored_nodes: set = None
-        self.uncolored_nodes: set = None
-        self.available_colors_at: Dict[int, list] = None
-        self.num_neighboring_colors: List[List[int]] = None
-        self.max_saturation: heapdict = None
+        # self.uncolored_nodes: List[int] = None
+        # self.num_conflicting_edges: int = None
+        # self.colored_nodes: set = None
+        # self.uncolored_nodes: set = None
+        # self.available_colors_at: Dict[int, list] = None
+        # self.num_neighboring_colors: List[List[int]] = None
+        # self.max_saturation: heapdict = None
 
         self.init_requested_data_PRECOLORING()
 
