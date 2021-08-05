@@ -130,8 +130,10 @@ class GraphColoringTracker(Solution):
 
     saturation_max: heapdict = property(get_saturation_max, set_saturation_max)
 
-    def get_most_saturated_node(self) -> int:
-        return self.saturation_max.peekitem()[0]
+    def pop_most_saturated_node(self) -> int:
+        r: int = self.saturation_max.peekitem()[0]
+        self.saturation_max[r] = (float('inf'), float('inf'))
+        return r
 
     def get_calls_to_color_node(self):
         return self.calls_to_color_node
@@ -250,8 +252,13 @@ class GraphColoringTracker(Solution):
     def get_random_node(self):
         return random.choice(list(self.G.nodes))
 
-    def get_random_available_color(self, node: int):
-        return random.choice(list(self.available_colors_at[node]))
+    def get_random_available_color(self, node: int, make_new: bool = False):
+        if len(self.available_colors_at[node]) == 0 and make_new:
+            return self.num_colors_used()
+        elif len(self.available_colors_at[node]) == 0:
+            raise ValueError(f'There are no colors to color {node} with!')
+        else:
+            return random.choice(list(self.available_colors_at[node]))
 
     def add_new_color(self, node: int, new_color: int):
         if AVAILABLE_COLORS_AT in self.requested_data:

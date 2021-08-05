@@ -2,7 +2,14 @@ import copy
 import random
 
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
-from util.models.graph_coloring_tracker import GraphColoringTracker
+from util.models.graph_coloring_tracker import \
+    GraphColoringTracker, \
+    AVAILABLE_COLORS_AT, \
+    UNCOLORED_NODES, \
+    NUM_CONFLICTING_EDGES, \
+    COLORED_NODES, \
+    NUM_NEIGHBORING_COLORS, \
+    SATURATION
 
 greedy_strategies = {
     'random',
@@ -43,15 +50,26 @@ class GreedyColor(GraphColoringHeuristic):
 
     def _DSatur(self):
         while len(self.solution.get_uncolored_nodes()) != 0:
-            v: int = self.solution.get_most_saturated_node()
-            color: int = self.solution.get_random_available_color(v)
+            v: int = self.solution.pop_most_saturated_node()
+            color: int = self.solution.get_random_available_color(v, True)
             self.solution.color_node(node=v, color=color)
 
     def _run_heuristic(self, greedy_strategy: str):
 
+        requested_data = {'uncolored_nodes'}
+        if greedy_strategy == 'DSatur':
+            requested_data = requested_data.union({
+                UNCOLORED_NODES,
+                NUM_CONFLICTING_EDGES,
+                AVAILABLE_COLORS_AT,
+                COLORED_NODES,
+                NUM_NEIGHBORING_COLORS,
+                SATURATION
+            })
+
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
-            requested_data={'uncolored_nodes'}
+            requested_data=requested_data
         )
 
         if greedy_strategy not in greedy_strategies:
