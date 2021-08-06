@@ -31,18 +31,18 @@ class ResultTensor:
     # Might not be strictly necessary, but not bad to do overall
     def keys(self, dimension: str) -> List[int]:
         return copy.copy(self.__dim_keys(dimension))
-    
+
     def __get_dimension_index(self, dimension: str) -> int:
-        """ Returns the index of the dimension """
+        """Returns the index of the dimension"""
         return self.__dimension_indices[dimension]
 
     def __dim_keys(self, dimension: str) -> List[int]:
-        """ Returns the keys for the specified dimension as a list """
+        """Returns the keys for the specified dimension as a list"""
         dim_index: int = self.__get_dimension_index(dimension)
         return self.__dimension_keys[dim_index]
 
     def __get_index(self, dimension: str, key: int) -> int:
-        """ Returns the appropriate index for the tensor from the provided key """
+        """Returns the appropriate index for the tensor from the provided key"""
         return self.__dim_keys(dimension).index(key)
 
     def add_dimension(self, dimension_name: str, dimension_keys: List[int]):
@@ -78,7 +78,9 @@ class ResultTensor:
                     "Wrong ordering of dimensions for accessing results dict."
                 )
             if k not in self.__dimension_keys[i]:
-                raise Exception(f"Bad key passed into results dict access\nKey: {k}\tKeys:{self.__dimension_keys[i]}")
+                raise Exception(
+                    f"Bad key passed into results dict access\nKey: {k}\tKeys:{self.__dimension_keys[i]}"
+                )
 
     def __to_indices(self, kwargs) -> Tuple:
         return tuple([self.__get_index(dim, k) for dim, k in kwargs.items()])
@@ -135,15 +137,15 @@ class ResultTensor:
                 key = keys[row]
                 l.append((key, M[row][col]))
         return l
-    
+
     def get_sub_tensor(self, dimension_name: str, index: int) -> tensor.tensor:
         """
-            Returns a sub-tensor restricted to `index` at dimension `dimension_name`
+        Returns a sub-tensor restricted to `index` at dimension `dimension_name`
 
-            EXAMPLE:
-                x.get_sub_tensor("trial", t)
+        EXAMPLE:
+            x.get_sub_tensor("trial", t)
 
-                > Returns sub-tensor corresponding to a specific trial
+            > Returns sub-tensor corresponding to a specific trial
         """
         entry_index: int = self.__get_index(dimension_name, index)
         dim_index: int = self.__get_dimension_index(dimension_name)
