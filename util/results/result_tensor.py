@@ -5,6 +5,7 @@ from pprint import pprint
 from typing import List, Tuple
 
 import numpy as np
+
 import util.tensor as tensor
 
 
@@ -14,9 +15,9 @@ def mean(X: np.array) -> float:
 
 class ResultTensor:
     def __init__(self):
-        self.__dimension_names: [str] = []
-        self.__dimension_sizes: [int] = []
-        self.__dimension_keys: [[int]] = []
+        self.__dimension_names: List[str] = []
+        self.__dimension_sizes: List[int] = []
+        self.__dimension_keys: List[List[int]] = []
         self.__dimension_indices: dict = {}
         self.__num_dimensions = 0
         self.dimensions_fixed = False
@@ -30,14 +31,14 @@ class ResultTensor:
         return self.__dimension_sizes[self.__dimension_indices[dimension]]
 
     # Might not be strictly necessary, but not bad to do overall
-    def keys(self, dimension: str) -> [int]:
+    def keys(self, dimension: str) -> List[int]:
         return copy.copy(self.__dim_keys(dimension))
     
     def __get_dimension_index(self, dimension: str) -> int:
         """ Returns the index of the dimension """
         return self.__dimension_indices[dimension]
 
-    def __dim_keys(self, dimension: str) -> [int]:
+    def __dim_keys(self, dimension: str) -> List[int]:
         """ Returns the keys for the specified dimension as a list """
         dim_index: int = self.__get_dimension_index(dimension)
         return self.__dimension_keys[dim_index]
@@ -46,7 +47,7 @@ class ResultTensor:
         """ Returns the appropriate index for the tensor from the provided key """
         return self.__dim_keys(dimension).index(key)
 
-    def add_dimension(self, dimension_name: str, dimension_keys: [int]):
+    def add_dimension(self, dimension_name: str, dimension_keys: List[int]):
         if self.dimensions_fixed:
             raise Exception(
                 "Attempt to add a dimension to a result object when the dimension have already been fixed"
@@ -126,9 +127,9 @@ class ResultTensor:
             m[r] = f(self.results[r])
         return m
 
-    def collapse_to_2d_list(self, f=mean) -> [(int, float)]:
+    def collapse_to_2d_list(self, f=mean) -> List[Tuple[int, float]]:
         M = self.collapse_to_matrix(f)
-        l: [(int, float)] = []
+        l: List[Tuple[int, float]] = []
         keys = self.__dimension_keys[0]
 
         for row in range(M.shape[0]):
