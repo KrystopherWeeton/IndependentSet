@@ -15,19 +15,36 @@ class Heuristic:
     NOTE: The order in which metadata is passed to the child's `run_heuristic` function
     is precisely the same as the keys are provided in `expected_metadata_keys` so take
     care with the order of the elements of this argument.
+
+    NOTE: The verbose / debug flags can be passed into the construtor to provide more output.
+    The specific level of output depends on the heuristic being run; however, in general verbose
+    output should contain relevant heuristic information, while debug should be used as a flag
+    for information useful for identifying problems with a heuristic.
     """
 
-    def __init__(self, solution_class, expected_metadata_keys: List[str] = []):
+    def __init__(self, solution_class, expected_metadata_keys: List[str] = [], verbose=False, debug=False):
         self.__solution_class = solution_class
 
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
         self.solution = None
         self.metadata: dict = None
+        self.verbose: bool = verbose
+        self.debug: bool = debug
 
         # The keys which are expected in every metadata passed in, e.g. raise warning
         # if the keys are not found within the provided metadata.
         self.expected_metadata_keys = expected_metadata_keys
+
+    def verbose_print(self, msg: str) -> None:
+        """Prints the output if verbose is turned on, with indicator in front of the message"""
+        if self.verbose:
+            print(f"[V] {msg}")
+    
+    def debug_print(self, msg: str) -> None:
+        """Prints the output if the debug flag is turned on, with indicator in front of the message"""
+        if self.debug:
+            print(f"[DEBUG] {msg}")
 
     """
         Calls post_step_hook with appropriate values if the value is not None, otherwise no-ops
