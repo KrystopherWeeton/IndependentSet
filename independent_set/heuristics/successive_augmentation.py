@@ -18,12 +18,14 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         permute_vertices            Whether or not to permute vertices at the start of each run
     """
 
-    def __init__(self, prune_final_solution: bool = False, permute_vertices: bool = False):
+    def __init__(self, prune_final_solution: bool = False, permute_vertices: bool = False, verbose: bool = False, debug: bool = False):
         super().__init__(
             expected_metadata_keys=[
                 "intersection_oracle",
                 "epsilon"
-            ]
+            ],
+            verbose=verbose,
+            debug=debug
         )
         self.prune_final_solution: bool = prune_final_solution
         self.permute_vertices: bool = permute_vertices
@@ -34,7 +36,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         vertices in the set.
     """
     def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: [int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
+        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
         return_value: set = set()
 
         for node in sorted_vertices:

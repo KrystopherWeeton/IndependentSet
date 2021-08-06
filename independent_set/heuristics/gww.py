@@ -1,13 +1,15 @@
 import random
+from typing import List
 
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 from util.graph import count_edge_boundary
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 
 
 class GWW(IndependentSetHeuristic):
 
-    def __init__(self):
+    def __init__(self, verbose: bool = False, debug: bool = False):
         super().__init__(
             expected_metadata_keys=[
                 "num_particles",
@@ -15,8 +17,9 @@ class GWW(IndependentSetHeuristic):
                 "threshold_added_change",
                 "random_walk_steps",
                 "min_threshold",
-                "verbose",
-            ]
+            ],
+            verbose=verbose,
+            debug=debug
         )
 
 
@@ -59,7 +62,7 @@ class GWW(IndependentSetHeuristic):
         vertices in the set.
     """
     def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: [int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
+        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
         return_value: set = set()
 
         for node in sorted_vertices:
@@ -69,17 +72,16 @@ class GWW(IndependentSetHeuristic):
         
         return return_value
 
-    def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
+    def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
         return min(subsets, key = lambda t: t.num_edges())
 
-    def _run_heuristic(self, num_particles, min_subset_size, threshold_added_change, random_walk_steps, min_threshold, verbose):
+    def _run_heuristic(self, num_particles, min_subset_size, threshold_added_change, random_walk_steps, min_threshold):
         #? Pull metadata
         n: int = len(self.G.nodes)
         num_particles: int = num_particles(n)
         random_walk_steps: int = random_walk_steps(n)
 
-        if verbose:
-            print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")
+        self.verbose_print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")
 
         #? Metadata validation
         if num_particles < 1:
@@ -94,15 +96,14 @@ class GWW(IndependentSetHeuristic):
 
         #? Initialize trackers
         # The point trackers
-        subsets: [GraphSubsetTracker] = [ 
+        subsets: List[GraphSubsetTracker] = [ 
             self.__select_initial_subset(min_subset_size) for p in range(num_particles)
         ]
         # The threshold that all points should satisfy
         threshold: float = 0.6
 
         while threshold > min_threshold:
-            if verbose:
-                print(f"Running iteration with threshold {threshold}.")
+            self.verbose_print(f"Running iteration with threshold {threshold}.")
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps, min_subset_size)
@@ -113,13 +114,12 @@ class GWW(IndependentSetHeuristic):
             ]
 
             #? Replicate subsets until points are replenished
-            if verbose:
-                print(f"Number of subsets after removal is {len(temp_subsets)}.")
+            self.verbose_print(f"Number of subsets after removal is {len(temp_subsets)}.")
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:
                 self.solution = self.__get_best_subset(subsets)
-                print(f"WARNING: Unable to replicate points because no subsets survived.")
+                self.verbose_print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
                 temp_subsets.append(random.choice(list(temp_subsets)).replicate())
@@ -141,5 +141,4 @@ TESTING_METADATA_GWW: dict = {
     "threshold_density_change": 0.025,
     "random_walk_steps":        lambda n: 30,
     "min_threshold":            0.1,
-    "verbose":                  False,
 }

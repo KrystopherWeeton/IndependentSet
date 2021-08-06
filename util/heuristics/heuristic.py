@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import Callable, List, Union
 
 import networkx as nx
 
@@ -36,13 +36,17 @@ class Heuristic:
         # if the keys are not found within the provided metadata.
         self.expected_metadata_keys = expected_metadata_keys
 
-    def verbose_print(self, msg: str) -> None:
+    def verbose_print(self, msg: Union[str, List[str]]) -> None:
         """Prints the output if verbose is turned on, with indicator in front of the message"""
+        if isinstance(msg, List):
+            msg = "\n".join(msg)
         if self.verbose:
             print(f"[V] {msg}")
     
     def debug_print(self, msg: str) -> None:
         """Prints the output if the debug flag is turned on, with indicator in front of the message"""
+        if isinstance(msg, List):
+            msg = "\n".join(msg)
         if self.debug:
             print(f"[DEBUG] {msg}")
 

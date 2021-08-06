@@ -1,19 +1,22 @@
 #!env/bin/python3
-import cProfile
 import copy
+import cProfile
 import math
 import pstats
 import sys
+from typing import List
 
 import click
 import networkx as nx
 
-from util.graph import generate_planted_independent_set_graph
 from independent_set.heuristics.fixed_gww import FixedGWW
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 from independent_set.heuristics.phase_heuristic import PhaseHeuristic
-from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
+from independent_set.heuristics.successive_augmentation import \
+    SuccessiveAugmentation
 from independent_set.result_models.heuristic_results import HeuristicResults
+from util.graph import generate_planted_independent_set_graph
 from util.storage import store_experiment
 
 ##########################################
@@ -35,15 +38,14 @@ MAX_OPTIMIZER_STEPS: int = 999
 PERCENT_INCREMENT: float = 0.05
 
 # The actual heuristic to run
-# ! HEURISTIC: IndependentSetHeuristic = FixedGWW()
-HEURISTIC: IndependentSetHeuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW())
+# ! HEURISTIC: IndependentSetHeuristic = FixedGWW(verbose=True, debug=False)
+HEURISTIC: IndependentSetHeuristic = PhaseHeuristic(SuccessiveAugmentation(), FixedGWW(verbose=True, debug=False))
 BASE_GWW_METADATA = {
     "num_particles": lambda n: 2 * int(math.sqrt(n)),
     "subset_size": lambda n: int(n ** (2 / 3)),
     "threshold_added_change": 0.0,
     "random_walk_steps": lambda n: int(math.log(n, 2)),
     "min_threshold": 0.1,
-    "verbose": True,
 }
 
 
@@ -70,7 +72,6 @@ HEURISTIC_METADATA: dict = {
     "threshold_added_change":   0.0,
     "random_walk_steps":        lambda n: int(math.log(n, 2)),
     "min_threshold":            0.1,
-    "verbose":                  True, 
 }
 
 HEURISTIC: IndependentSetHeuristic = GWW()
@@ -81,7 +82,6 @@ HEURISTIC_METADATA: dict = {
     "threshold_added_change":   0.01,
     "random_walk_steps":        lambda n: int(math.log(n, 2)),
     "min_threshold":            0.1,
-    "verbose":                  True,
 }
 """
 
@@ -90,7 +90,7 @@ HEURISTIC_METADATA: dict = {
 ##########################################
 
 
-def run_heuristic(n: [int], num_trials, verbose) -> HeuristicResults:
+def run_heuristic(n: List[int], num_trials, verbose) -> HeuristicResults:
     #? Initialization
     results: HeuristicResults = HeuristicResults(n, num_trials, planted_ind_set_size, HEURISTIC_METADATA)
     for n_value in n:
@@ -145,7 +145,7 @@ def profile_heuristic():
 @click.option("--file-name", required=False, multiple=False, type=str)
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def heuristic(profile, n: [int], min_n, max_n, step, num_trials, file_name, transient, verbose):
+def heuristic(profile, n: List[int], min_n, max_n, step, num_trials, file_name, transient, verbose):
     #? Check if we are profiling and rec. profile.
     if profile:
         profile_heuristic()

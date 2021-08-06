@@ -1,11 +1,14 @@
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
+from typing import List
+
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 
 
 class PhaseHeuristic(IndependentSetHeuristic):
 
-    def __init__(self, *argv: [IndependentSetHeuristic]):
-        super().__init__(expected_metadata_keys=["metadata"])
-        self.heuristics: [IndependentSetHeuristic] = argv
+    def __init__(self, *argv: List[IndependentSetHeuristic], verbose: bool = False, debug: bool = False):
+        super().__init__(expected_metadata_keys=["metadata"], verbose=verbose, debug=debug)
+        self.heuristics: List[IndependentSetHeuristic] = argv
 
     def _run_heuristic(self, metadata):
         """

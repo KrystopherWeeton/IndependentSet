@@ -1,6 +1,6 @@
 #!env/bin/python3
-import cProfile
 import copy
+import cProfile
 import math
 import pstats
 import random
@@ -8,12 +8,13 @@ import sys
 
 import click
 
+from independent_set.heuristics.successive_augmentation import \
+    SuccessiveAugmentation
+from independent_set.result_models.sa_results import (
+    SuccAugResults, generate_sa_results_file_name)
 from util.graph import generate_planted_independent_set_graph
-from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
-from independent_set.result_models.sa_results import (SuccAugResults,
-                                     generate_sa_results_file_name)
-from util.storage import store_experiment
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.storage import store_experiment
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -29,7 +30,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
     results: SuccAugResults = SuccAugResults(
         n, planted_ind_set_size(n), EPSILON, num_trials, HEADSTART_SIZE
     )
-    sa: SuccessiveAugmentation = SuccessiveAugmentation()
+    sa: SuccessiveAugmentation = SuccessiveAugmentation(verbose=True)
     for t in results:
         if verbose:
             print(f"[V] Running trial {t + 1} / {num_trials}")
