@@ -4,8 +4,9 @@ from typing import Callable
 
 import click
 
-from util.storage import load
 from util.config import get_experiment_results_directory
+from util.models.result import Result
+from util.storage import load
 
 """
     Verifies the provided pickle name, getting input from user if it is invalid
@@ -26,6 +27,7 @@ def verify_pickle_name(today: str, gen_default_file_name: Callable, project_name
     return pickle_name
 
 
+# TODO: Remove this function once everything has migrated to the new results subclass
 """
     Verifies and loads a pickle file name into a class returned. Execution is halted
     on error.
@@ -45,6 +47,19 @@ def verify_and_load_results(
         sys.exit(0)
     if not isinstance(results, results_class):
         click.secho("Results were of invalid type. Exiting.", err=True)
+        sys.exit(0)
+    return results
+
+
+def verify_and_load_results_v2(
+    results_class: Result,
+    project_name: str,
+    today: str,
+):
+    pickle_path = verify_pickle_name(today, results_class.generate_file_name, project_name)
+    results: results_class = load(pickle_path)
+    if results is None:
+        click.secho("Could not load results. Exiting.", err=True)
         sys.exit(0)
     return results
 

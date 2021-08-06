@@ -17,7 +17,7 @@ from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.heuristic_results import HeuristicResults
 from util.graph import generate_planted_independent_set_graph
-from util.storage import store_experiment
+from util.storage import store_results
 
 ##########################################
 #       Configuration
@@ -142,10 +142,9 @@ def profile_heuristic():
 @click.option("--max-n", required=False, multiple=False, type=int)
 @click.option("--step", required=False, multiple=False, type=int)
 @click.option("--num-trials", required=False, multiple=False, type=int, default=1)
-@click.option("--file-name", required=False, multiple=False, type=str)
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def heuristic(profile, n: List[int], min_n, max_n, step, num_trials, file_name, transient, verbose):
+def heuristic(profile, n: List[int], min_n, max_n, step, num_trials, transient, verbose):
     #? Check if we are profiling and rec. profile.
     if profile:
         profile_heuristic()
@@ -165,4 +164,4 @@ def heuristic(profile, n: List[int], min_n, max_n, step, num_trials, file_name, 
     #? Run the heuristic, then persist results
     results = run_heuristic(n, num_trials, verbose) 
     if not transient:
-        store_experiment("independent_set", results.generate_file_name(override_name=file_name), results)
+        store_results("independent_set", results)

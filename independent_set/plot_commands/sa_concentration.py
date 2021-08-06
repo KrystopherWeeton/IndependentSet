@@ -1,22 +1,24 @@
 import os
 import sys
+from typing import Callable, List, Tuple
 
 import click
 
-import util.plot.plot as plot
-from util.plot.plot import Formatting
-from util.misc import validate
 import util.file_util as file_util
-from util.commands import prompt_file_name, verify_and_load_results
+import util.plot.plot as plot
+from independent_set.result_models.sa_results import SuccAugResults
+from independent_set.result_models.suc_aug_concentration_results import \
+    SucAugConcentrationResults
+from util.commands import (prompt_file_name, verify_and_load_results,
+                           verify_and_load_results_v2)
+from util.misc import validate
+from util.plot.plot import Formatting
 from util.plot.series import plot_function, plot_series
-from util.plot.shapes import draw_polygon, draw_line
-from independent_set.result_models.suc_aug_concentration_results import SucAugConcentrationResults, generate_suc_aug_concentration_results_file_name
-from independent_set.result_models.sa_results import SuccAugResults 
-from typing import Callable, List, Tuple
+from util.plot.shapes import draw_line, draw_polygon
 
 LINE_FORMATTING: Formatting = Formatting(style="-", width="1", color="green", alpha=0.25)
 
-COLOR_LIST: [str] = [
+COLOR_LIST: List[str] = [
     "aqua",
     "blue",
     "crimson",
@@ -62,9 +64,7 @@ def __plot_result(sa: SuccAugResults, color: str, series_label: str):
 def plot_sa_concentration(today, transient, dir_name):
     validate(transient or (dir_name is not None), f"Concentration graphs require either transient output or a directory name.")
     # ? Load results and generate file name if not set
-    result: SucAugConcentrationResults = verify_and_load_results(
-        today, generate_suc_aug_concentration_results_file_name, SucAugConcentrationResults, "independent_set"
-    )
+    result: SucAugConcentrationResults = verify_and_load_results_v2(SucAugConcentrationResults, "independent_set", today)
     # ? Create directory to store files in
     if not transient:
         file_util.create_dir_in_experiment_results_directory(dir_name, "independent_set")

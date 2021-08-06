@@ -10,11 +10,10 @@ import click
 
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
-from independent_set.result_models.sa_results import (
-    SuccAugResults, generate_sa_results_file_name)
+from independent_set.result_models.sa_results import SuccAugResults
 from util.graph import generate_planted_independent_set_graph
 from util.models.graph_subset_tracker import GraphSubsetTracker
-from util.storage import store_experiment
+from util.storage import store_results
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -77,7 +76,7 @@ def successive_augmentation(n, num_trials, verbose, transient):
     results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose, transient)
 
     if not transient: 
-        store_experiment("independent_set", generate_sa_results_file_name(), results)
+        store_results("independent_set", results)
     elif verbose:
         print(f"[V] Skipping store step because transient was set to true.")
 

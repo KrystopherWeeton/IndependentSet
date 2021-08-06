@@ -1,20 +1,17 @@
 import os
 import sys
+from decimal import *
+from math import ceil, e
+from typing import Callable, List, Tuple
 
 import click
 
 import util.plot.plot as plot
+from independent_set.result_models.sa_results import SuccAugResults
+from util.commands import prompt_file_name, verify_and_load_results_v2
 from util.plot.plot import Formatting
-from util.commands import prompt_file_name, verify_and_load_results
-from util.plot.series import plot_function, plot_series
-from util.plot.shapes import draw_polygon, draw_line
-from independent_set.result_models.sa_results import (
-    SuccAugResults,
-    generate_sa_results_file_name,
-)
-from typing import Callable, List, Tuple
-from math import e, ceil
-from decimal import *
+from util.plot.series import plot_series
+from util.plot.shapes import draw_line
 
 SIZE_FORMATTING: Formatting = Formatting("Subset Size", "gray", 1, False, "-o")
 
@@ -87,9 +84,7 @@ def __slack(alpha: float, t: int, m: int) -> float:
 )
 def plot_sa_triangles(today, file_name, transient):
     # ? Load results and generate file name if not set
-    results: SuccAugResults = verify_and_load_results(
-        today, generate_sa_results_file_name, SuccAugResults, "independent_set"
-    )
+    results: SuccAugResults = verify_and_load_results_v2(SuccAugResults, "independent_set", today)
     if not transient:
         file_name = prompt_file_name(file_name)
 

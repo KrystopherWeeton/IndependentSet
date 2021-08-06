@@ -1,6 +1,6 @@
 #!env/bin/python3
-import cProfile
 import copy
+import cProfile
 import math
 import pstats
 import random
@@ -8,13 +8,14 @@ import sys
 
 import click
 
+from independent_set.heuristics.successive_augmentation import \
+    SuccessiveAugmentation
+from independent_set.result_models.suc_aug_concentration_results import \
+    SucAugConcentrationResults
 from util.graph import generate_planted_independent_set_graph
-from independent_set.heuristics.successive_augmentation import SuccessiveAugmentation
-from independent_set.result_models.suc_aug_concentration_results import (SucAugConcentrationResults,
-                                     generate_suc_aug_concentration_results_file_name)
-from util.storage import store_experiment
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.misc import validate
+from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.storage import store_results
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -72,6 +73,6 @@ def suc_aug_concentration(n, min_epsilon, max_epsilon, num_trials, verbose, tran
         _run_trial(n, planted_size, t, verbose, result)
     
     if not transient: 
-        store_experiment("independent_set", generate_suc_aug_concentration_results_file_name(), result)
+        store_results("independent_set", result)
     elif verbose:
         print(f"[V] Skipping store step because transient was set to true.")

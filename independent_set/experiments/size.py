@@ -5,10 +5,9 @@ import math
 import click
 
 from independent_set.heuristics.fixed_gww import FixedGWW
-from independent_set.result_models.size_results import (
-    SizeResults, generate_size_results_file_name)
+from independent_set.result_models.size_results import SizeResults
 from util.graph import generate_planted_independent_set_graph
-from util.storage import store
+from util.storage import store_results
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -89,6 +88,4 @@ def size(
         if verbose:
             print(f"[V] Collected Results: {results.get_results_collected()} / {results.get_total_results()}")
 
-    store(obj=results, file_name=generate_size_results_file_name(), directory="results")
-
-
+    store_results("independent_set", results)
