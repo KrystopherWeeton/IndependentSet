@@ -1,12 +1,12 @@
 import itertools
 from datetime import date
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 
-from util.misc import validate
-from independent_set.result_models.result_tensor import ResultTensor
 from independent_set.result_models.sa_results import SuccAugResults
-from typing import List, Tuple, Callable, Dict
+from util.misc import validate
+from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 

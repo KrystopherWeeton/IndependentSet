@@ -5,9 +5,9 @@ from typing import Callable, List, Tuple, Union
 import networkx as nx
 import numpy as np
 
-from independent_set.result_models.result_tensor import ResultTensor
 from util.misc import validate
 from util.models.result import Result
+from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 

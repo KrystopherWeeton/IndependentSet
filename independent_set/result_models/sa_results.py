@@ -1,10 +1,10 @@
 import itertools
 from datetime import date
+from typing import Callable, List, Tuple
 
 import numpy as np
 
-from independent_set.result_models.result_tensor import ResultTensor
-from typing import List, Tuple, Callable
+from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 

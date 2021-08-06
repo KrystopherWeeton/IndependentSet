@@ -2,7 +2,7 @@ from datetime import date
 
 import numpy as np
 
-from independent_set.result_models.result_tensor import ResultTensor
+from util.results.result_tensor import ResultTensor
 
 
 def generate_size_results_file_name() -> str:
