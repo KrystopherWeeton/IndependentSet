@@ -1,10 +1,12 @@
 import unittest
-from typing import Dict, Set
+from typing import Dict, Set, List
 
 import networkx as nx
 import sympy
 
 from util.graph import PerfectGraphGenerator, generate_random_color_partition
+from util.models.graph_coloring_tracker import GraphColoringTracker, NUM_CONFLICTING_EDGES, COLORED_NODES, \
+    UNCOLORED_NODES
 
 
 @unittest.skip("Don't need to time generation anymore")
@@ -72,5 +74,42 @@ class TestPlantColoring(unittest.TestCase):
         for n in self.G:
             self.assertIn(n, nodes_in_partition)
 
-if __name__ == '__main__':
-    unittest.main()
+
+class TestSplitGraphGeneration(unittest.TestCase):
+    def setUp(self):
+        self.graphs: List[nx.Graph] = [
+            PerfectGraphGenerator(n=n, p=.5, co_split=False).generate_random_split_graph() for n in [500] * 10
+        ]
+
+    def test_density(self):
+        for g, cheat in self.graphs:
+            print(f'Graph density is {nx.density(g)}')
+
+    def test_random_color_partition(self):
+        for g, cheat in self.graphs:
+            sol: GraphColoringTracker = GraphColoringTracker(
+                g, requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
+            )
+            sol.set_coloring_with_color_classes(generate_random_color_partition(g, cheat))
+            print(
+                f'Randomly colored graph optimally with {cheat} colors resulting in {sol.num_conflicting_edges} conflicts')
+
+
+class TestCo_SplitGraphGeneration(unittest.TestCase):
+    def setUp(self):
+        self.graphs: List[nx.Graph] = [
+            PerfectGraphGenerator(n=n, p=.5, co_split=True).generate_random_split_graph() for n in [500] * 10
+        ]
+
+    def test_density(self):
+        for g, cheat in self.graphs:
+            print(f'Graph density is {nx.density(g)}')
+
+    def test_random_color_partition(self):
+        for g, cheat in self.graphs:
+            sol: GraphColoringTracker = GraphColoringTracker(
+                g, requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
+            )
+            sol.set_coloring_with_color_classes(generate_random_color_partition(g, cheat))
+            print(
+                f'Randomly colored graph optimally with {cheat} colors resulting in {sol.num_conflicting_edges} conflicts')
