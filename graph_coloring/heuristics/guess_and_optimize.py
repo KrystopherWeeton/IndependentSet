@@ -20,8 +20,8 @@ class GuessAndOptimize(GraphColoringHeuristic):
 
     def _optimize(self, iterations: int):
         for i in range(iterations):
-            # if i % (iterations // 10) == 0:
-            print(f'[V] Iteration: {i}, Current Conflicting Edges: {self.solution.num_conflicting_edges}')
+            if self.verbose and ((i * 100) / iterations) % 10 == 0:
+                print(f'[V] Iteration: {i}, Current Conflicting Edges: {self.solution.num_conflicting_edges}')
 
             # Find the most conflicted node
             most_conflicted: int = self.solution.most_collisions_node()
@@ -45,7 +45,8 @@ class GuessAndOptimize(GraphColoringHeuristic):
 
         # Upper bound phase
         while True:
-            print(f'[V] Testing coloring with {k} colors')
+            if self.verbose:
+                print(f'[V] Testing coloring with {k} colors')
             # Set the initial solution with a random partitioning into guess # of sets
             self.solution.set_coloring_with_color_classes(generate_random_color_partition(self.G, k))
             # Now try to optimize for iterations
