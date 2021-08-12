@@ -55,6 +55,7 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
     # TODO: Change to use metadata methodology
     # TODO: needs p value (maybe)
     greedy: GreedyColor = GreedyColor()
+    greedy.verbose = verbose
     # greedy: GuessAndOptimize = GuessAndOptimize()
     for n in n_values:
         for trial in range(num_trials):
@@ -69,8 +70,10 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
 
             # Try coloring this graph with greedy
             greedy.run_heuristic(G, {
-                'greedy_strategy': greedy_strategy
-            })
+                'greedy_strategy': greedy_strategy,
+                'cheat': cheat
+            }
+                                 )
 
             # Add to results
             if verbose:
