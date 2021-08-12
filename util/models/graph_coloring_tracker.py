@@ -15,7 +15,8 @@ NUM_CONFLICTING_EDGES = 'num_conflicting_edges'
 COLORED_NODES = 'colored_nodes'
 AVAILABLE_COLORS_AT = 'available_colors_at'
 NUM_NEIGHBORING_COLORS = 'num_neighboring_colors'
-SATURATION = 'saturation'
+SATURATION_MAX = 'saturation_max'
+SATURATION_MIN = 'saturation_min'
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
@@ -33,7 +34,7 @@ class GraphColoringTracker(Solution):
             COLORED_NODES,
             AVAILABLE_COLORS_AT,
             NUM_NEIGHBORING_COLORS,
-            SATURATION
+            SATURATION_MAX
         }
 
         # Basic information that all coloring trackers must utilize
@@ -107,7 +108,7 @@ class GraphColoringTracker(Solution):
                     if NUM_NEIGHBORING_COLORS in self.requested_data and neighbor_color != -1:
                         self.num_neighboring_colors[v][neighbor_color] += 1
 
-        if SATURATION in self.requested_data:
+        if SATURATION_MAX in self.requested_data:
             self.saturation_max: heapdict = heapdict()
             for node in self.G:
                 # We have to reverse the ordering because python is a goddamn min heap
@@ -117,13 +118,13 @@ class GraphColoringTracker(Solution):
                 )
 
     def get_saturation_max(self):
-        if SATURATION in self.requested_data:
+        if SATURATION_MAX in self.requested_data:
             return self._saturation_max
         else:
             raise AttributeError("You're trying to set information that you didn't request!")
 
     def set_saturation_max(self, new_val):
-        if SATURATION in self.requested_data:
+        if SATURATION_MAX in self.requested_data:
             self._saturation_max = new_val
         else:
             raise AttributeError("You're trying to set information that you didn't request!")
@@ -134,6 +135,9 @@ class GraphColoringTracker(Solution):
         r: int = self.saturation_max.peekitem()[0]
         self.saturation_max[r] = (float('inf'), float('inf'))
         return r
+
+    def peek_most_saturated_node(self) -> int:
+        return self.saturation_max.peekitem()[0]
 
     def get_calls_to_color_node(self):
         return self.calls_to_color_node
@@ -312,7 +316,7 @@ class GraphColoringTracker(Solution):
                 NUM_CONFLICTING_EDGES in self.requested_data or
                 AVAILABLE_COLORS_AT in self.requested_data or
                 NUM_NEIGHBORING_COLORS in self.requested_data or
-                SATURATION in self.requested_data
+                SATURATION_MAX in self.requested_data
         ):
             for neighbor in self.G[node_changed]:
                 neighbor_color = self.node_to_color.get(neighbor, -1)
@@ -327,7 +331,7 @@ class GraphColoringTracker(Solution):
                     self.available_colors_at[neighbor].discard(new_color)
 
                     # remember, we have to do a plus to go along with python's dumb rules
-                    if SATURATION in self.requested_data:
+                    if SATURATION_MAX in self.requested_data:
                         self.saturation_max[neighbor] = (
                             self.saturation_max[neighbor][0] - 1, self.saturation_max[neighbor][1]
                         )
@@ -341,7 +345,7 @@ class GraphColoringTracker(Solution):
                         self.available_colors_at[neighbor].add(old_color)
 
                         # remember, we have to do a plus to go along with python's dumb rules
-                        if SATURATION in self.requested_data:
+                        if SATURATION_MAX in self.requested_data:
                             self.saturation_max[neighbor] = (
                                 self.saturation_max[neighbor][0] + 1, self.saturation_max[neighbor][1]
                             )

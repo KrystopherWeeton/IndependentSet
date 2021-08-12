@@ -1,6 +1,8 @@
 import copy
 import random
 
+import networkx
+
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util.models.graph_coloring_tracker import \
     GraphColoringTracker, \
@@ -9,19 +11,22 @@ from util.models.graph_coloring_tracker import \
     NUM_CONFLICTING_EDGES, \
     COLORED_NODES, \
     NUM_NEIGHBORING_COLORS, \
-    SATURATION
+    SATURATION_MAX
 
 greedy_strategies = {
     'random',
-    'DSatur'
+    'DSatur',
+    'no-choice'
 }
+
 
 class GreedyColor(GraphColoringHeuristic):
 
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
         # Frieze Random Greedy doesn't really need anything
         super(GreedyColor, self).__init__(expected_metadata_keys=[
-            'greedy_strategy'
+            'greedy_strategy',
+            'cheat'
         ])
 
     def _random_greedy(self):
@@ -54,17 +59,62 @@ class GreedyColor(GraphColoringHeuristic):
             color: int = self.solution.get_random_available_color(v, True)
             self.solution.color_node(node=v, color=color)
 
-    def _run_heuristic(self, greedy_strategy: str):
+    def __useless_coloring(self):
+        for i, v in enumerate(self.solution.G):
+            self.solution.color_node(v, i)
 
-        requested_data = {'uncolored_nodes'}
-        if greedy_strategy == 'DSatur':
+    def _no_choice(self, cheat: int):
+        # Find a cheat-clique
+        maximal_clique: list = []
+
+        for i in range(0, cheat):
+            v: int = random.choice(self.solution.G.nodes)
+            maximal_clique: list = networkx.maximal_independent_set(self.solution.G_comp, v)
+
+            # If we found a cheat-clique, break
+            if len(maximal_clique) >= cheat:
+                break
+
+        if len(maximal_clique) < cheat:
+            if self.verbose:
+                print('[V] no-choice failed to find a large clique')
+            self.__useless_coloring()
+            return
+
+        # Color the maximal clique uniquely.
+        for k, v in enumerate(maximal_clique):
+            self.solution.color_node(v, k)
+
+        # Now color the rest of the graph
+        while len(self.solution.uncolored_nodes) != 0:
+            colored_node: bool = False
+            for node in self.solution.uncolored_nodes:
+                # Essentially just color a node with the one color we can put on it
+                if self.solution.available_colors_at[node] == 1 or self.solution.available_colors_at[node] == 2:
+                    colored_node = True
+                    self.solution.color_node(node, self.solution.available_colors_at[node].pop())
+                    break
+            if not colored_node:
+                break
+
+        if len(self.solution.uncolored_nodes) != 0:
+            if self.verbose:
+                print('[V] no-choice failed to color the graph with only no-choice steps')
+            self.solution.clear_coloring()
+            self.__useless_coloring()
+            return
+
+    def _run_heuristic(self, greedy_strategy: str, cheat: int):
+
+        requested_data = {'uncolored_nodes', 'colored_nodes'}
+        if greedy_strategy == 'DSatur' or greedy_strategy == 'no-choice':
             requested_data = requested_data.union({
                 UNCOLORED_NODES,
                 NUM_CONFLICTING_EDGES,
                 AVAILABLE_COLORS_AT,
                 COLORED_NODES,
                 NUM_NEIGHBORING_COLORS,
-                SATURATION
+                SATURATION_MAX
             })
 
         self.solution: GraphColoringTracker = GraphColoringTracker(
@@ -83,3 +133,5 @@ class GreedyColor(GraphColoringHeuristic):
             self._random_greedy()
         elif greedy_strategy == 'DSatur':
             self._DSatur()
+        elif greedy_strategy == 'no-choice':
+            self._no_choice(cheat)
