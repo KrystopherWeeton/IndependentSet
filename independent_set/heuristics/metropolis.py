@@ -2,13 +2,14 @@ import math
 import random
 
 import util.formulas as formulas
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 
 
 class Metropolis(IndependentSetHeuristic):
 
-    def __init__(self):
-        super().__init__(expected_metadata_keys=["temperature", "max_steps"])
+    def __init__(self, verbose: bool = False, debug: bool = False):
+        super().__init__(expected_metadata_keys=["temperature", "max_steps"], verbose=verobse, debug=debug)
 
     """
         Calculates the threshold when presented with an option that increases density
@@ -53,7 +54,7 @@ class Metropolis(IndependentSetHeuristic):
                     self.solution.add_node(node)
 
         # Ran out of steps. Give warning then bail
-        print(
+        self.verbose_print(
             f"Warning: Metropolis ran {max_steps} without terminating."
         )
         return

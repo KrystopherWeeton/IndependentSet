@@ -4,10 +4,9 @@ import sys
 import click
 
 import util.plot.plot as plot
-from util.commands import prompt_file_name, verify_and_load_results
+from independent_set.result_models.sa_results import SuccAugResults
+from util.commands import prompt_file_name, verify_and_load_results_v2
 from util.plot.series import plot_series
-from independent_set.result_models.sa_results import (SuccAugResults,
-                                     generate_sa_results_file_name)
 
 SIZE_FORMATTING: plot.Formatting = plot.Formatting(
     "Subset Size", "gray", 1, False, "-o"
@@ -25,9 +24,7 @@ NUM_ANNOTATIONS: int = 10   # The number of annotations to include in the graph
 @click.option("--transient", required=False, is_flag=True, default=False, help="Shows the plot instead of saving.")
 def plot_sa_trace(today, file_name, transient):
     #? Load results and generate file name if not set
-    results: SuccAugResults = verify_and_load_results(
-        today, generate_sa_results_file_name, SuccAugResults, "independent_set"
-    )
+    results: SuccAugResults = verify_and_load_results_v2(SuccAugResults, "independent_set", today)
     file_name = prompt_file_name(file_name)
 
     #? Gather data for series

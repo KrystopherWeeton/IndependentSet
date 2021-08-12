@@ -1,13 +1,17 @@
 import random
+from typing import List
 
+from networkx.algorithms.similarity import debug_print
+
+from independent_set.heuristics.independent_set_heuristic import \
+    IndependentSetHeuristic
 from util.graph import count_edge_boundary
-from independent_set.heuristics.independent_set_heuristic import IndependentSetHeuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
 
 
 class FixedGWW(IndependentSetHeuristic):
 
-    def __init__(self):
+    def __init__(self, verbose: bool = False, debug: bool = False):
         super().__init__(
             expected_metadata_keys=[
                 "num_particles",
@@ -15,8 +19,9 @@ class FixedGWW(IndependentSetHeuristic):
                 "subset_size",
                 "random_walk_steps",
                 "min_threshold",
-                "verbose",
-            ]
+            ],
+            verbose=verbose,
+            debug=debug
         )
 
 
@@ -45,7 +50,7 @@ class FixedGWW(IndependentSetHeuristic):
         vertices in the set.
     """
     def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: [int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
+        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
         return_value: set = set()
 
         for node in sorted_vertices:
@@ -55,32 +60,28 @@ class FixedGWW(IndependentSetHeuristic):
         
         return return_value
     
-    def __get_best_subset(self, subsets: [GraphSubsetTracker]) -> GraphSubsetTracker:
+    def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
         return min(subsets, key = lambda t: t.num_edges())
 
-    def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold, verbose):
+    def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold):
         n: int = len(self.G.nodes)
         num_particles: int = num_particles(n)
         random_walk_steps: int = random_walk_steps(n)
         subset_size: int = subset_size(n)
 
-        if verbose:
-            print(
-                f"[V] Running Heuristic with the following arguments\n"
-                f"[V] Number of Particles: {num_particles}\n"
-                f"[V] Random Walk Steps: {random_walk_steps}\n"
-                f"[V] Subset Size: {subset_size}\n"
+        self.verbose_print([
+                f"Running heuristic with the following arguments",
+                f"Num. Particles: {num_particles}",
+                f"Random Walk Steps: {random_walk_steps}",
+                f"Subset Size: {subset_size}",
                 f"[V] ==========="
-            )
+        ])
 
         #? Metadata validation
         if subset_size > n:
-            if verbose:
-                print(
-                    f"[V] Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set."
-                )
-                self.solution = GraphSubsetTracker(self.G, set())
-                return
+            self.verbose_print(f"Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set")
+            self.solution = GraphSubsetTracker(self.G, set())
+            return
 
         if num_particles < 1:
             raise Exception("Cannot run GWW with non-positive number of points")
@@ -94,15 +95,14 @@ class FixedGWW(IndependentSetHeuristic):
 
         #? Initialize trackers
         # The point trackers
-        subsets: [GraphSubsetTracker] = [ 
+        subsets: List[GraphSubsetTracker] = [ 
             self.__select_initial_subset(subset_size) for p in range(num_particles)
         ]
         # The threshold that all points should satisfy
         threshold: float = 0.6
 
         while threshold > min_threshold:
-            #if verbose:
-            #    print(f"[V] Threshold: {threshold}.")
+            debug_print(f"Threshold: {threshold}")
             #? Take a random walk at each point
             for subset in subsets:
                 self.__random_walk(subset, random_walk_steps)
@@ -113,13 +113,12 @@ class FixedGWW(IndependentSetHeuristic):
             ]
 
             #? Replicate subsets until points are replenished
-            #if verbose:
-            #    print(f"[V] {len(temp_subsets)} / {num_particles} surviving particles.")
-            
+            debug_print(f"{len(temp_subsets)} / {num_particles} surviving particles.")
+
             # Check if subsets is empty
             if len(temp_subsets) == 0:
                 self.solution = self.__get_best_subset(subsets)
-                print(f"WARNING: Unable to replicate points because no subsets survived.")
+                self.verbose_print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
                 temp_subsets.append(random.choice(list(temp_subsets)).replicate())
@@ -141,5 +140,4 @@ TESTING_METADATA_FIXED_GWW: dict = {
     "thresold_added_change":    0.01,
     "random_walk_steps":        lambda n: 30,
     "min_threshold":            0.1,
-    "verbose":                  False,
 }
