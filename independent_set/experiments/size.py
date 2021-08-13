@@ -4,11 +4,10 @@ import math
 
 import click
 
-from util.graph import generate_planted_independent_set_graph
 from independent_set.heuristics.fixed_gww import FixedGWW
-from independent_set.result_models.size_results import (SizeResults,
-                                       generate_size_results_file_name)
-from util.storage import store
+from independent_set.result_models.size_results import SizeResults
+from util.graph import generate_planted_independent_set_graph
+from util.storage import store_results
 
 
 def planted_ind_set_size(n: int) -> int:
@@ -22,7 +21,6 @@ BASE_METADATA: dict = {
     "threshold_added_change":   0.0,
     "random_walk_steps":        lambda n: 3 * int(math.log(n, 2)),
     "min_threshold":            0.1,
-    "verbose":                  True, 
 }
 
 """
@@ -64,7 +62,7 @@ def size(
     n_values = range(min_n, max_n + 1, n_step)  # Adjusting for inclusivity
     k_values = range(min_k, max_k + 1, k_step)
     results: SizeResults = SizeResults(n_values=n_values, k_values=k_values, trials=trials)
-    gww: FixedGWW = FixedGWW()
+    gww: FixedGWW = FixedGWW(verbose=True, debug=False)
 
     for n, k, t in results:
         # Perform initial calculations and checks
@@ -90,6 +88,4 @@ def size(
         if verbose:
             print(f"[V] Collected Results: {results.get_results_collected()} / {results.get_total_results()}")
 
-    store(obj=results, file_name=generate_size_results_file_name(), directory="results")
-
-
+    store_results("independent_set", results)

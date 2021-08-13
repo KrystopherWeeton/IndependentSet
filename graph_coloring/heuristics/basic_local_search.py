@@ -43,12 +43,12 @@ class BasicLocalSearch(GraphColoringHeuristic):
 
         i: int = 0
         while True:
-            if i % 1000 == 0:
+            if self.verbose and i % 1000 == 0:
                 print(f'[V] On step {i} with {self.solution.num_conflicting_edges} conflicts')
             # improved: bool = False
             conflicts_before = self.solution.num_conflicting_edges
 
-            node, color = self.solution.get_best_move(loss_function)
+            node, color = self.solution.get_best_ls_move(loss_function)
             old_color = self.solution.node_to_color[node]
 
             if color == self.solution.node_to_color[node]:

@@ -5,7 +5,7 @@ import click
 import util.plot.plot as plot
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
-from util.commands import prompt_file_name, verify_and_load_results
+from util.commands import prompt_file_name, verify_and_load_results_v2
 from util.file_util import (create_dir,
                             create_dir_in_experiment_results_directory)
 from util.formulas import std_dev
@@ -82,13 +82,7 @@ def __generate_candlestick(transient: bool, path: str, data: float, title: str):
     help="Shows the plot instead of saving.",
 )
 def sa_dist(today, dir_name, transient):
-    results: SADistributionResults = verify_and_load_results(
-        today,
-        #! Don't do this. This is absurdly bad practice and should be fixed ASAP
-        SADistributionResults.generate_file_name,
-        SADistributionResults,
-        "independent_set",
-    )
+    results: SADistributionResults = verify_and_load_results_v2(SADistributionResults, "independent_set", today)
     directory = None
     if not transient:
         directory: str = create_dir_in_experiment_results_directory(prompt_file_name(dir_name), "independent_set")

@@ -4,14 +4,14 @@ from typing import Callable, List, Tuple
 
 import numpy as np
 
+from util.models.result import Result
 from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 
-def generate_sa_results_file_name() -> str:
-    return f"sa-results-{date.today()}"
+class SuccAugResults(Result):
 
-class SuccAugResults:
+    result_identifier: str = "sa-results"
 
     def __init__(self, n: int, planted_size: int, epsilon: int, trials: int, headstart_size: int):
         # Store metadata

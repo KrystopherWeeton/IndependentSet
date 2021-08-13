@@ -1,16 +1,17 @@
 from datetime import date
+from typing import List
 
 import numpy as np
 
+from util.models.result import Result
 from util.results.result_tensor import ResultTensor
 
 
-def generate_size_results_file_name() -> str:
-    return f"size-results-{date.today()}"
+class SizeResults(Result):
 
-class SizeResults:
+    result_identifier: str = "size-results"
 
-    def __init__(self, n_values: [int], k_values: [int], trials: int):
+    def __init__(self, n_values: List[int], k_values: List[int], trials: int):
         # Store metadata
         self.trials = trials
 
@@ -34,7 +35,6 @@ class SizeResults:
     def get_avg_heatmap_values(self):
         if not self.result.all_results_collected():
             raise Warning(f"Attempt to get heatmap values for SizeResults with only {self.result.results_collected} / {self.result.results_total}")
-            return None
         
         return self.result.collapse_to_matrix()
 
