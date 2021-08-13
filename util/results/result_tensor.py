@@ -1,10 +1,9 @@
 import copy
 import itertools
-import math
-from pprint import pprint
 from typing import List, Tuple
 
 import numpy as np
+
 import util.tensor as tensor
 
 
@@ -14,9 +13,9 @@ def mean(X: np.array) -> float:
 
 class ResultTensor:
     def __init__(self):
-        self.__dimension_names: [str] = []
-        self.__dimension_sizes: [int] = []
-        self.__dimension_keys: [[int]] = []
+        self.__dimension_names: List[str] = []
+        self.__dimension_sizes: List[int] = []
+        self.__dimension_keys: List[List[int]] = []
         self.__dimension_indices: dict = {}
         self.__num_dimensions = 0
         self.dimensions_fixed = False
@@ -30,23 +29,23 @@ class ResultTensor:
         return self.__dimension_sizes[self.__dimension_indices[dimension]]
 
     # Might not be strictly necessary, but not bad to do overall
-    def keys(self, dimension: str) -> [int]:
+    def keys(self, dimension: str) -> List[int]:
         return copy.copy(self.__dim_keys(dimension))
-    
+
     def __get_dimension_index(self, dimension: str) -> int:
-        """ Returns the index of the dimension """
+        """Returns the index of the dimension"""
         return self.__dimension_indices[dimension]
 
-    def __dim_keys(self, dimension: str) -> [int]:
-        """ Returns the keys for the specified dimension as a list """
+    def __dim_keys(self, dimension: str) -> List[int]:
+        """Returns the keys for the specified dimension as a list"""
         dim_index: int = self.__get_dimension_index(dimension)
         return self.__dimension_keys[dim_index]
 
     def __get_index(self, dimension: str, key: int) -> int:
-        """ Returns the appropriate index for the tensor from the provided key """
+        """Returns the appropriate index for the tensor from the provided key"""
         return self.__dim_keys(dimension).index(key)
 
-    def add_dimension(self, dimension_name: str, dimension_keys: [int]):
+    def add_dimension(self, dimension_name: str, dimension_keys: List[int]):
         if self.dimensions_fixed:
             raise Exception(
                 "Attempt to add a dimension to a result object when the dimension have already been fixed"
@@ -79,7 +78,9 @@ class ResultTensor:
                     "Wrong ordering of dimensions for accessing results dict."
                 )
             if k not in self.__dimension_keys[i]:
-                raise Exception(f"Bad key passed into results dict access\nKey: {k}\tKeys:{self.__dimension_keys[i]}")
+                raise Exception(
+                    f"Bad key passed into results dict access\nKey: {k}\tKeys:{self.__dimension_keys[i]}"
+                )
 
     def __to_indices(self, kwargs) -> Tuple:
         return tuple([self.__get_index(dim, k) for dim, k in kwargs.items()])
@@ -126,9 +127,9 @@ class ResultTensor:
             m[r] = f(self.results[r])
         return m
 
-    def collapse_to_2d_list(self, f=mean) -> [(int, float)]:
+    def collapse_to_2d_list(self, f=mean) -> List[Tuple[int, float]]:
         M = self.collapse_to_matrix(f)
-        l: [(int, float)] = []
+        l: List[Tuple[int, float]] = []
         keys = self.__dimension_keys[0]
 
         for row in range(M.shape[0]):
@@ -136,15 +137,15 @@ class ResultTensor:
                 key = keys[row]
                 l.append((key, M[row][col]))
         return l
-    
+
     def get_sub_tensor(self, dimension_name: str, index: int) -> tensor.tensor:
         """
-            Returns a sub-tensor restricted to `index` at dimension `dimension_name`
+        Returns a sub-tensor restricted to `index` at dimension `dimension_name`
 
-            EXAMPLE:
-                x.get_sub_tensor("trial", t)
+        EXAMPLE:
+            x.get_sub_tensor("trial", t)
 
-                > Returns sub-tensor corresponding to a specific trial
+            > Returns sub-tensor corresponding to a specific trial
         """
         entry_index: int = self.__get_index(dimension_name, index)
         dim_index: int = self.__get_dimension_index(dimension_name)

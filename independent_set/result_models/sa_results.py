@@ -4,8 +4,8 @@ from typing import Callable, List, Tuple
 
 import numpy as np
 
-from independent_set.result_models.result_tensor import ResultTensor
 from util.models.result import Result
+from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 

@@ -1,8 +1,7 @@
 from datetime import date
-# TODO: Fix this and move result_tensor to util
 from typing import List
 
-from independent_set.result_models.result_tensor import ResultTensor
+from util.results.result_tensor import ResultTensor
 
 
 def generate_basic_heuristic_results_file_name() -> str:

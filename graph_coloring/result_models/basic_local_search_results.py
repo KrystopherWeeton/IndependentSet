@@ -1,14 +1,13 @@
 from datetime import date
 from typing import List
 
-from independent_set.result_models.result_tensor import ResultTensor
+from util.results.result_tensor import ResultTensor
 
 ITERATIONS = 'iterations'
 NUM_CONFLICTING_EDGES = 'num_conflicting_edges'
 CHROMATIC_NUMBER = 'chromatic_number'
 
 
-# TODO: Fix this and move result_tensor to util
 
 
 def generate_basic_local_search_results_file_name() -> str:

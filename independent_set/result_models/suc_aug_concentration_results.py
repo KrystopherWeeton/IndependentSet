@@ -4,10 +4,10 @@ from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 
-from independent_set.result_models.result_tensor import ResultTensor
 from independent_set.result_models.sa_results import SuccAugResults
 from util.misc import validate
 from util.models.result import Result
+from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
 
