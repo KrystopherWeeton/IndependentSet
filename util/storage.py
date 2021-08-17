@@ -2,7 +2,7 @@ import pickle
 
 import dill
 
-from util.config import get_experiment_results_directory
+from util.config import get_experiment_results_directory, get_preprocessing_directory
 from util.models.result import Result
 
 
@@ -34,6 +34,12 @@ def store_experiment(project_name: str, file_name: str, obj: any):
     """ Stores an experiment provided only the project name and file """
     store(obj, file_name, get_experiment_results_directory(project_name))
 
+def store_preprocessing(project_name: str, file_name: str, obj: any):
+    store(obj, file_name, get_preprocessing_directory(project_name))
+
+def load_preprocessing(project_name: str, file_name: str):
+    preprocessing_dir: str = get_preprocessing_directory(project_name)
+    return load_from_path(f"{preprocessing_dir}/{file_name}.pkl")
 
 def load_experiment(project_name: str, file_name: str):
     results_dir: str = get_experiment_results_directory(project_name)

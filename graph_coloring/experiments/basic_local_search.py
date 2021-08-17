@@ -1,12 +1,15 @@
 import random
+from collections import defaultdict
+from typing import Dict, List, Tuple
 
 import click
+import networkx as nx
 
 from graph_coloring.heuristics.basic_local_search import BasicLocalSearch
 from graph_coloring.result_models.basic_local_search_results import \
     BasicLocalSearchResults
 from util.graph import PerfectGraphGenerator
-from util.storage import store_experiment
+from util.storage import store_experiment, load_preprocessing
 
 
 ##########################################
@@ -28,7 +31,8 @@ from util.storage import store_experiment
 @click.option("-n", required=False, multiple=False, type=int, default=500)
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
-def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, store_name):
+@click.option("pp_file", required=False, multiple=False, type=str, default=None)
+def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, store_name, preprocessing_file: str):
     # TODO: reorder the arguments
 
     """
@@ -59,18 +63,24 @@ def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, sto
     results: BasicLocalSearchResults = BasicLocalSearchResults(n_values, num_trials)
 
     bsl: BasicLocalSearch = BasicLocalSearch()
+    graphs: Dict[int, List[Tuple[nx.Graph, int]]] = defaultdict(list)
+
+    if preprocessing_file is None:
+        for n in n_values:
+            for trial in range(num_trials):
+                co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
+                graphs[n].append(PerfectGraphGenerator(n, .5, co_split).generate_random_split_graph())
+    else:
+        graphs = load_preprocessing('graph_coloring', preprocessing_file)
 
     for n in n_values:
         for trial in range(num_trials):
             if verbose:
                 print(f'[V] Generating graph...')
-            co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
-            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split=co_split)
-            G, cheat = generator.generate_random_split_graph()
             if verbose:
                 print(f'[V] {"co_split" if co_split else "Split"} Graph generated with chromatic number {cheat}.')
-            # TODO remove
-            # delta = cheat - max_degree(G) - 10
+
+            G, cheat = graphs[n][trial]
             bsl.run_heuristic(G, {
                 'k': cheat,
                 'loss_function': l_1_norm

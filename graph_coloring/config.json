@@ -1,3 +1,4 @@
 {
-    "experiment_results_directory": "graph_coloring/experiment_results"
+    "experiment_results_directory": "graph_coloring/experiment_results",
+    "preprocessing_directory": "graph_coloring/preprocessing_directory"
 }

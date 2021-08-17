@@ -8,6 +8,9 @@ def load_project_config(project_name: str) -> dict:
     f.close()
     return data
 
+def get_preprocessing_directory(project_name: str) -> str:
+    """ Returns the directory in which the experimental reuslts should be put"""
+    return load_project_config(project_name)["preprocessing_directory"]
 
 def get_experiment_results_directory(project_name: str) -> str:
     """ Returns the directory in which the experimental reuslts should be put"""

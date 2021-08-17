@@ -5,7 +5,6 @@ import random
 
 import mpmath
 
-random.seed(1)
 from typing import List, Dict, Tuple
 from typing import Set
 
