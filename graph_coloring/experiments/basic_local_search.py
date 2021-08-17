@@ -60,10 +60,6 @@ def basic_local_search(verbose, min_n, max_n, step, num_trials, n, co_split, sto
         n_values: [int] = range(min_n, max_n, step)
     else:
         n_values: [int] = [n]
-    if n == None:
-        n_values: [int] = range(min_n, max_n, step)
-    else:
-        n_values: [int] = [n]
 
     graphs: Dict[int, List[Tuple[nx.Graph, int]]] = defaultdict(list)
     if pp_file is None:
