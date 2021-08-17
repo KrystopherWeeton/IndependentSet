@@ -7,7 +7,7 @@ import click
 import networkx as nx
 
 from util.graph import PerfectGraphGenerator
-from util.storage import store_experiment, store_preprocessing
+from util.storage import store_preprocessing
 
 
 @click.command()
