@@ -1,3 +1,5 @@
+import gc
+import os
 import pickle
 from typing import List, Dict
 
@@ -20,25 +22,37 @@ def store(obj, file_name: str, directory: str = None):
         dill.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 
-def store_dict(d: Dict[object, object], file_name: str, directory: str = None):
+def store_dict_as_dir(d: Dict[object, object], file_name: str, directory: str = None):
     # store_list(d.items(), file_name, directory)
 
     print(__pickle_path(file_name, directory))
-    k = klepto.archives.dir_archive(directory + '/graphs', d, serialized=True)
+    k = klepto.archives.dir_archive(directory + '/' + file_name, d, serialized=True)
+    del d
+    gc.collect()
     k.dump()
     k.clear()
 
 
 def load_dict(file_name: str, directory: str = None):
-    return load_dict_from_path(__pickle_path((file_name, directory)))
+    return load_dict_from_dir(__pickle_path((file_name, directory)))
 
 
-def load_dict_from_path(path: str):
+def load_dict_from_dir(path: str):
+    """
+    IMPORTANT: KEYS MUST BE INTEGERS!
+    :param path:
+    :return:
+    """
     # return dict(load_list_from_path(path))
-    path = 'graphs'
-    k = klepto.archives.dir_archive(serialized=True)
-    k.open(path)
-    k.load()
+    r = {}
+    for dirpath, dirnames, files in os.walk(path):
+        print(f'In directory: {dirpath}')
+        for file_name in files:
+            # God, I really hope this works. But dirpath should be something like alksdjflkjasfd/K_|G|, so splitting like this should give me the key
+            key = int(dirpath.split('K_')[-1])
+            r[key] = load_from_path(f'{dirpath}/{file_name}')
+
+    return r
 
 
 # Stores an list of LARGE objects into a pickle file (to avoid memory issues)
@@ -78,11 +92,11 @@ def store_experiment(project_name: str, file_name: str, obj: any):
     store(obj, file_name, get_experiment_results_directory(project_name))
 
 def store_preprocessing(project_name: str, file_name: str, obj: any):
-    store_dict(obj, file_name, get_preprocessing_directory(project_name))
+    store_dict_as_dir(obj, file_name, get_preprocessing_directory(project_name))
 
 def load_preprocessing(project_name: str, file_name: str):
     preprocessing_dir: str = get_preprocessing_directory(project_name)
-    return load_dict_from_path(f"{preprocessing_dir}/{file_name}.pkl")
+    return load_dict_from_dir(f"{preprocessing_dir}/{file_name}")
 
 def load_experiment(project_name: str, file_name: str):
     results_dir: str = get_experiment_results_directory(project_name)
