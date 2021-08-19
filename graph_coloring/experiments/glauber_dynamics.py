@@ -63,11 +63,12 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
         n_values: [int] = [n]
 
     graphs: Dict[int, List[Tuple[nx.Graph, int]]] = defaultdict(list)
+    co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
     if pp_file is None:
         for n in n_values:
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split)
             for trial in range(num_trials):
-                co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
-                graphs[n].append(PerfectGraphGenerator(n, .5, co_split).generate_random_split_graph())
+                graphs[n].append(generator.generate_random_split_graph())
     else:
         graphs = load_preprocessing('graph_coloring', pp_file)
         n_values: List[int] = sorted(graphs.keys())

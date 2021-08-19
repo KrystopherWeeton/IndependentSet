@@ -1,16 +1,16 @@
 import copy
 import itertools
-import math
 import random
 
-import mpmath
+from mpmath import mp
+
+mp.dps = 10
 
 from typing import List, Dict, Tuple
 from typing import Set
 
 import networkx as nx
 import numpy as np
-from scipy import special
 
 
 # Returns a list of nodes in a random 'headstart' set of size l with k nodes inside the independence set
@@ -70,6 +70,17 @@ def binomial_coefficient(n: int, k: int) -> int:
 
 
 def bell_table(n: int) -> list:
+    if (n > 3015):
+        raise ArithmeticError(f'{n} is larger than what bell table currently supports')
+
+    bell: List[int] = []
+    bell_file = open('C:\\Users\\pov_p\\PycharmProjects\\IndependentSet\\graph_coloring\\preprocessing_directory'
+                     '\\bell_numbers_upto3015.txt', 'r')
+    for line in bell_file:
+        bell.append(int(line.split()[1]))
+    print('Generated bell table thank god.')
+    return bell
+
     bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
     bell[0][0] = 1
     for i in range(1, n + 1):
@@ -82,8 +93,42 @@ def bell_table(n: int) -> list:
             bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
     return bell
 
+
 def binom_table(n: int) -> List[List[int]]:
-    return [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
+    # r = [[special.comb(j, i) for i in range(n + 1)] for j in range(n + 1)]
+    # good_r = [[mp.mpmathify(special.binom(j, i)) for i in range(n + 1)] for j in range(n + 1)]
+    # lets try using stirlings formula
+    good_r = []
+    for j in range(n + 1):
+        to_add: list = []
+        if j == 0:
+            to_add = [0] * (n + 1)
+            good_r.append(to_add)
+            continue
+        for i in range(n + 1):
+            if i == 0 or i == j:
+                to_add.append(1)
+                continue
+            if i > j:
+                to_add.append(0)
+                continue
+            to_add.append(
+                mp.fmul(
+                    to_add[-1],
+                    mp.fdiv(
+                        mp.fadd(
+                            mp.fsub(j, i),
+                            1
+                        ), i
+                    )
+                )
+            )
+            # to_add.append(mp.power(mp.fdiv(mp.fmul(j, math.e), i), i))
+        good_r.append(to_add)
+    # good_r = [[mp.fdiv(mp.power(mp.fmul(j, math.e), i), i) for i in range(n + 1)] for j in range(n + 1)]
+    # assert r == float('inf') or r == good_r
+    print('Generated binom table thank god')
+    return good_r
 
 
 
@@ -97,21 +142,28 @@ class PerfectGraphGenerator:
         # TODO:
         self.bell = bell_table(self.n)
         self.binom = binom_table(self.n)
+        # problem_area: tuple = (self.binomial_coefficient(n, 192), self.bell_number(n - 192), mp.power(2, 192 * (n - 192)))
 
         self.A = []
 
         # Fill the A matrix (should take n^2 time I think)
         self.A.append(1)
         for i in range(1, n + 1):
-            self.A.append(sum([math.comb(i - 1, m) * self.A[m] for m in range(len(self.A))]))
+            tosum: list = [mp.fmul(self.binomial_coefficient(i - 1, m), self.A[m]) for m in range(len(self.A))]
+
+            self.A.append(mp.fsum(tosum))
+
+        print("A matrix generated thank god")
+        assert mp.fsum(self.A) < mp.inf
 
     def bell_number(self, n: int) -> int:
         if n < 0:
             raise IndexError("Bell number is not defined for negatives")
         elif n > self.n:
             raise IndexError("Bell number is beyond what we have initialized")
-        return self.bell[n][0]
+        return self.bell[n]
 
+    # TODO: duplicate, remove?
     def bell_table(n: int) -> list:
 
         bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
@@ -126,9 +178,12 @@ class PerfectGraphGenerator:
                 bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1]
         return bell
 
-    def get_partition_prob(self, n: int, m: int) -> list:
+    def get_partition_prob(self, n: int, m: int) -> np.array:
 
-        r = [self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)]
+        r: np.array = np.array(
+            [float(mp.fmul(self.binomial_coefficient(m - 1, k), mp.fdiv(self.A[k], self.A[m]))) for k in range(m)])
+        # r: np.array = np.array([self.binomial_coefficient(m - 1, k) * (self.A[k] / self.A[m]) for k in range(m)])
+        r /= r.sum()
         return r
 
     def generate_random_partition(self, U: [int]) -> list:
@@ -159,13 +214,16 @@ class PerfectGraphGenerator:
     # From https://www2.math.upenn.edu/~wilf/website/Method%20and%20two%20algorithms.pdf
     def get_central_clique_size(self, n: int) -> int:
         l: list = [
-            mpmath.fmul(
-                self.binomial_coefficient(n, k), mpmath.fmul(
-                    self.bell_number(n - k), mpmath.power(2, (k * (n - k)))
+            mp.fmul(
+                self.binomial_coefficient(n, k), mp.fmul(
+                    self.bell_number(n - k), mp.power(2, (k * (n - k)))
                 )
             ) for k in range(n + 1)]
-        L: int = sum(l)
-        k: int = np.random.choice(a=range(n + 1), p=[(x / L) for x in l])
+
+        L: mp.mpf = mp.fsum(l)
+        probabilities: np.array = np.array([float(mp.fdiv(x, L)) for x in l])
+        probabilities /= probabilities.sum()
+        k: int = np.random.choice(a=range(n + 1), p=probabilities)
         return int(k)
 
     def generate_unipolar_partition(self, n: int) -> list:
