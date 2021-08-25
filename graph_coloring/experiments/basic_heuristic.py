@@ -6,17 +6,16 @@ from typing import List, Tuple, Dict
 import click
 import networkx as nx
 
-from graph_coloring.experiments.common import TRUE_VS_FOUND, CENTER_SET_SIZE
 from graph_coloring.heuristics.greedy_color import GreedyColor
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import PerfectGraphGenerator
 from util.storage import store_experiment, load_preprocessing
 
+
 ##########################################
 #       Configuration
 ##########################################
 
-supported_experiments = {TRUE_VS_FOUND, CENTER_SET_SIZE}
 
 ##########################################
 #       Commands / Experiments
@@ -33,14 +32,11 @@ supported_experiments = {TRUE_VS_FOUND, CENTER_SET_SIZE}
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
 @click.option("--greedy-strategy", required=False, multiple=False, type=str, default='random')
-@click.option('--exp', required=False, multiple=False, type=str, default=TRUE_VS_FOUND)
 @click.option("--pp_file", required=False, multiple=False, type=str, default=None)
 def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name, greedy_strategy, exp, pp_file):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
-    if exp not in supported_experiments:
-        raise KeyError("You tried to run an unsupported experiment")
 
     if (pp_file != None and
             (min_n != None or max_n != None or step != None)
@@ -78,7 +74,7 @@ def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_
 
     if verbose:
         print(f"[V] Running basic heuristic experiment with n values of {n_values} and num_trials={num_trials}")
-    results: BasicHeuristicResults = BasicHeuristicResults(n_values, num_trials, [exp])
+    results: BasicHeuristicResults = BasicHeuristicResults(n_values, num_trials)
 
     # 2. Run experiment
     # TODO: Change to use metadata methodology
