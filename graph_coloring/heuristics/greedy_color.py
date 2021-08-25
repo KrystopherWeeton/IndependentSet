@@ -1,9 +1,11 @@
 import copy
 import random
+import time
 
-import networkx
-
+from graph_coloring.experiments.common import CENTER_SET_SIZE
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
+from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
+from util.graph import get_big_independent_set
 from util.models.graph_coloring_tracker import \
     GraphColoringTracker, \
     AVAILABLE_COLORS_AT, \
@@ -11,7 +13,7 @@ from util.models.graph_coloring_tracker import \
     NUM_CONFLICTING_EDGES, \
     COLORED_NODES, \
     NUM_NEIGHBORING_COLORS, \
-    SATURATION_MAX
+    SATURATION_MAX, CENTER_SET
 
 greedy_strategies = {
     'random',
@@ -26,7 +28,9 @@ class GreedyColor(GraphColoringHeuristic):
         # Frieze Random Greedy doesn't really need anything
         super(GreedyColor, self).__init__(expected_metadata_keys=[
             'greedy_strategy',
-            'cheat'
+            'cheat',
+            'results',
+            'trial'
         ])
 
     def _random_greedy(self):
@@ -34,6 +38,12 @@ class GreedyColor(GraphColoringHeuristic):
         # Make independent sets
         while len(self.solution.get_uncolored_nodes()) != 0:
             # print(f'[V]: Making {k}th color class')
+            if self.verbose:
+                num_un = len(self.solution.uncolored_nodes)
+                cc_size = len(self.solution.uncolored_nodes.intersection(self.solution.center_set))
+                print(f'On iteration {k}...Num Uncolored={num_un}, '
+                      f'CC_size={cc_size}, '
+                      f'Ratio={cc_size / num_un}')
 
             ind_set: set = copy.copy(self.solution.get_uncolored_nodes())
 
@@ -53,6 +63,13 @@ class GreedyColor(GraphColoringHeuristic):
             # print(f'[V] Was able to make a color class of size {num_added}.')
             k += 1
 
+            # self.results.add_result(
+            #     len(self.solution.G),
+            #     self.trial,
+            #     num_un=len(self.solution.uncolored_nodes),
+            #     cc_siz=len(self.solution.uncolored_nodes.intersection(self.solution.center_set))
+            # )
+
     def _DSatur(self):
         while len(self.solution.get_uncolored_nodes()) != 0:
             v: int = self.solution.pop_most_saturated_node()
@@ -65,15 +82,7 @@ class GreedyColor(GraphColoringHeuristic):
 
     def _no_choice(self, cheat: int):
         # Find a cheat-clique
-        maximal_clique: list = []
-
-        for i in range(0, cheat):
-            v: int = random.choice(self.solution.G.nodes)
-            maximal_clique: list = networkx.maximal_independent_set(self.solution.G_comp, v)
-
-            # If we found a cheat-clique, break
-            if len(maximal_clique) >= cheat:
-                break
+        maximal_clique: list = get_big_independent_set(self.solution.G_comp, cheat)
 
         if len(maximal_clique) < cheat:
             if self.verbose:
@@ -104,7 +113,8 @@ class GreedyColor(GraphColoringHeuristic):
             self.__useless_coloring()
             return
 
-    def _run_heuristic(self, greedy_strategy: str, cheat: int):
+    # TODO: It's not necessary that the heuristic should know the trial or the n, but fuck it i guess
+    def _run_heuristic(self, greedy_strategy: str, cheat: int, results: BasicHeuristicResults, trial: int):
 
         requested_data = {'uncolored_nodes', 'colored_nodes'}
         if greedy_strategy == 'DSatur' or greedy_strategy == 'no-choice':
@@ -116,11 +126,15 @@ class GreedyColor(GraphColoringHeuristic):
                 NUM_NEIGHBORING_COLORS,
                 SATURATION_MAX
             })
+        if CENTER_SET_SIZE in results.experiments:
+            requested_data.add(CENTER_SET)
 
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
             requested_data=requested_data
         )
+        self.results = results
+        self.trial = trial
 
         if greedy_strategy not in greedy_strategies:
             raise AttributeError(f'{greedy_strategy} is not implemented')
@@ -129,9 +143,13 @@ class GreedyColor(GraphColoringHeuristic):
         #     'DSatur': (self.solution.get_most_saturated_node, self.solution.get_random_available_color),
         #     'random': (self.solution.get_random_node, self.solution.get_random_available_color)
         # }[greedy_strategy]
+        start_time = time.time()
         if greedy_strategy == 'random':
             self._random_greedy()
         elif greedy_strategy == 'DSatur':
             self._DSatur()
         elif greedy_strategy == 'no-choice':
             self._no_choice(cheat)
+
+        if self.verbose:
+            print(f'[V] Heuristic took {time.time() - start_time} seconds')

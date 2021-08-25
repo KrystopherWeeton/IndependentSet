@@ -1,5 +1,7 @@
 import copy
+import math
 import random
+import time
 from collections import defaultdict
 from typing import Dict, List, Callable
 from typing import Set
@@ -7,6 +9,7 @@ from typing import Set
 import networkx as nx
 from heapdict import heapdict
 
+from util.graph import get_big_independent_set
 from util.models.solution import Solution
 
 ### Requested Data strings ###
@@ -17,6 +20,7 @@ AVAILABLE_COLORS_AT = 'available_colors_at'
 NUM_NEIGHBORING_COLORS = 'num_neighboring_colors'
 SATURATION_MAX = 'saturation_max'
 SATURATION_MIN = 'saturation_min'
+CENTER_SET = 'center_set'
 
 
 # TODO: Add proper getter, setter and deleter methods with properties
@@ -34,12 +38,14 @@ class GraphColoringTracker(Solution):
             COLORED_NODES,
             AVAILABLE_COLORS_AT,
             NUM_NEIGHBORING_COLORS,
-            SATURATION_MAX
+            SATURATION_MAX,
+            CENTER_SET
         }
 
         # Basic information that all coloring trackers must utilize
         self.G: nx.Graph = G
         self.G_comp: nx.Graph = nx.complement(G)
+
         self.color_to_nodes: dict = defaultdict(set)
         self.node_to_color: dict = {}
         self.calls_to_color_node: int = 0
@@ -48,6 +54,16 @@ class GraphColoringTracker(Solution):
         # Make sure we didn't get asked for more/wrong data then we wanted
         if (len(available_data.union(requested_data)) != len(available_data)):
             raise AttributeError("You requested some data that is not available!")
+
+        if CENTER_SET in requested_data:
+            start_time = time.time()
+            max_clique: set = get_big_independent_set(self.G_comp)
+            max_stable: set = set()
+            if len(max_clique) < len(self.G_comp) / 2 - math.sqrt(len(self.G_comp)):
+                max_stable = get_big_independent_set(self.G)
+            self.center_set: set = max_clique if len(max_stable) < len(max_clique) else max_stable
+            # TODO: Add verbose condition here
+            print(f'got the big set after {time.time() - start_time} seconds. proceeding normally with algorithm')
 
         # Init all the instance variables
         # self.uncolored_nodes: List[int] = None
@@ -121,7 +137,7 @@ class GraphColoringTracker(Solution):
         if SATURATION_MAX in self.requested_data:
             return self._saturation_max
         else:
-            raise AttributeError("You're trying to set information that you didn't request!")
+            raise AttributeError("You're trying to get information that you didn't request!")
 
     def set_saturation_max(self, new_val):
         if SATURATION_MAX in self.requested_data:
@@ -130,6 +146,20 @@ class GraphColoringTracker(Solution):
             raise AttributeError("You're trying to set information that you didn't request!")
 
     saturation_max: heapdict = property(get_saturation_max, set_saturation_max)
+
+    def get_center_set(self):
+        if CENTER_SET in self.requested_data:
+            return self._center_set
+        else:
+            raise AttributeError("You're trying to get information that you didn't request!")
+
+    def set_center_set(self, new_val):
+        if CENTER_SET in self.requested_data:
+            self._center_set = new_val
+        else:
+            raise AttributeError("You're trying to set information that you didn't request!")
+
+    center_set: list = property(get_center_set, set_center_set)
 
     def pop_most_saturated_node(self) -> int:
         r: int = self.saturation_max.peekitem()[0]

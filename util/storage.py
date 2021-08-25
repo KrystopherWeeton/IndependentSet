@@ -27,10 +27,9 @@ def store_dict_as_dir(d: Dict[object, object], file_name: str, directory: str = 
 
     print(__pickle_path(file_name, directory))
     k = klepto.archives.dir_archive(directory + '/' + file_name, d, serialized=True)
-    del d
-    gc.collect()
-    k.dump()
-    k.clear()
+    for key in d.keys():
+        k.dump(key)
+        gc.collect()
 
 
 def load_dict(file_name: str, directory: str = None):

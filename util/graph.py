@@ -1,6 +1,8 @@
 import copy
 import itertools
+import math
 import random
+import time
 
 from mpmath import mp
 
@@ -78,7 +80,7 @@ def bell_table(n: int) -> list:
                      '\\bell_numbers_upto3015.txt', 'r')
     for line in bell_file:
         bell.append(int(line.split()[1]))
-    print('Generated bell table thank god.')
+    # print('Generated bell table thank god.')
     return bell
 
     bell: list = [[0 for i in range(n + 1)] for j in range(n + 1)]
@@ -127,9 +129,8 @@ def binom_table(n: int) -> List[List[int]]:
         good_r.append(to_add)
     # good_r = [[mp.fdiv(mp.power(mp.fmul(j, math.e), i), i) for i in range(n + 1)] for j in range(n + 1)]
     # assert r == float('inf') or r == good_r
-    print('Generated binom table thank god')
+    # print('Generated binom table thank god')
     return good_r
-
 
 
 class PerfectGraphGenerator:
@@ -140,6 +141,7 @@ class PerfectGraphGenerator:
         self.co_split = co_split
 
         # TODO:
+        start_time = time.time()
         self.bell = bell_table(self.n)
         self.binom = binom_table(self.n)
         # problem_area: tuple = (self.binomial_coefficient(n, 192), self.bell_number(n - 192), mp.power(2, 192 * (n - 192)))
@@ -153,7 +155,7 @@ class PerfectGraphGenerator:
 
             self.A.append(mp.fsum(tosum))
 
-        print("A matrix generated thank god")
+        print(f'finished making tables after {time.time() - start_time} seconds')
         assert mp.fsum(self.A) < mp.inf
 
     def bell_number(self, n: int) -> int:
@@ -281,7 +283,7 @@ class PerfectGraphGenerator:
 
     def binomial_coefficient(self, n: int, k: int) -> int:
         return self.binom[n][k]
-   
+
 
 def random_partition(S: set, num_colors: int) -> List[Set[int]]:
     n: int = len(S)
@@ -406,3 +408,15 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, S
     for i, color_set in enumerate(partition):
         coloring[i] = color_set
     return coloring
+
+
+def get_big_independent_set(G: nx.Graph, iterations: int = -1) -> set:
+    best_clique = []
+    for i in range(iterations if iterations != -1 else len(G) // 2):
+        v: int = random.choice(G.nodes)
+        maximal_clique: list = nx.maximal_independent_set(G, v)
+        if len(best_clique) < len(maximal_clique):
+            best_clique = maximal_clique
+        if len(best_clique) >= len(G) / 2 - math.sqrt(len(G)):
+            break
+    return set(best_clique)

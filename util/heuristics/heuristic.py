@@ -50,6 +50,7 @@ class Heuristic:
         if self.debug:
             print(f"[DEBUG] {msg}")
 
+    # TODO: Need to generalize to coloring/arbitrary experiments
     """
         Calls post_step_hook with appropriate values if the value is not None, otherwise no-ops
     """
