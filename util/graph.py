@@ -420,3 +420,28 @@ def get_big_independent_set(G: nx.Graph, iterations: int = -1) -> set:
         if len(best_clique) >= len(G) / 2 - math.sqrt(len(G)):
             break
     return set(best_clique)
+
+
+def plant_random_hole_in_graph(G: nx.Graph, hole_size: int, anti_hole: int = -1):
+    if anti_hole == -1:
+        anti_hole = random.randint(0, 1)
+
+    # Choose hole_size-set of nodes
+    h = list(random.choices(list(G.nodes), k=hole_size))
+
+    # Delete all the edges in between them
+    for i in range(len(h)):
+        for j in range(i + 1, len(h)):
+            if anti_hole == 1:
+                G.add_edge(h[i], h[j])
+                continue
+
+            if anti_hole == 0 and h[j] in G[h[i]]:
+                G.remove_edge(h[i], h[j])
+
+    # Make a cycle
+    for i in range(len(h) - 1):
+        if anti_hole == 0:
+            G.add_edge(h[i], h[i + 1])
+        else:
+            G.remove_edge(h[i], h[i + 1])
