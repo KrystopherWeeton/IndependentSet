@@ -8,18 +8,22 @@ from util.storage import load_experiment
 
 @click.command()
 @click.option("--results", required=True)
-def plot_basic_heuristic(results: str):
+@click.option('--greedy-strategy', required=True)
+def plot_basic_heuristic(results: str, greedy_strategy: str):
     results: BasicHeuristicResults = load_experiment("graph_coloring", results)
 
-    true_chr_numbers: list = results.get_true_chr_numbers()
-    found_chr_numbers: list = results.get_found_chr_numbers()
+    true_chr_numbers: list = results.get_requested_result('true_chromatics')
+    found_chr_numbers: list = results.get_requested_result('found_chromatics')
+
+    # true_chr_numbers: list = results.get_true_chr_numbers()
+    # found_chr_numbers: list = results.get_found_chr_numbers()
 
     # First initialize the figure 'canvas'
     plot.initialize_figure(
         x_label="Number of nodes",
         y_label="Chromatic #",
-        title="FRG results",
-        figsize=(10, 10)
+        title=f"{greedy_strategy} results",
+        figsize=(15, 15)
     )
 
     # Now, plot the actual data
@@ -32,7 +36,7 @@ def plot_basic_heuristic(results: str):
         plot.annotate_all_points(
             [t[0] for t in found_trial],
             [t[1] for t in found_trial],
-            [f"T{trial_num}"] * len(found_trial),
+            [f"T{trial_num}, found = {t[1]}, true = {true_trial[i][1]}" for i, t in enumerate(found_trial)],
             x_offset=10,
             y_offset=10
         )

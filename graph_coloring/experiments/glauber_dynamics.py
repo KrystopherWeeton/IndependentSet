@@ -1,11 +1,14 @@
 import random
+from collections import defaultdict
+from typing import List, Tuple, Dict
 
 import click
+import networkx as nx
 
 from graph_coloring.heuristics.glauber_dynamics import GlauberDynamics
 from graph_coloring.result_models.basic_local_search_results import BasicLocalSearchResults
 from util.graph import PerfectGraphGenerator, max_degree
-from util.storage import store_experiment
+from util.storage import store_experiment, load_preprocessing
 
 
 ##########################################
@@ -29,14 +32,21 @@ from util.storage import store_experiment
 @click.option("-n", required=False, multiple=False, type=int, default=500)
 @click.option("--co_split", required=False, multiple=False, type=int, default=-1)
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
-def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n, co_split, store_name):
+@click.option("--pp_file", required=False, multiple=False, type=str, default=None)
+def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n, co_split, store_name, pp_file):
     # TODO: reorder the arguments
 
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
+
+    if (pp_file != None and
+            (min_n != None or max_n != None or step != None)
+    ):
+        raise KeyError("You gave a preprocessing arg and some non-preprocessing args. That's illegal man")
+
     if (
-            (n == None and (min_n == None or max_n == None)) or
+            (pp_file == None and n == None and (min_n == None or max_n == None)) or
             (min_n != None and max_n != None and min_n > max_n)
     ):
         raise KeyError("You gave bad arguments man. n: {}, min_n: {}, max_n: {}".format(n, min_n, max_n))
@@ -47,14 +57,22 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
         n = None
         print('You gave a single n and a range, so we\'re prioritizing the range')
         # raise KeyError("You can't give both one trial and a range of trials!")
-    if n == None:
+    if n == None and pp_file == None:
         n_values: [int] = range(min_n, max_n, step)
     else:
         n_values: [int] = [n]
-    if n == None:
-        n_values: [int] = range(min_n, max_n, step)
+
+    graphs: Dict[int, List[Tuple[nx.Graph, int]]] = defaultdict(list)
+    co_split: bool = co_split if co_split != -1 else (random.randint(0, 1))
+    if pp_file is None:
+        for n in n_values:
+            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, co_split)
+            for trial in range(num_trials):
+                graphs[n].append(generator.generate_random_split_graph())
     else:
-        n_values: [int] = [n]
+        graphs = load_preprocessing('graph_coloring', pp_file)
+        n_values: List[int] = sorted(graphs.keys())
+        num_trials: int = len(list(graphs.items())[0][1])
     if verbose:
         print(f"[V] Running basic heuristic experiment with n values of {n_values} and num_trials={num_trials}")
     results: BasicLocalSearchResults = BasicLocalSearchResults(n_values, num_trials)
@@ -62,12 +80,11 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
 
     gb: GlauberDynamics = GlauberDynamics()
 
-    for n in n_values:
-        for trial in range(num_trials):
+    for n in graphs.keys():
+        for trial in range(len(graphs[n])):
             if verbose:
                 print(f'[V] Generating graph...')
-            generator: PerfectGraphGenerator = PerfectGraphGenerator(n, .5, bool(random.randint(0, 1)))
-            G, cheat = generator.generate_random_split_graph()
+            G, cheat = graphs[n][trial]
             G_max_deg: int = max_degree(G)
             delta = -G_max_deg + cheat
             # TODO remove
