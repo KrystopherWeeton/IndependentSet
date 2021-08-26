@@ -2,7 +2,6 @@ import copy
 import random
 import time
 
-from graph_coloring.experiments.common import CENTER_SET_SIZE
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import get_big_independent_set
@@ -13,7 +12,7 @@ from util.models.graph_coloring_tracker import \
     NUM_CONFLICTING_EDGES, \
     COLORED_NODES, \
     NUM_NEIGHBORING_COLORS, \
-    SATURATION_MAX, CENTER_SET
+    SATURATION_MAX
 
 greedy_strategies = {
     'random',
@@ -126,8 +125,7 @@ class GreedyColor(GraphColoringHeuristic):
                 NUM_NEIGHBORING_COLORS,
                 SATURATION_MAX
             })
-        if CENTER_SET_SIZE in results.experiments:
-            requested_data.add(CENTER_SET)
+            # requested_data.add(CENTER_SET)
 
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,

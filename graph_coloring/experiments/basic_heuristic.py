@@ -33,7 +33,7 @@ from util.storage import store_experiment, load_preprocessing
 @click.option("--store-name", required=False, multiple=False, type=str, default=None)
 @click.option("--greedy-strategy", required=False, multiple=False, type=str, default='random')
 @click.option("--pp_file", required=False, multiple=False, type=str, default=None)
-def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name, greedy_strategy, exp, pp_file):
+def basic_heuristic(verbose, n, min_n, max_n, step, num_trials, co_split, store_name, greedy_strategy, pp_file):
     """
         Runs a heuristic for graph coloring, and collects results about start and end coloring metadata
     """
