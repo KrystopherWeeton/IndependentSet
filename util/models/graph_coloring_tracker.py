@@ -3,7 +3,7 @@ import math
 import random
 import time
 from collections import defaultdict
-from typing import Dict, List, Callable
+from typing import List, Callable, DefaultDict
 from typing import Set
 
 import networkx as nx
@@ -28,7 +28,7 @@ CENTER_SET = 'center_set'
 class GraphColoringTracker(Solution):
 
     # FIXME: whenever I try to access the color of an uncolored node, I can't do that, nope
-    def __init__(self, G: nx.Graph, requested_data: set = set(), coloring: defaultdict = None,
+    def __init__(self, G: nx.Graph, G_comp: nx.Graph, requested_data: set = set(), coloring: defaultdict = None,
                  labelling: dict = None):
         super(GraphColoringTracker, self).__init__()
 
@@ -44,7 +44,7 @@ class GraphColoringTracker(Solution):
 
         # Basic information that all coloring trackers must utilize
         self.G: nx.Graph = G
-        self.G_comp: nx.Graph = nx.complement(G)
+        self.G_comp: nx.Graph = G_comp
 
         self.color_to_nodes: dict = defaultdict(set)
         self.node_to_color: dict = {}
@@ -82,6 +82,9 @@ class GraphColoringTracker(Solution):
             self.set_coloring_with_node_labels(labelling)
 
         self.init_requested_data_POSTCOLORING()
+
+    def replicate(self) -> 'GraphColoringTracker':
+        new: GraphColoringTracker = GraphColoringTracker(self.G)
 
     def init_requested_data_PRECOLORING(self):
         if UNCOLORED_NODES in self.requested_data:
@@ -254,7 +257,7 @@ class GraphColoringTracker(Solution):
     num_conflicting_edges = property(get_num_conflicting_edges, set_num_conflicting_edges)
 
     # TODO: Might be useful to add a way to color only a specific subgraph
-    def set_coloring_with_color_classes(self, coloring: Dict[int, Set[int]]):
+    def set_coloring_with_color_classes(self, coloring: DefaultDict[int, Set[int]]):
         """
         Sets the coloring given some partial (or complete coloring)
         :param coloring: Dict[int, List[int]], Must be a dictionary of color classes
@@ -285,6 +288,9 @@ class GraphColoringTracker(Solution):
 
     def get_random_node(self):
         return random.choice(list(self.G.nodes))
+
+    def get_random_color(self):
+        return random.choice(list(self.color_to_nodes.keys()))
 
     def get_random_available_color(self, node: int, make_new: bool = False):
         if len(self.available_colors_at[node]) == 0 and make_new:

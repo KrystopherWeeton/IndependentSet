@@ -2,6 +2,8 @@ import copy
 import random
 import time
 
+import networkx as nx
+
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from graph_coloring.result_models.basic_heuristic_results import BasicHeuristicResults
 from util.graph import get_big_independent_set
@@ -129,6 +131,7 @@ class GreedyColor(GraphColoringHeuristic):
 
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
+            nx.complement(self.G),
             requested_data=requested_data
         )
         self.results = results

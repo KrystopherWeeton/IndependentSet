@@ -1,5 +1,7 @@
 from typing import Dict, Set
 
+import networkx as nx
+
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util import graph
 from util.models.graph_coloring_tracker import \
@@ -24,6 +26,7 @@ class BasicLocalSearch(GraphColoringHeuristic):
         # loss_function: Callable = self.metadata['loss_function']
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
+            nx.complement(self.G),
             requested_data={
                 UNCOLORED_NODES,
                 NUM_CONFLICTING_EDGES,

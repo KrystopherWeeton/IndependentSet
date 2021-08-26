@@ -88,7 +88,7 @@ class TestSplitGraphGeneration(unittest.TestCase):
     def test_random_color_partition(self):
         for g, cheat in self.graphs:
             sol: GraphColoringTracker = GraphColoringTracker(
-                g, requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
+                g, nx.complement(g), requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
             )
             sol.set_coloring_with_color_classes(generate_random_color_partition(g, cheat))
             print(
@@ -108,7 +108,7 @@ class TestCo_SplitGraphGeneration(unittest.TestCase):
     def test_random_color_partition(self):
         for g, cheat in self.graphs:
             sol: GraphColoringTracker = GraphColoringTracker(
-                g, requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
+                g, nx.complement(g), requested_data={NUM_CONFLICTING_EDGES, COLORED_NODES, UNCOLORED_NODES}
             )
             sol.set_coloring_with_color_classes(generate_random_color_partition(g, cheat))
             print(

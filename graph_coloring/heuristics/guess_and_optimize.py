@@ -32,7 +32,7 @@ class GuessAndOptimize(GraphColoringHeuristic):
     def _run_heuristic(self):
 
         n: int = len(self.G)
-        self.solution: GraphColoringTracker = GraphColoringTracker(self.G)
+        self.solution: GraphColoringTracker = GraphColoringTracker(self.G, nx.complement(self.G))
 
         # TODO: do we need stirling table still?
 

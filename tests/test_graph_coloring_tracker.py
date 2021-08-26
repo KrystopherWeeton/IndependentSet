@@ -14,7 +14,7 @@ def initialize_basic_graph(test_case: unittest.TestCase) -> None:
     test_case.n = 5
     test_case.G: nx.Graph = nx.path_graph(test_case.n)
     nx.relabel_nodes(test_case.G, dict(zip(range(1, test_case.n + 1), range(test_case.n))))
-    test_case.solution: GraphColoringTracker = GraphColoringTracker(test_case.G, {
+    test_case.solution: GraphColoringTracker = GraphColoringTracker(test_case.G, nx.complement(test_case.G), {
         NUM_CONFLICTING_EDGES,
         COLORED_NODES,
         UNCOLORED_NODES,

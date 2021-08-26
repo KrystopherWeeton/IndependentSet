@@ -1,5 +1,7 @@
 from typing import Dict, Set
 
+import networkx as nx
+
 from graph_coloring.heuristics.graph_coloring_heuristic import GraphColoringHeuristic
 from util import graph
 from util.graph import max_degree
@@ -23,6 +25,7 @@ class GlauberDynamics(GraphColoringHeuristic):
     def _run_heuristic(self, delta, max_iterations):
         self.solution: GraphColoringTracker = GraphColoringTracker(
             self.G,
+            nx.complement(self.G),
             requested_data={
                 UNCOLORED_NODES,
                 NUM_CONFLICTING_EDGES,
@@ -59,7 +62,7 @@ class GlauberDynamics(GraphColoringHeuristic):
 
             # and color it a random AVAILABLE color (but only if we can
             if len(self.solution.available_colors_at[node]) == 0:
-                pass
+                continue
                 # print(f'Couldn\'t recolor a node at iteration {self.solution.calls_to_color_node}')
             else:
                 self.solution.color_node(node, self.solution.get_random_available_color(node))
