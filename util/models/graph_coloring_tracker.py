@@ -3,7 +3,7 @@ import math
 import random
 import time
 from collections import defaultdict
-from typing import List, Callable, DefaultDict
+from typing import List, Callable, DefaultDict, Dict
 from typing import Set
 
 import networkx as nx
@@ -28,8 +28,14 @@ CENTER_SET = 'center_set'
 class GraphColoringTracker(Solution):
 
     # FIXME: whenever I try to access the color of an uncolored node, I can't do that, nope
-    def __init__(self, G: nx.Graph, G_comp: nx.Graph, requested_data: set = set(), coloring: defaultdict = None,
-                 labelling: dict = None):
+    def __init__(
+            self,
+            G: nx.Graph,
+            G_comp: nx.Graph,
+            requested_data: set = set(),
+            coloring: DefaultDict[int, Set[int]] = None,
+            labelling: dict = None
+    ):
         super(GraphColoringTracker, self).__init__()
 
         available_data: set = {
@@ -46,8 +52,8 @@ class GraphColoringTracker(Solution):
         self.G: nx.Graph = G
         self.G_comp: nx.Graph = G_comp
 
-        self.color_to_nodes: dict = defaultdict(set)
-        self.node_to_color: dict = {}
+        self.color_to_nodes: DefaultDict[int, Set[int]] = defaultdict(set)
+        self.node_to_color: Dict[int, int] = {}
         self.calls_to_color_node: int = 0
 
         self.requested_data = requested_data
@@ -84,7 +90,13 @@ class GraphColoringTracker(Solution):
         self.init_requested_data_POSTCOLORING()
 
     def replicate(self) -> 'GraphColoringTracker':
-        new: GraphColoringTracker = GraphColoringTracker(self.G)
+        new: GraphColoringTracker = GraphColoringTracker(
+            self.G,
+            self.G_comp,
+            self.requested_data,
+            self.color_to_nodes
+        )
+        return new
 
     def init_requested_data_PRECOLORING(self):
         if UNCOLORED_NODES in self.requested_data:
@@ -433,3 +445,10 @@ class GraphColoringTracker(Solution):
                 color_for_max_loss = color_for_max_loss_for_this_node
 
         return node_for_max_loss, color_for_max_loss
+
+
+def get_tracker_stats(trackers: List[GraphColoringTracker]) -> (int, float, int):
+    if len(trackers) == 0:
+        return (None, None, None)
+    confs = sorted([tracker.num_conflicting_edges for tracker in trackers])
+    return confs[0], confs[len(confs) // 2], confs[-1]
