@@ -27,6 +27,7 @@ class Heuristic:
 
         # Trackers that are set on a per-run basis
         self.G: nx.Graph = None
+        self.G_comp: nx.Graph = None
         self.solution = None
         self.metadata: dict = None
         self.verbose: bool = verbose
@@ -63,6 +64,7 @@ class Heuristic:
     """
     def clear(self):
         self.G = None
+        self.G_comp = None
         self.solution = None
         self.metadata = None
         self.post_step_hook = None
@@ -92,6 +94,7 @@ class Heuristic:
 
         # Set metadata
         self.G = G
+        self.G_comp = nx.complement(G)
         # NOTE: Sets solution to NONE if no seed is passed in
         # TODO: Find a better way to do this, as the seed should be allowed to be other types and the heuristic itself
         # TODO: should handle the mapping to the expected solution type. Probbaly just functions in heuristic that
