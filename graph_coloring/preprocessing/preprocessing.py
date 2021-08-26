@@ -42,12 +42,12 @@ def preprocessing(verbose, n, min_n, max_n, step, num_trials, co_split, store_na
     comp_split: bool = bool(random.randint(0, 1)) if co_split == -1 else co_split
     generator: PerfectGraphGenerator = None
     for n in n_values:
-        generator = PerfectGraphGenerator(n, .5, comp_split)
+        generator = PerfectGraphGenerator(n)
         for trial in range(num_trials):
             if verbose:
                 print(f'[V]: Generating an order {n} graph for trial {trial}...')
 
-            graphs[n].append(generator.generate_random_split_graph())
+            graphs[n].append(generator.generate_random_split_graph(.5, comp_split))
 
     del generator
     gc.collect()

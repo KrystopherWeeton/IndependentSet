@@ -135,10 +135,8 @@ def binom_table(n: int) -> List[List[int]]:
 
 class PerfectGraphGenerator:
 
-    def __init__(self, n: int, p: float, co_split: bool = 0):
+    def __init__(self, n: int):
         self.n = n
-        self.p = p
-        self.co_split = co_split
 
         # TODO:
         start_time = time.time()
@@ -188,7 +186,7 @@ class PerfectGraphGenerator:
         r /= r.sum()
         return r
 
-    def generate_random_partition(self, U: [int]) -> list:
+    def generate_random_partition(self, U: [int]) -> List[Set[int]]:
         n = len(U)
 
         # U: list = list(range(n))
@@ -228,52 +226,64 @@ class PerfectGraphGenerator:
         k: int = np.random.choice(a=range(n + 1), p=probabilities)
         return int(k)
 
-    def generate_unipolar_partition(self, n: int) -> list:
+    def generate_random_unipolar_partition(self, n: int) -> List[Set[int]]:
         k: int = self.get_central_clique_size(n)
-        return [list(range(0, k))] + self.generate_random_partition(list(range(k, n)))
+        return [set(range(0, k))] + self.generate_random_partition(list(range(k, n)))
 
-    def generate_random_split_graph(self, preset_colors: int = -1) -> [nx.Graph, int]:
+    def generate_random_split_graph(self, p: float = .5, co_split: bool = False, preset_colors: int = -1) -> [nx.Graph,
+                                                                                                              int]:
         """
         :param: preset_colors: int, maybe we want to plant a coloring
         :return: [nx.Graph, int], generates random perfect graph with a cheat
         """
         if preset_colors == -1:
-            partition: list = self.generate_unipolar_partition(self.n)
+            partition: List[Set[int]] = self.generate_random_unipolar_partition(self.n)
         else:
-            # TODO: Make it so we can plant a color in the base unipolar graph case (not the independent set case)
-            self.co_split = True
+            if co_split:
+                # Get central clique size
+                central_clique_size: int = self.get_central_clique_size(self.n)
 
-            # Get central clique size
-            central_clique_size: int = self.get_central_clique_size(self.n)
-
-            # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-            partition: List[Set[int]] = random_partition(set(range(central_clique_size, self.n)), preset_colors - 1)
+                # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
+                partition: List[Set[int]] = random_k_partition(set(range(central_clique_size, self.n)),
+                                                               preset_colors - 1)
+            else:
+                central_clique_size = preset_colors
+                partition: List[Set[int]] = self.generate_random_partition(list(range(central_clique_size, self.n)))
 
             # Add the central clique to the beginning
             partition.insert(0, set(range(central_clique_size)))
+
+        S = set()
+        for par in partition:
+            for el in par:
+                S.add(el)
+        assert len(S) == self.n
 
         # print(partition)
         G: nx.Graph = nx.Graph()
 
         # Either the chromatic number is the number of cliques + 1 or + 0, or it is just the number of independent sets
-        cheat = len(partition) if self.co_split else max([len(par) for par in partition])
+        cheat = len(partition) if co_split else max([len(par) for par in partition])
 
         # Make sure all parts are themselves cliques
         for par in partition:
             par = list(par)
             for i in range(len(par)):
+                G.add_node(par[i])
                 for j in range(i + 1, len(par)):
                     G.add_edge(par[i], par[j])
+
+        assert len(G) == self.n
 
         # Add the edges from the central clique
         center: list = partition[0]
         for v in center:
             for par in partition[1:]:
                 for u in par:
-                    if np.random.binomial(1, self.p):
+                    if np.random.binomial(1, p):
                         G.add_edge(u, v)
 
-        G = nx.complement(G) if self.co_split else G
+        G = nx.complement(G) if co_split else G
 
         # Permute graph
         nodes: list = list(G.nodes)
@@ -285,7 +295,9 @@ class PerfectGraphGenerator:
         return self.binom[n][k]
 
 
-def random_partition(S: set, num_colors: int) -> List[Set[int]]:
+def random_k_partition(S: set, num_colors: int) -> List[Set[int]]:
+    if num_colors < 1:
+        raise AttributeError('Man, it is not possible to make <1 sets of |S| elements')
     n: int = len(S)
     stirling: np.array = np.zeros((n + 1, n + 1))
     stirling[0, 0] = 1
@@ -401,7 +413,7 @@ def generate_random_color_partition(G: nx.Graph, num_colors: int) -> Dict[int, S
     # Initialize stirling table
     n: int = len(G)
 
-    partition: List[Set[int]] = random_partition(set(G.nodes), num_colors)
+    partition: List[Set[int]] = random_k_partition(set(G.nodes), num_colors)
 
     # Make sure its in the right format to return
     coloring: Dict[int, Set[int]] = {}
