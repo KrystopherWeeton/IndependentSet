@@ -15,12 +15,13 @@ class K_GWW(GraphColoringHeuristic):
             'random_walk_steps',
             'initial_conflict_threshold',
             'conflict_threshold_iteration_change',
-            'goal_conflict_threshold'
+            'goal_conflict_threshold',
             'k'
-        ])
+        ], verbose=verbose, debug=debug)
 
     def __select_initial_coloring(self) -> GraphColoringTracker:
-        return GraphColoringTracker(self.G, self.G_comp, self.requested_data, generate_random_color_partition(self.k))
+        return GraphColoringTracker(self.G, self.G_comp, self.requested_data,
+                                    generate_random_color_partition(self.G, self.k))
 
     def __random_walk(self, tracker: GraphColoringTracker, steps: int):
         for step in range(steps):
@@ -32,7 +33,7 @@ class K_GWW(GraphColoringHeuristic):
                 continue
                 # print(f'Couldn\'t recolor a node at iteration {self.solution.calls_to_color_node}')
             else:
-                tracker.color_node(node, tracker.get_random_color())
+                tracker.color_node(node, tracker.get_random_available_color(node))
 
     def __get_best_coloring(self, trackers: List[GraphColoringTracker]) -> GraphColoringTracker:
         return min(trackers, key=lambda t: t.num_conflicting_edges)
@@ -53,6 +54,8 @@ class K_GWW(GraphColoringHeuristic):
             COLORED_NODES,
             NUM_NEIGHBORING_COLORS
         }
+
+        self.k = k
 
         self.verbose_print(f"Received metadata: {self.metadata}. Running with {num_particles} particles.")
         # ? Metadata validation
@@ -86,6 +89,7 @@ class K_GWW(GraphColoringHeuristic):
 
             # Reduce the threshold for the next iteration
             min_confs, med_confs, max_confs = get_tracker_stats(trackers)
-            threshold = med_confs - conflict_threshold_iteration_change
+            threshold = threshold - conflict_threshold_iteration_change
+            self.verbose_print(f'threshold is {threshold}')
 
         self.solution = self.__get_best_coloring(trackers)

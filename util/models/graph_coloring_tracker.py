@@ -96,6 +96,7 @@ class GraphColoringTracker(Solution):
             self.requested_data,
             self.color_to_nodes
         )
+        new.calls_to_color_node = self.calls_to_color_node
         return new
 
     def init_requested_data_PRECOLORING(self):
