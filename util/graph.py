@@ -356,6 +356,8 @@ def find_max_clique_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: 
 def random_k_partition(S: set, num_colors: int) -> List[Set[int]]:
     if num_colors < 1:
         raise AttributeError('Man, it is not possible to make <1 sets of |S| elements')
+    if num_colors > len(S):
+        raise AttributeError(f"Man, you can't make {num_colors} non-empty parts of {len(S)} elements!")
     n: int = len(S)
     stirling: np.array = np.zeros((n + 1, n + 1))
     stirling[0, 0] = 1
