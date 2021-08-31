@@ -1,4 +1,5 @@
 import copy
+import gc
 import itertools
 import math
 import random
@@ -263,7 +264,7 @@ class PerfectGraphGenerator:
         G: nx.Graph = nx.Graph()
 
         # Either the chromatic number is the number of cliques + 1 or + 0, or it is just the number of independent sets
-        cheat = len(partition) if co_split else max([len(par) for par in partition])
+        # cheat = len(partition) if co_split else max([len(par) for par in partition])
 
         # Make sure all parts are themselves cliques
         for par in partition:
@@ -283,7 +284,13 @@ class PerfectGraphGenerator:
                     if np.random.binomial(1, p):
                         G.add_edge(u, v)
 
-        G = nx.complement(G) if co_split else G
+        G_comp = nx.complement(G)
+        G = G_comp if co_split else G
+
+        # Get size of the max clique of the graph. True method this time.
+        cheat = len(find_max_stable_set_in_unipolar_graph(G_comp, partition)) if co_split else (
+            len(find_max_clique_in_unipolar_graph(G, G_comp, partition))
+        )
 
         # Permute graph
         nodes: list = list(G.nodes)
@@ -293,6 +300,45 @@ class PerfectGraphGenerator:
 
     def binomial_coefficient(self, n: int, k: int) -> int:
         return self.binom[n][k]
+
+
+def find_max_stable_set_in_unipolar_graph(G: nx.Graph, partition: List[Set[int]]) -> Set[int]:
+    # Go through each vertex...
+    for x in partition[0]:
+        side_neighbors: Set[int] = set(partition[0].difference(G[x]))
+        side_covered: Dict[int, int] = {}
+        # ...and take a look at their side neighborhoods...
+        for y in side_neighbors:
+            # ...to see if we cover all the partition with independent vertices
+            if y in G[x]:
+                continue
+            for i in range(1, len(partition)):
+                if y in partition[i]:
+                    side_covered[i] = y
+                    break
+        # If we added a num_parts entries to the dictionary, then we made an independent set!
+        if len(side_covered.keys()) == len(partition) - 1:
+            return set(side_covered.values())
+
+    return set([next(iter(part)) for part in partition])
+
+
+def find_max_clique_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
+    # We find minimum vertex covers in G to get max independent set in G_comp, which gives max clique in G
+    best_max_clique: set = set()
+    for i in range(1, len(partition)):
+        bipartite_sub = nx.subgraph(G, partition[0].union(partition[i]))
+        gc.collect()
+
+        max_clique: set = nx.algorithms.bipartite.to_vertex_cover(
+            bipartite_sub,
+            nx.algorithms.bipartite.maximum_matching(bipartite_sub, partition[0]),
+            partition[0]
+        )
+        if len(best_max_clique) < len(max_clique):
+            best_max_clique = max_clique
+
+    return best_max_clique
 
 
 def random_k_partition(S: set, num_colors: int) -> List[Set[int]]:
