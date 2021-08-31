@@ -12,7 +12,7 @@ from util.models.graph_coloring_tracker import GraphColoringTracker, NUM_CONFLIC
 @unittest.skip("Don't need to time generation anymore")
 class TimeGenerateGraph(unittest.TestCase):
     def setUp(self):
-        self.G, _ = PerfectGraphGenerator(n=500, p=.5, co_split=False).generate_random_split_graph()
+        self.G, _ = PerfectGraphGenerator(n=500).generate_random_split_graph(.5, co_split=False)
 
     def test_time_generation(self):
         # self.assertEqual(False, True)
@@ -22,8 +22,8 @@ class TimeGenerateGraph(unittest.TestCase):
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=50, p=.5, co_split=False)
-        self.G, _ = self.generator.generate_random_split_graph()
+        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=50)
+        self.G, _ = self.generator.generate_random_split_graph(.5, co_split=False)
 
     def test_bell_number(self):
         # self.assertRaises(Exception, self.PerfectGraphGenerator.bell_number(-1))
@@ -54,8 +54,8 @@ class TestPlantColoring(unittest.TestCase):
     def setUp(self):
 
         # NOTE: Seems like this takes a lot of time for n = 100, so we made it 50. BUT, it still works at 100, so
-        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=50, p=.5, co_split=False)
-        self.G, _ = self.generator.generate_random_split_graph(15)
+        self.generator: PerfectGraphGenerator = PerfectGraphGenerator(n=50)
+        self.G, _ = self.generator.generate_random_split_graph(.5, False, 15)
 
     def test_graph_generation(self):
         # NOTE: At the very least we can make sure that clique and chromatic number are the same
@@ -78,7 +78,7 @@ class TestPlantColoring(unittest.TestCase):
 class TestSplitGraphGeneration(unittest.TestCase):
     def setUp(self):
         self.graphs: List[nx.Graph] = [
-            PerfectGraphGenerator(n=n, p=.5, co_split=False).generate_random_split_graph() for n in [500] * 10
+            PerfectGraphGenerator(n=n).generate_random_split_graph(.5, co_split=False) for n in [500] * 10
         ]
 
     def test_density(self):
@@ -98,7 +98,7 @@ class TestSplitGraphGeneration(unittest.TestCase):
 class TestCo_SplitGraphGeneration(unittest.TestCase):
     def setUp(self):
         self.graphs: List[nx.Graph] = [
-            PerfectGraphGenerator(n=n, p=.5, co_split=True).generate_random_split_graph() for n in [500] * 10
+            PerfectGraphGenerator(n=n).generate_random_split_graph(.5, co_split=False) for n in [500] * 10
         ]
 
     def test_density(self):
