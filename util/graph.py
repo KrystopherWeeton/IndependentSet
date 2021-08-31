@@ -285,12 +285,23 @@ class PerfectGraphGenerator:
                         G.add_edge(u, v)
 
         G_comp = nx.complement(G)
+        # Get size of the max clique of the graph. True method this time.
+        max_clique: Set[int] = find_max_stable_set_in_unipolar_graph(G, G_comp, partition) if co_split else (
+            find_max_clique_in_unipolar_graph(G, G_comp, partition)
+        )
+
+        # for i in max_clique:
+        #     for j in max_clique:
+        #         if i == j: continue
+        #         assert (j not in G[i] if co_split else j in G[i])
+
+        # assert len(nx.maximal_independent_set(G, max_clique)) == len(max_clique)
+
         G = G_comp if co_split else G
 
-        # Get size of the max clique of the graph. True method this time.
-        cheat = len(find_max_stable_set_in_unipolar_graph(G_comp, partition)) if co_split else (
-            len(find_max_clique_in_unipolar_graph(G, G_comp, partition))
-        )
+        # assert len(nx.maximal_independent_set(nx.complement(G), max_clique)) == len(max_clique)
+
+        cheat = len(max_clique)
 
         # Permute graph
         nodes: list = list(G.nodes)
@@ -302,13 +313,13 @@ class PerfectGraphGenerator:
         return self.binom[n][k]
 
 
-def find_max_stable_set_in_unipolar_graph(G: nx.Graph, partition: List[Set[int]]) -> Set[int]:
+def find_max_stable_set_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
     # Go through each vertex...
     for x in partition[0]:
-        side_neighbors: Set[int] = set(partition[0].difference(G[x]))
+        side_non_neighbors: Set[int] = set(G_comp[x])
         side_covered: Dict[int, int] = {}
         # ...and take a look at their side neighborhoods...
-        for y in side_neighbors:
+        for y in side_non_neighbors:
             # ...to see if we cover all the partition with independent vertices
             if y in G[x]:
                 continue
@@ -318,23 +329,24 @@ def find_max_stable_set_in_unipolar_graph(G: nx.Graph, partition: List[Set[int]]
                     break
         # If we added a num_parts entries to the dictionary, then we made an independent set!
         if len(side_covered.keys()) == len(partition) - 1:
-            return set(side_covered.values())
+            return set(side_covered.values()).union([x])
 
-    return set([next(iter(part)) for part in partition])
+    return set([next(iter(part)) for part in partition[1:]])
 
 
 def find_max_clique_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
     # We find minimum vertex covers in G to get max independent set in G_comp, which gives max clique in G
     best_max_clique: set = set()
     for i in range(1, len(partition)):
-        bipartite_sub = nx.subgraph(G, partition[0].union(partition[i]))
+        bipartite_sub = nx.subgraph(G_comp, partition[0].union(partition[i]))
         gc.collect()
+        matching = nx.algorithms.bipartite.maximum_matching(bipartite_sub, partition[0])
 
-        max_clique: set = nx.algorithms.bipartite.to_vertex_cover(
+        max_clique: set = set(bipartite_sub.nodes).difference(nx.algorithms.bipartite.to_vertex_cover(
             bipartite_sub,
-            nx.algorithms.bipartite.maximum_matching(bipartite_sub, partition[0]),
+            matching,
             partition[0]
-        )
+        ))
         if len(best_max_clique) < len(max_clique):
             best_max_clique = max_clique
 
