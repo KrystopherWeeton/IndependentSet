@@ -1,4 +1,5 @@
 import copy
+import gc
 import itertools
 import math
 import random
@@ -230,28 +231,43 @@ class PerfectGraphGenerator:
         k: int = self.get_central_clique_size(n)
         return [set(range(0, k))] + self.generate_random_partition(list(range(k, n)))
 
-    def generate_random_split_graph(self, p: float = .5, co_split: bool = False, preset_colors: int = -1) -> [nx.Graph,
-                                                                                                              int]:
+    def generate_random_split_graph(
+            self,
+            p: float = .5,
+            co_split: bool = False,
+            preset_center_set: int = -1,
+            present_side_parts: int = -1) -> [nx.Graph, int]:
         """
         :param: preset_colors: int, maybe we want to plant a coloring
         :return: [nx.Graph, int], generates random perfect graph with a cheat
         """
-        if preset_colors == -1:
+
+        # Normal case
+        if preset_center_set == -1 and present_side_parts == -1:
             partition: List[Set[int]] = self.generate_random_unipolar_partition(self.n)
-        else:
-            if co_split:
-                # Get central clique size
-                central_clique_size: int = self.get_central_clique_size(self.n)
 
-                # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-                partition: List[Set[int]] = random_k_partition(set(range(central_clique_size, self.n)),
-                                                               preset_colors - 1)
-            else:
-                central_clique_size = preset_colors
-                partition: List[Set[int]] = self.generate_random_partition(list(range(central_clique_size, self.n)))
 
+        elif preset_center_set != -1 and present_side_parts != -1:
+            central_set_size = preset_center_set
+            partition: List[Set[int]] = random_k_partition(
+                set(range(central_set_size, self.n)),
+                present_side_parts
+            )
             # Add the central clique to the beginning
-            partition.insert(0, set(range(central_clique_size)))
+            partition.insert(0, set(range(central_set_size)))
+        elif preset_center_set == -1:
+            central_set_size = preset_center_set
+            partition: List[Set[int]] = self.generate_random_partition(list(range(central_set_size, self.n)))
+            # Add the central clique to the beginning
+            partition.insert(0, set(range(central_set_size)))
+        else:
+            central_set_size: int = self.get_central_clique_size(self.n)
+            partition: List[Set[int]] = random_k_partition(
+                set(range(central_set_size, self.n)),
+                present_side_parts
+            )
+            # Add the central clique to the beginning
+            partition.insert(0, set(range(central_set_size)))
 
         S = set()
         for par in partition:
@@ -263,7 +279,7 @@ class PerfectGraphGenerator:
         G: nx.Graph = nx.Graph()
 
         # Either the chromatic number is the number of cliques + 1 or + 0, or it is just the number of independent sets
-        cheat = len(partition) if co_split else max([len(par) for par in partition])
+        # cheat = len(partition) if co_split else max([len(par) for par in partition])
 
         # Make sure all parts are themselves cliques
         for par in partition:
@@ -283,7 +299,24 @@ class PerfectGraphGenerator:
                     if np.random.binomial(1, p):
                         G.add_edge(u, v)
 
-        G = nx.complement(G) if co_split else G
+        G_comp = nx.complement(G)
+        # Get size of the max clique of the graph. True method this time.
+        max_clique: Set[int] = find_max_stable_set_in_unipolar_graph(G, G_comp, partition) if co_split else (
+            find_max_clique_in_unipolar_graph(G, G_comp, partition)
+        )
+
+        # for i in max_clique:
+        #     for j in max_clique:
+        #         if i == j: continue
+        #         assert (j not in G[i] if co_split else j in G[i])
+
+        # assert len(nx.maximal_independent_set(G, max_clique)) == len(max_clique)
+
+        G = G_comp if co_split else G
+
+        # assert len(nx.maximal_independent_set(nx.complement(G), max_clique)) == len(max_clique)
+
+        cheat = len(max_clique)
 
         # Permute graph
         nodes: list = list(G.nodes)
@@ -295,9 +328,51 @@ class PerfectGraphGenerator:
         return self.binom[n][k]
 
 
+def find_max_stable_set_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
+    # Go through each vertex...
+    for x in partition[0]:
+        side_non_neighbors: Set[int] = set(G_comp[x])
+        side_covered: Dict[int, int] = {}
+        # ...and take a look at their side neighborhoods...
+        for y in side_non_neighbors:
+            # ...to see if we cover all the partition with independent vertices
+            if y in G[x]:
+                continue
+            for i in range(1, len(partition)):
+                if y in partition[i]:
+                    side_covered[i] = y
+                    break
+        # If we added a num_parts entries to the dictionary, then we made an independent set!
+        if len(side_covered.keys()) == len(partition) - 1:
+            return set(side_covered.values()).union([x])
+
+    return set([next(iter(part)) for part in partition[1:]])
+
+
+def find_max_clique_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
+    # We find minimum vertex covers in G to get max independent set in G_comp, which gives max clique in G
+    best_max_clique: set = set()
+    for i in range(1, len(partition)):
+        bipartite_sub = nx.subgraph(G_comp, partition[0].union(partition[i]))
+        gc.collect()
+        matching = nx.algorithms.bipartite.maximum_matching(bipartite_sub, partition[0])
+
+        max_clique: set = set(bipartite_sub.nodes).difference(nx.algorithms.bipartite.to_vertex_cover(
+            bipartite_sub,
+            matching,
+            partition[0]
+        ))
+        if len(best_max_clique) < len(max_clique):
+            best_max_clique = max_clique
+
+    return best_max_clique
+
+
 def random_k_partition(S: set, num_colors: int) -> List[Set[int]]:
     if num_colors < 1:
         raise AttributeError('Man, it is not possible to make <1 sets of |S| elements')
+    if num_colors > len(S):
+        raise AttributeError(f"Man, you can't make {num_colors} non-empty parts of {len(S)} elements!")
     n: int = len(S)
     stirling: np.array = np.zeros((n + 1, n + 1))
     stirling[0, 0] = 1
