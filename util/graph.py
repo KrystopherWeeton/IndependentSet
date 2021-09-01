@@ -231,28 +231,43 @@ class PerfectGraphGenerator:
         k: int = self.get_central_clique_size(n)
         return [set(range(0, k))] + self.generate_random_partition(list(range(k, n)))
 
-    def generate_random_split_graph(self, p: float = .5, co_split: bool = False, preset_colors: int = -1) -> [nx.Graph,
-                                                                                                              int]:
+    def generate_random_split_graph(
+            self,
+            p: float = .5,
+            co_split: bool = False,
+            preset_center_set: int = -1,
+            present_side_parts: int = -1) -> [nx.Graph, int]:
         """
         :param: preset_colors: int, maybe we want to plant a coloring
         :return: [nx.Graph, int], generates random perfect graph with a cheat
         """
-        if preset_colors == -1:
+
+        # Normal case
+        if preset_center_set == -1 and present_side_parts == -1:
             partition: List[Set[int]] = self.generate_random_unipolar_partition(self.n)
-        else:
-            if co_split:
-                # Get central clique size
-                central_clique_size: int = self.get_central_clique_size(self.n)
 
-                # Randomly partition the rest of the graph into exactly preset_colors - 1 parts
-                partition: List[Set[int]] = random_k_partition(set(range(central_clique_size, self.n)),
-                                                               preset_colors - 1)
-            else:
-                central_clique_size = preset_colors
-                partition: List[Set[int]] = self.generate_random_partition(list(range(central_clique_size, self.n)))
 
+        elif preset_center_set != -1 and present_side_parts != -1:
+            central_set_size = preset_center_set
+            partition: List[Set[int]] = random_k_partition(
+                set(range(central_set_size, self.n)),
+                present_side_parts
+            )
             # Add the central clique to the beginning
-            partition.insert(0, set(range(central_clique_size)))
+            partition.insert(0, set(range(central_set_size)))
+        elif preset_center_set == -1:
+            central_set_size = preset_center_set
+            partition: List[Set[int]] = self.generate_random_partition(list(range(central_set_size, self.n)))
+            # Add the central clique to the beginning
+            partition.insert(0, set(range(central_set_size)))
+        else:
+            central_set_size: int = self.get_central_clique_size(self.n)
+            partition: List[Set[int]] = random_k_partition(
+                set(range(central_set_size, self.n)),
+                present_side_parts
+            )
+            # Add the central clique to the beginning
+            partition.insert(0, set(range(central_set_size)))
 
         S = set()
         for par in partition:
