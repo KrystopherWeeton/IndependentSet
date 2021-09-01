@@ -1,7 +1,5 @@
-import copy
 import random
-import sys
-from typing import Callable, List
+from typing import List
 
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
@@ -22,7 +20,10 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         super().__init__(
             expected_metadata_keys=[
                 "intersection_oracle",
-                "epsilon"
+                "epsilon",
+                "restart_threshold",
+                "restart_checkpoint",
+                "restarts_allowed"
             ],
             verbose=verbose,
             debug=debug
@@ -46,31 +47,41 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         
         return return_value
 
-
-    def _run_heuristic(self, intersection_oracle, epsilon):
-        #? Set initial solution to empty value
+    def _run_heuristic(self, intersection_oracle, epsilon, restart_threshold, restart_checkpoint, restarts_allowed):
+        # ? Set initial solution to empty value
         if self.solution is None:
             self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())
-        #? Define inclusion predicate
+
+        # ? Define inclusion predicate
         def f(v, S: GraphSubsetTracker) -> bool:
-            threshold: int = max((S.size() - intersection_oracle(S.subset)) / 2 -  epsilon, 0)
+            threshold: int = max((S.size() - intersection_oracle(S.subset)) / 2 - epsilon, 0)
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
-        # Generate node list and permute if appropriate 
+
+        # Generate node list and permute if appropriate
         self.node_list: List[int] = list(self.G.nodes)
         if self.permute_vertices:
             random.shuffle(self.node_list)
-        #? Run successive augmentation
+        # ? Run successive augmentation
         step: int = 0
-        for v in self.node_list:
+        restarts: int = 0
+        i: int = 0
+        while i < len(self.node_list):
+            # If we get to the restart checkpoint, and we're not doing better than the restart threshold, repermute the
+            # vertices and start over.
+            if restarts < restarts_allowed and i >= restart_checkpoint and restart_threshold < self.solution.density():
+                random.shuffle(self.node_list)
+                i = 0
+                restarts += 1
+            v = self.node_list[i]
             if v in self.solution.subset:
                 continue
             # Determine whether or not to include v
             include_v = f(v, self.solution)
             if include_v:
                 self.solution.add_node(v)
-            
-            #? Update results
+
+            # ? Update results
             self.call_post_step_hook(self.solution.subset, step)
             step += 1
         #? Prune final solution if required 

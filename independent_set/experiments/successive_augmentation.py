@@ -1,5 +1,4 @@
 #!env/bin/python3
-import copy
 import cProfile
 import math
 import pstats
@@ -19,13 +18,17 @@ from util.storage import store_results
 def planted_ind_set_size(n: int) -> int:
     return math.ceil(math.sqrt(n)) * 1
 
+
 EDGE_PROBABILITY: float = 0.5
 EPSILON: int = 1
 HEADSTART_SIZE: int = 5
+RESTART_THRESHOLD: float = float('inf')
+RESTART_CHECKPOINT: float = float('inf')
+RESTARTS_ALLOWED: int = 0
 
 
 def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugResults:
-    #? Run the heuristic, then persist results
+    # ? Run the heuristic, then persist results
     results: SuccAugResults = SuccAugResults(
         n, planted_ind_set_size(n), EPSILON, num_trials, HEADSTART_SIZE
     )
@@ -42,10 +45,13 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
             results.add_result(step, t, size=len(subset), intersection=len(subset.intersection(B)))
 
         sa.run_heuristic(
-            G, 
+            G,
             {
-                "intersection_oracle": lambda x : len(x.intersection(B)),
-                "epsilon": EPSILON
+                "intersection_oracle": lambda x: len(x.intersection(B)),
+                "epsilon": EPSILON,
+                "restart_threshold": RESTART_THRESHOLD,
+                "restart_checkpoint": RESTART_CHECKPOINT,
+                "restarts_allowed": RESTARTS_ALLOWED
             }, 
             seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))), 
             post_step_hook=post_step_hook
