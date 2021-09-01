@@ -8,6 +8,7 @@ from independent_set.heuristics.independent_set_heuristic import \
 from util.graph import count_edge_boundary
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
 
+# This is a comment
 
 class FixedGWW(IndependentSetHeuristic):
 
