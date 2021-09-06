@@ -19,10 +19,10 @@ class Graph(object):
         NOTE: Relies on graphs being an immutable object
         """
         # Calculate maximum and minimum degree vertices
-        self._max_degree_vertex: int = max(self.vertex_list(), key = lambda v : self.degree(v))
-        self._min_degree_vertex: int = min(self.vertex_list(), key = lambda v : self.degree(v))
         self._vertex_list: List[int] = self._graph.nodes
         self._vertex_set: Set[int] = set(self._graph.nodes)
+        self._max_degree_vertex: int = max(self.vertex_list(), key = lambda v : self.degree(v))
+        self._min_degree_vertex: int = min(self.vertex_list(), key = lambda v : self.degree(v))
 
 
     def degree(self, v: int) -> int:
@@ -33,7 +33,7 @@ class Graph(object):
         return self._vertex_list
 
 
-    def vetex_set(self) -> Set[int]:
+    def vertex_set(self) -> Set[int]:
         return self._vertex_set
 
 

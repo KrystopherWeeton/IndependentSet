@@ -4,9 +4,9 @@ from typing import Callable, List, Tuple, Union
 
 import numpy as np
 
-from util.graph.graph import Graph
 from util.misc import validate
 from util.models.result import Result
+from util.new_graph.graph import Graph
 from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 

@@ -1,8 +1,8 @@
 import random
 from typing import List, Set
 
-from util.graph.graph import Graph
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.graph import Graph
 
 
 def uniformly_sample_overlap_set(g: Graph, subset: int, overlap: int, non_overlap: int) -> Set[int]:

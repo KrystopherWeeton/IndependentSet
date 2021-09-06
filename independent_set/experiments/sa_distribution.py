@@ -12,9 +12,9 @@ from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
-from util.graph.generator import generate_planted_ind_set_graph
 from util.misc import validate
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.generator import generate_planted_ind_set_graph
 from util.storage import store_results
 
 

@@ -4,8 +4,8 @@ from typing import List, Tuple
 
 import util.formulas as formulas
 from util.graph import count_edge_boundary
-from util.graph.graph import Graph
 from util.models.solution import Solution
+from util.new_graph.graph import Graph
 
 """
     Tracks a subset of a provided graph along with some relevant meetadata, allowing limited
@@ -30,7 +30,7 @@ class GraphSubsetTracker(Solution):
             raise Exception("Graph subset tracker passed non-set argument")
         #? Set metadata
         self.G: Graph = G
-        self.__graph_size: int = len(G.nodes)
+        self.__graph_size: int = G.size
         self.set_subset(initial_subset)
         self.initialized = True
 
@@ -39,7 +39,7 @@ class GraphSubsetTracker(Solution):
         """ Manually sets all subset information for the provided subset """
         self.subset, self.subset_complement = self.G.partition_vertices(subset)
         self.__internal_degrees: List[int] = [
-            self.G.edge_boundary(v, self.subset) for v in self.G.nodes
+            self.G.edge_boundary(v, self.subset) for v in self.G.vertex_list()
         ]
         self.__num_edges: int = self.G.edges(subset)
 

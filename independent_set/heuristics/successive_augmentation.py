@@ -5,8 +5,8 @@ from typing import Callable, List
 
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
-from util.graph.util import greedily_recover_ind_subset
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.util import greedily_recover_ind_subset
 
 
 class SuccessiveAugmentation(IndependentSetHeuristic):

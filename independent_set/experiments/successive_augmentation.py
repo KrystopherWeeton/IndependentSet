@@ -13,6 +13,7 @@ from independent_set.heuristics.successive_augmentation import \
 from independent_set.result_models.sa_results import SuccAugResults
 from util.graph import generate_planted_independent_set_graph
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.generator import generate_planted_ind_set_graph
 from util.storage import store_results
 
 
@@ -35,7 +36,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
             print(f"[V] Running trial {t + 1} / {num_trials}")
 
         # Construct graph and run experiment
-        (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n), "planted")
+        (G, B) = generate_planted_ind_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n))
         sa.clear()
 
         def post_step_hook(subset: set, step: int):

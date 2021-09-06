@@ -4,9 +4,9 @@ from typing import List
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
 from util.graph import count_edge_boundary
-from util.graph.graph import Graph
-from util.graph.util import uniformly_sample_subset
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
+from util.new_graph.graph import Graph
+from util.new_graph.util import uniformly_sample_subset
 
 
 class GWW(IndependentSetHeuristic):
