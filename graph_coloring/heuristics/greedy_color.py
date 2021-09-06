@@ -63,7 +63,7 @@ class GreedyColor(GraphColoringHeuristic):
             k += 1
 
             # self.results.add_result(
-            #     len(self.solution.G),
+            #     len(self.solution.shc),
             #     self.trial,
             #     num_un=len(self.solution.uncolored_nodes),
             #     cc_siz=len(self.solution.uncolored_nodes.intersection(self.solution.center_set))
