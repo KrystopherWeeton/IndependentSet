@@ -1,5 +1,5 @@
 import itertools
-from typing import List, Set, Tuple
+from typing import Iterator, List, Set, Tuple
 
 import networkx as nx
 
@@ -73,3 +73,8 @@ class Graph(object):
     def density(self, subset: Set[int]) -> float:
         """Returns the density as `edges/pos_edges` of the `subset`"""
         return self.edges(subset) / self.pos_edges(subset)
+
+
+    def neighbors(self, v: int) -> Iterator:
+        return self._graph.neighbors(v)
+    
