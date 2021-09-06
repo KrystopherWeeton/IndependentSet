@@ -1,7 +1,5 @@
 from typing import Callable, List, Union
 
-import networkx as nx
-
 from util.heuristics.heuristic import Heuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
 

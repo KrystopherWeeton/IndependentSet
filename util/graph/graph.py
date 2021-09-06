@@ -58,3 +58,18 @@ class Graph(object):
         The order is (subset, other_vertices).
         """
         return (subset, self.vertex_set().difference(subset))
+
+
+    def edges(self, subset: Set[int]) -> int:
+        """Returns the number of edges in `subset`"""
+        return len(nx.edges(self._graph.subgraph(subset)))
+    
+
+    def pos_edges(self, subset: Set[int]) -> int:
+        """Returns the total number of possible edges in the subset"""
+        return (len(subset) * (len(subset) - 1)) // 2 
+    
+
+    def density(self, subset: Set[int]) -> float:
+        """Returns the density as `edges/pos_edges` of the `subset`"""
+        return self.edges(subset) / self.pos_edges(subset)

@@ -4,6 +4,8 @@ from typing import List, Tuple
 
 import networkx as nx
 
+from util.graph.graph import Graph
+
 
 def generate_erdos_renyi_graph(n: int, p: float) -> Graph:
     """Generates an erdos-renyi graph with `n` vertices and edge probability `p`"""
