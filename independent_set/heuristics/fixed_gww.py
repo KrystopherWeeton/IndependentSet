@@ -6,6 +6,7 @@ from networkx.algorithms.similarity import debug_print
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
 from util.graph import count_edge_boundary
+from util.graph.util import uniformly_sample_subset
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
 
 # This is a comment
@@ -31,8 +32,7 @@ class FixedGWW(IndependentSetHeuristic):
         given size
     """
     def __select_initial_subset(self, size: int) -> GraphSubsetTracker:
-        subset = set(random.sample(list(self.G.nodes), size))
-        return GraphSubsetTracker(self.G, subset)
+        return GraphSubsetTracker(self.G, uniformly_sample_subset(self.G, size))
 
 
     """
@@ -45,27 +45,11 @@ class FixedGWW(IndependentSetHeuristic):
             subset.swap_random_nodes()
 
     
-    """
-        Pulls an independent set from the provided subset, by sorting the vertices
-        by degree, then greedily adding vertices based on connections to all
-        vertices in the set.
-    """
-    def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
-        return_value: set = set()
-
-        for node in sorted_vertices:
-            # Check if the node connects to anything in the set.
-            if count_edge_boundary(self.G, node, return_value) == 0:
-                return_value.add(node)
-        
-        return return_value
-    
     def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
         return min(subsets, key = lambda t: t.num_edges())
 
     def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold):
-        n: int = len(self.G.nodes)
+        n: int = self.G.size
         num_particles: int = num_particles(n)
         random_walk_steps: int = random_walk_steps(n)
         subset_size: int = subset_size(n)

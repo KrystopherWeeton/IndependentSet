@@ -9,7 +9,7 @@ from independent_set.heuristics.independent_set_heuristic import \
 class Metropolis(IndependentSetHeuristic):
 
     def __init__(self, verbose: bool = False, debug: bool = False):
-        super().__init__(expected_metadata_keys=["temperature", "max_steps"], verbose=verobse, debug=debug)
+        super().__init__(expected_metadata_keys=["temperature", "max_steps"], verbose=verbose, debug=debug)
 
     """
         Calculates the threshold when presented with an option that increases density
@@ -24,7 +24,7 @@ class Metropolis(IndependentSetHeuristic):
 
     def __select_initial_subset(self):
         # Right now just select a random point
-        x = random.choice(list(self.G.nodes))
+        x = random.choice(self.G.vertex_list())
         return set([x])
 
 
@@ -37,7 +37,7 @@ class Metropolis(IndependentSetHeuristic):
             k: int = self.solution.size()
 
             #? Generate a candidate and calculate new density
-            node: int = random.choice(list(self.G.nodes))
+            node: int = random.choice(self.G.vertex_list())
             removing: bool = node in self.solution
             internal_degree: int = self.solution.internal_degree(node)
             if removing:

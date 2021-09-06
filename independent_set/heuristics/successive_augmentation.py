@@ -5,7 +5,7 @@ from typing import Callable, List
 
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
-from util.graph import count_edge_boundary
+from util.graph.util import greedily_recover_ind_subset
 from util.models.graph_subset_tracker import GraphSubsetTracker
 
 
@@ -30,22 +30,6 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         self.prune_final_solution: bool = prune_final_solution
         self.permute_vertices: bool = permute_vertices
     
-    """
-        Pulls an independent set from the provided subset, by sorting the vertices
-        by degree, then greedily adding vertices based on connections to all
-        vertices in the set.
-    """
-    def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
-        return_value: set = set()
-
-        for node in sorted_vertices:
-            # Check if the node connects to anything in the set.
-            if count_edge_boundary(self.G, node, return_value) == 0:
-                return_value.add(node)
-        
-        return return_value
-
 
     def _run_heuristic(self, intersection_oracle, epsilon):
         #? Set initial solution to empty value
@@ -57,7 +41,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             internal_degree: int = S.internal_degree(v)
             return internal_degree <= threshold
         # Generate node list and permute if appropriate 
-        self.node_list: List[int] = list(self.G.nodes)
+        self.node_list: List[int] = self.G.vertex_list()
         if self.permute_vertices:
             random.shuffle(self.node_list)
         #? Run successive augmentation
@@ -75,4 +59,4 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
             step += 1
         #? Prune final solution if required 
         if self.prune_final_solution:
-            self.solution = GraphSubsetTracker(self.G, self.__greedily_get_ind_subset(self.solution))
+            self.solution = GraphSubsetTracker(self.G, greedily_recover_ind_subset(self.G, self.solution))

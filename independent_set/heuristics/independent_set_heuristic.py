@@ -1,7 +1,7 @@
 from typing import Callable, List, Union
 
-from util.heuristics.heuristic import Heuristic
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.models.heuristic import Heuristic
 
 
 class IndependentSetHeuristic(Heuristic):
