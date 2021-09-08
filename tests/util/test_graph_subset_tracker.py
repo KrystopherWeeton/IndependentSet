@@ -36,6 +36,7 @@ class TestCase(unittest.TestCase):
 
     def test_edge_boundary_after_modifications(self) -> None:
         G, subset, tracker = self._generate_test_graph_and_subset()
+        assert(tracker.size() == len(subset))
         for _ in range(10):
             if random.randint(0, 1) == 0:
                 node: int = tracker.add_random_node()
@@ -47,6 +48,7 @@ class TestCase(unittest.TestCase):
                 assert(node not in tracker.subset)
                 assert(node in subset)
                 subset.remove(node)
+            assert(tracker.size() == len(subset))
         for v in G.vertex_list():
             assert(G.edge_boundary(v, subset) == tracker.internal_degree(v))
 
