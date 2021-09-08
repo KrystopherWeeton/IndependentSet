@@ -23,7 +23,7 @@ class Graph(AbstractGraph):
         NOTE: Relies on graphs being an immutable object
         """
         # Calculate maximum and minimum degree vertices
-        self._vertex_list: List[int] = self._graph.nodes
+        self._vertex_list: List[int] = list(self._graph.nodes)
         self._vertex_set: Set[int] = set(self._graph.nodes)
         self._max_degree_vertex: int = max(self.vertex_list(), key = lambda v : self.degree(v))
         self._min_degree_vertex: int = min(self.vertex_list(), key = lambda v : self.degree(v))
