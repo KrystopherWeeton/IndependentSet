@@ -53,7 +53,7 @@ class TestCase(unittest.TestCase):
 
     def test_num_edges_after_add(self) -> None:
         G: Graph = generate_erdos_renyi_graph(self.n, 0.5)
-        subset: set = set(random.rample(G.vertex_list(), self.subset_size))
+        subset: set = set(random.sample(G.vertex_list(), self.subset_size))
         tracker: GraphSubsetTracker = GraphSubsetTracker(G, subset)
         added: int = tracker.add_random_node()
         removed: int = tracker.remove_random_node()
