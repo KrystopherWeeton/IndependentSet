@@ -37,7 +37,7 @@ class GraphSubsetTracker(Solution):
 
     def set_subset(self, subset: set):
         """ Manually sets all subset information for the provided subset """
-        self.subset, self.subset_complement = self.G.partition_vertices(subset)
+        self.subset, self.subset_complement = self.G.partition_vertices(copy.copy(subset))
         self.__internal_degrees: List[int] = [
             self.G.edge_boundary(v, self.subset) for v in self.G.vertex_list()
         ]
