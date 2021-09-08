@@ -5,7 +5,7 @@ from typing import List, Tuple
 import util.formulas as formulas
 from util.graph import count_edge_boundary
 from util.models.solution import Solution
-from util.new_graph.graph import Graph
+from util.new_graph.models.graph import Graph
 
 """
     Tracks a subset of a provided graph along with some relevant meetadata, allowing limited

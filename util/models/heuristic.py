@@ -1,7 +1,7 @@
 from typing import Callable, List, Union
 
 from util.misc import pull_values
-from util.new_graph.graph import Graph
+from util.new_graph.models.graph import Graph
 
 """
 NOTE: The exact same as the heuristic in util/heuristics, but made for new graph wrapper. As experiments are updated

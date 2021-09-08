@@ -13,7 +13,7 @@ from independent_set.heuristics.successive_augmentation import \
 from independent_set.result_models.sa_results import SuccAugResults
 from util.graph import generate_planted_independent_set_graph
 from util.models.graph_subset_tracker import GraphSubsetTracker
-from util.new_graph.generator import generate_planted_ind_set_graph
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 

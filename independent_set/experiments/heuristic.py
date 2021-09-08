@@ -15,7 +15,7 @@ from independent_set.heuristics.phase_heuristic import PhaseHeuristic
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.heuristic_results import HeuristicResults
-from util.new_graph.generator import generate_planted_ind_set_graph
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 ##########################################
