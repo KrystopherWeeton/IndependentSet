@@ -1,14 +1,26 @@
 #!env/bin/python3
-import click
 import subprocess
+
+import click
+
 
 @click.command()
 @click.option("--maxfail", required=False, type=int, default=None, help="The max number of tests to fail before stopping execution.")
 @click.option("--locals", required=False, is_flag=True, default=False, help="Shows local variables when a test fails. Helps with debugging.")
 @click.option("--traceback", required=False, type=str, default="no", help="The amount of traceback to include when printing output. (long, short, line)")
 @click.option("--output", required=False, type=str, default=None, help="The file to output the test results to. Leave blank to print to stdout.")
-def run(maxfail, locals, traceback, output):
-    command = ["pytest", "tests", f"--tb={traceback}"]
+@click.argument("directories", nargs=-1)
+def run(maxfail, locals, traceback, output, directories):
+    """
+    Runs tests provided in the appropriate tests directory. If no directory is 
+    provided, all tests in the `./tests` directory are run.
+    """
+    command = ["pytest"]
+    if len(directories) == 0:
+        command += ["tests"]
+    else:
+        command += [f"tests/{directory}" for directory in directories]
+    command += [f"--tb={traceback}"]
     if maxfail is not None:
         command.append(f"--maxfail={maxfail}")
     if locals:

@@ -1,13 +1,45 @@
-import random
-
-import networkx as nx
-import numpy as np
+import unittest
 
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.models.graph import Graph
 
 
-def _generate_random_graph(n: int) -> nx.Graph:	
-    return nx.erdos_renyi_graph(n, 0.5)
+class TestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        pass
+
+    def test_initialize_graph_subset_tracker(self) -> None:
+        self.n = 1
+        self.graph_subset_tracker = GraphSubsetTracker()
+
+
+    def test_add(self) -> None:
+        # TODO: Implement
+        pass
+
+    
+    def test_remove(self) -> None:
+        # TODO: Implement
+        pass
+
+
+    def test_num_edges(self) -> None:
+        # TODO: Implement
+        pass
+
+
+    def test_density(self) -> None:
+        # TODO: Implement
+        pass
+
+
+    def test_num_edges_after_add(self) -> None:
+        # TODO: Implement
+        pass
+
+if __name__ == "__main__":
+    unittest.main()
 
 """
 class GraphSubsetTrackerTests():
@@ -98,4 +130,3 @@ class GraphSubsetTrackerTests():
             assert(num_edges == tracker.num_edges())
         return self.__NUM_TRIALS 
 """
-# TODO: Implement tests using pytest library

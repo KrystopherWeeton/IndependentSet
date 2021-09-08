@@ -9,8 +9,7 @@ from mpmath import mp
 
 mp.dps = 10
 
-from typing import List, Dict, Tuple
-from typing import Set
+from typing import Dict, List, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -77,8 +76,7 @@ def bell_table(n: int) -> list:
         raise ArithmeticError(f'{n} is larger than what bell table currently supports')
 
     bell: List[int] = []
-    bell_file = open('C:\\Users\\pov_p\\PycharmProjects\\IndependentSet\\graph_coloring\\preprocessing_directory'
-                     '\\bell_numbers_upto3015.txt', 'r')
+    bell_file = open('./graph_coloring/preprocessing_directory/bell_numbers_upto3015.txt', 'r')
     for line in bell_file:
         bell.append(int(line.split()[1]))
     # print('Generated bell table thank god.')
