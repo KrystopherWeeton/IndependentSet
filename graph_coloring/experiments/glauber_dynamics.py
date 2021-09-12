@@ -88,7 +88,7 @@ def glauber_dynamics(verbose, min_n, max_n, step, num_trials, delta, max_iter, n
             G_max_deg: int = max_degree(G)
             delta = -G_max_deg + cheat
             # TODO remove
-            # delta = cheat - max_degree(G) - 10
+            # delta = cheat - max_degree(shc) - 10
             gb.run_heuristic(G, {
                 'delta': delta,
                 'max_iterations': max_iter
