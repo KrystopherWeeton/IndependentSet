@@ -113,7 +113,7 @@ class GraphColoringTracker(Solution):
                 for j in range(self.num_colors_used()):
                     to_add.append(0)
                 self.num_neighboring_colors.append(to_add)
-            # self.num_neighboring_colors: np.array = np.zeros((len(self.G), self.num_colors_used()))
+            # self.num_neighboring_colors: np.array = np.zeros((len(self.shc), self.num_colors_used()))
 
             for v in self.G.nodes:
                 for neighbor in self.G[v]:

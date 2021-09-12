@@ -47,7 +47,7 @@ def load_dict_from_dir(path: str):
     for dirpath, dirnames, files in os.walk(path):
         print(f'In directory: {dirpath}')
         for file_name in files:
-            # God, I really hope this works. But dirpath should be something like alksdjflkjasfd/K_|G|, so splitting like this should give me the key
+            # God, I really hope this works. But dirpath should be something like alksdjflkjasfd/K_|shc|, so splitting like this should give me the key
             key = int(dirpath.split('K_')[-1])
             r[key] = load_from_path(f'{dirpath}/{file_name}')
 
