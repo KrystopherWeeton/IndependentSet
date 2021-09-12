@@ -63,7 +63,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
 def suc_aug_concentration(n, min_epsilon, max_epsilon, num_trials, verbose, transient):
     #? Validate arguments
     validate(num_trials > 0, f"Cannot run experiment with ({num_trials} < 1) trials")
-    validate(min_epsilon < max_epsilon, f"min_epsilon cannot be less than max_epsilon")
+    validate(min_epsilon <= max_epsilon, f"min_epsilon cannot be less than max_epsilon")
     validate(n > 0, f"n={n} must be positive.")
     planted_size: int = planted_ind_set_size(n)
     result: SucAugConcentrationResults = SucAugConcentrationResults(n, min_epsilon, max_epsilon, num_trials, HEADSTART_SIZE, planted_size)
