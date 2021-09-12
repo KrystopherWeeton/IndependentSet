@@ -1,6 +1,6 @@
 import itertools
 import random
-from copy import deepcopy
+from copy import copy, deepcopy
 from typing import Iterator, List, Set, Tuple
 
 import networkx as nx
@@ -34,11 +34,11 @@ class Graph(AbstractGraph):
 
 
     def vertex_list(self) -> List[int]:
-        return self._vertex_list
+        return copy(self._vertex_list)
 
 
     def vertex_set(self) -> Set[int]:
-        return self._vertex_set
+        return copy(self._vertex_set)
 
 
     def edge_boundary(self, v: int, subset: Set[int]) -> int:

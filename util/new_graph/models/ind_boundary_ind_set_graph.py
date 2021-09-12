@@ -1,6 +1,7 @@
-from typing import List, Set
+import random
+from copy import copy
+from typing import List, Set, Tuple
 
-from numpy import random
 from numpy.random import binomial
 
 from util.new_graph.models.graph import Graph
@@ -33,16 +34,16 @@ class IndBoundaryIndSetGraph(Graph):
         self.s = len(S)
         self.q = q
         self._queried: List[Set(int)] = [set() for x in range(n)]
-        self._vertex_list = range(start=1, stop=n+1)
+        self._vertex_list = range(1, n+1)
         self._vertex_set = set(self._vertex_list)
 
 
     def vertex_list(self) -> List[int]:
-        return self._vertex_list
+        return copy(self._vertex_list)
 
 
     def vertex_set(self) -> Set[int]:
-        return self._vertex_set
+        return copy(self._vertex_set)
 
 
     def edge_boundary(self, v: int, subset: Set[int]) -> int:
@@ -52,7 +53,7 @@ class IndBoundaryIndSetGraph(Graph):
         # Validate query is independent of all prior queries
         queried: Set[int] = self._get_queried(v)
         assert queried.isdisjoint(subset), f"Query of non-disjoint subsets"
-        self._add_to_queried(subset)
+        self._add_to_queried(v, subset)
         # Generate a response and return as appropriate.
         in_s: int = len(subset.intersection(self.S))
         out_of_s: int = len(subset) - in_s
@@ -68,10 +69,10 @@ class IndBoundaryIndSetGraph(Graph):
 
 
 
-def generate_planted_ind_set_model(n: int, p: float, planted_size: int) -> IndBoundaryIndSetGraph:
+def generate_planted_ind_set_model(n: int, p: float, planted_size: int) -> Tuple[IndBoundaryIndSetGraph, Set[int]]:
     """
     Generates an independent boundary query graph with a planted independent set of
     size `planted_size` and independent edge probability `p` with `n` vertices.
     """
     planted_set: Set[int] = random.sample(range(1, n+1), planted_size)
-    return IndBoundaryIndSetGraph(n, p, planted_set, 0)
+    return IndBoundaryIndSetGraph(n, p, planted_set, 0), planted_set

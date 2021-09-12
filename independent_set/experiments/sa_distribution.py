@@ -9,7 +9,7 @@ import sys
 import click
 
 from independent_set.heuristics.successive_augmentation import \
-    SuccessiveAugmentation
+    PruningSuccessiveAugmentation
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
 from util.misc import validate
@@ -39,7 +39,7 @@ def sa_distribution(n, num_trials, verbose, transient):
 
     #? Generate graph and then create results object
     G, I = generate_planted_ind_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n))
-    sa: SuccessiveAugmentation = SuccessiveAugmentation(prune_final_solution=True, permute_vertices=True)
+    sa: PruningSuccessiveAugmentation = PruningSuccessiveAugmentation(permute_vertices=True)
     results: SADistributionResults = SADistributionResults(G, I, EPSILON, num_trials, HEADSTART_SIZE)
 
     for t in range(num_trials):
