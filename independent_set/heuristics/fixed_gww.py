@@ -45,8 +45,8 @@ class FixedGWW(IndependentSetHeuristic):
             subset.swap_random_nodes()
 
     
-    def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
-        return min(subsets, key = lambda t: t.num_edges())
+    def _get_best_subset(self, subsets: List[GraphSubsetTracker]) -> set:
+        return min(subsets, key = lambda t: t.num_edges()).subset
 
     def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold):
         n: int = self.G.size
@@ -65,7 +65,7 @@ class FixedGWW(IndependentSetHeuristic):
         #? Metadata validation
         if subset_size > n:
             self.verbose_print(f"Running fixed gww with subset size too large ({subset_size} > {n}). Returning empty set")
-            self.solution = GraphSubsetTracker(self.G, set())
+            self.solution = set()
             return
 
         if num_particles < 1:
@@ -102,7 +102,7 @@ class FixedGWW(IndependentSetHeuristic):
 
             # Check if subsets is empty
             if len(temp_subsets) == 0:
-                self.solution = self.__get_best_subset(subsets)
+                self.solution = self._get_best_subset(subsets)
                 self.verbose_print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
@@ -116,7 +116,7 @@ class FixedGWW(IndependentSetHeuristic):
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
-        self.solution = self.__get_best_subset(subsets)
+        self.solution = self._get_best_subset(subsets)
 
 
 TESTING_METADATA_FIXED_GWW: dict = {
