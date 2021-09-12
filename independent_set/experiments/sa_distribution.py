@@ -13,7 +13,6 @@ from independent_set.heuristics.successive_augmentation import \
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
 from util.misc import validate
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
@@ -52,7 +51,7 @@ def sa_distribution(n, num_trials, verbose, transient):
                 "intersection_oracle": lambda x : len(x.intersection(I)),
                 "epsilon": EPSILON,
             },
-            seed=GraphSubsetTracker(G, set(random.sample(I, k=HEADSTART_SIZE)))
+            seed=set(random.sample(I, k=HEADSTART_SIZE))
         )
         results.add_result(t, sa.node_list, sa.solution.subset)
 

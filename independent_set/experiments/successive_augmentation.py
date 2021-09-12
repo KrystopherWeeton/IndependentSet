@@ -11,8 +11,6 @@ import click
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.sa_results import SuccAugResults
-from util.graph import generate_planted_independent_set_graph
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
@@ -48,7 +46,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
                 "intersection_oracle": lambda x : len(x.intersection(B)),
                 "epsilon": EPSILON
             }, 
-            seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))), 
+            seed=set(random.sample(B, k=HEADSTART_SIZE)), 
             post_step_hook=post_step_hook
         )
         #? Gather final results and store

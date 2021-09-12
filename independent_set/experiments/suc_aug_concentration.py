@@ -14,7 +14,6 @@ from independent_set.result_models.suc_aug_concentration_results import \
     SucAugConcentrationResults
 from util.graph import generate_planted_independent_set_graph
 from util.misc import validate
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.storage import store_results
 
 
@@ -46,7 +45,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
                 "intersection_oracle": lambda x : len(x.intersection(B)),
                 "epsilon": epsilon,
             },
-            seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))),
+            seed=set(random.sample(B, k=HEADSTART_SIZE)),
             post_step_hook=post_step_hook
         )
 
