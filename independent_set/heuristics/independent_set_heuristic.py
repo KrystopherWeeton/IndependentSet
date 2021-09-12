@@ -1,6 +1,5 @@
 from typing import List, Set
 
-from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.models.heuristic import Heuristic
 
 

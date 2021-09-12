@@ -64,25 +64,6 @@ HEURISTIC_METADATA = {
     ]
 }
 
-"""
-HEURISTIC_METADATA: dict = {
-    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
-    "subset_size":              lambda n: int(n ** (2/3)),
-    "threshold_added_change":   0.0,
-    "random_walk_steps":        lambda n: int(math.log(n, 2)),
-    "min_threshold":            0.1,
-}
-
-HEURISTIC: IndependentSetHeuristic = GWW()
-
-HEURISTIC_METADATA: dict = {
-    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
-    "min_subset_size":          30,
-    "threshold_added_change":   0.01,
-    "random_walk_steps":        lambda n: int(math.log(n, 2)),
-    "min_threshold":            0.1,
-}
-"""
 
 ##########################################
 #       Commands / Experiments
@@ -111,10 +92,9 @@ def run_heuristic(n: List[int], num_trials, verbose) -> HeuristicResults:
             HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
 
             # Take the results, collect data, store the results
-            solution: set = HEURISTIC.solution.subset
-            intersection_size: int = len(solution.intersection(B))
-            density: float = G.density(solution)
-            subset_size: int = len(solution)
+            intersection_size: int = len(HEURISTIC.solution.intersection(B))
+            density: float = G.density(HEURISTIC.solution)
+            subset_size: int = len(HEURISTIC.solution)
             if verbose:
                 print(f"Collected results for n={n_value}, t={t}, with results {intersection_size}, {density}, {subset_size}")
             results.add_result(n_value, t, intersection_size, density, subset_size)

@@ -11,6 +11,7 @@ import click
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.sa_results import SuccAugResults
+from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
@@ -50,8 +51,8 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
             post_step_hook=post_step_hook
         )
         #? Gather final results and store
-        intersection_size: int = len(sa.solution.subset.intersection(B))
-        size: int = len(sa.solution.subset)
+        intersection_size: int = len(sa.solution.intersection(B))
+        size: int = len(sa.solution)
         if verbose:
             print(f"[V] Size={size}, Intersection Size={intersection_size}")
         results.add_final_results(size, intersection_size)

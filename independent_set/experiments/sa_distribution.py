@@ -53,7 +53,7 @@ def sa_distribution(n, num_trials, verbose, transient):
             },
             seed=set(random.sample(I, k=HEADSTART_SIZE))
         )
-        results.add_result(t, sa.node_list, sa.solution.subset)
+        results.add_result(t, sa.node_list, sa.solution)
 
     if not transient: 
         store_results("independent_set", results)
