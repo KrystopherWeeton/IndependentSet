@@ -306,13 +306,13 @@ class PerfectGraphGenerator:
         # for i in max_clique:
         #     for j in max_clique:
         #         if i == j: continue
-        #         assert (j not in G[i] if co_split else j in G[i])
+        #         assert (j not in shc[i] if co_split else j in shc[i])
 
-        # assert len(nx.maximal_independent_set(G, max_clique)) == len(max_clique)
+        # assert len(nx.maximal_independent_set(shc, max_clique)) == len(max_clique)
 
         G = G_comp if co_split else G
 
-        # assert len(nx.maximal_independent_set(nx.complement(G), max_clique)) == len(max_clique)
+        # assert len(nx.maximal_independent_set(nx.complement(shc), max_clique)) == len(max_clique)
 
         cheat = len(max_clique)
 
@@ -348,7 +348,7 @@ def find_max_stable_set_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partiti
 
 
 def find_max_clique_in_unipolar_graph(G: nx.Graph, G_comp: nx.Graph, partition: List[Set[int]]) -> Set[int]:
-    # We find minimum vertex covers in G to get max independent set in G_comp, which gives max clique in G
+    # We find minimum vertex covers in shc to get max independent set in G_comp, which gives max clique in shc
     best_max_clique: set = set()
     for i in range(1, len(partition)):
         bipartite_sub = nx.subgraph(G_comp, partition[0].union(partition[i]))
