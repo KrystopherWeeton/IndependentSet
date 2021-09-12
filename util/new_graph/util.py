@@ -29,7 +29,7 @@ def greedily_recover_ind_subset(g: Graph, subset: GraphSubsetTracker) -> Set[int
     """
     sorted_vertices: List[int] = sorted(subset.subset, key=lambda x: subset.internal_degree(x))
     ind_set: Set[int] = set()
-    for v in sorted(subset.subset, lambda x: subset.internal_degree(x)):
+    for v in sorted(subset.subset, key=lambda x: subset.internal_degree(x)):
         if g.edge_boundary(v, ind_set) == 0:
             ind_set.add(v)
     return ind_set

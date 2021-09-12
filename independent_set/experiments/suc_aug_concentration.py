@@ -14,6 +14,7 @@ from independent_set.result_models.suc_aug_concentration_results import \
     SucAugConcentrationResults
 from util.graph import generate_planted_independent_set_graph
 from util.misc import validate
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 
@@ -28,7 +29,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
     if verbose:
         print(f"[V] Running trial {trial_num+1}")
 
-    (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_size, "planted")
+    (G, B) = generate_planted_ind_set_graph(n, EDGE_PROBABILITY, planted_size)
 
     # ? For each epsilon value, run the experiment on the SAME Graph provided above
     for epsilon in result.epsilon_values:
