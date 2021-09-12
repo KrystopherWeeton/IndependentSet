@@ -33,8 +33,7 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
 
     def _run_heuristic(self, intersection_oracle, epsilon):
         #? Set initial solution to empty value
-        if self.solution is None:
-            self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())
+        solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set()) if self.solution is None else GraphSubsetTracker(self.G, self.solution)
         #? Define inclusion predicate
         def f(v, S: GraphSubsetTracker) -> bool:
             threshold: int = max((S.size() - intersection_oracle(S.subset)) / 2 -  epsilon, 0)
@@ -47,16 +46,18 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         #? Run successive augmentation
         step: int = 0
         for v in self.node_list:
-            if v in self.solution.subset:
+            if v in solution.subset:
                 continue
             # Determine whether or not to include v
-            include_v = f(v, self.solution)
+            include_v = f(v, solution)
             if include_v:
-                self.solution.add_node(v)
+                solution.add_node(v)
             
             #? Update results
-            self.call_post_step_hook(self.solution.subset, step)
+            self.call_post_step_hook(solution.subset, step)
             step += 1
         #? Prune final solution if required 
         if self.prune_final_solution:
-            self.solution = GraphSubsetTracker(self.G, greedily_recover_ind_subset(self.G, self.solution))
+            self.solution = greedily_recover_ind_subset(self.G, solution)
+        else:
+            self.solution = solution.subset 

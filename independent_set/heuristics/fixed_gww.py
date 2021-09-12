@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Set
 
 from networkx.algorithms.similarity import debug_print
 
@@ -45,7 +45,7 @@ class FixedGWW(IndependentSetHeuristic):
             subset.swap_random_nodes()
 
     
-    def _get_best_subset(self, subsets: List[GraphSubsetTracker]) -> set:
+    def _get_best_subset(self, subsets: List[GraphSubsetTracker]) -> Set[int]:
         return min(subsets, key = lambda t: t.num_edges()).subset
 
     def _run_heuristic(self, num_particles, threshold_added_change, subset_size, random_walk_steps, min_threshold):

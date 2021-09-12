@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Set
 
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
@@ -55,8 +55,8 @@ class GWW(IndependentSetHeuristic):
         return subset
 
 
-    def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
-        return min(subsets, key = lambda t: t.num_edges())
+    def _get_best_subset(self, subsets: List[GraphSubsetTracker]) -> Set[int]:
+        return min(subsets, key = lambda t: t.num_edges()).subset
 
     def _run_heuristic(self, num_particles, min_subset_size, threshold_added_change, random_walk_steps, min_threshold):
         #? Pull metadata
@@ -101,7 +101,7 @@ class GWW(IndependentSetHeuristic):
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:
-                self.solution = self.__get_best_subset(subsets)
+                self.solution = self._get_best_subset(subsets)
                 self.verbose_print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
@@ -115,7 +115,7 @@ class GWW(IndependentSetHeuristic):
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
-        self.solution = self.__get_best_subset(subsets)
+        self.solution = self._get_best_subset(subsets)
 
 
 TESTING_METADATA_GWW: dict = {
