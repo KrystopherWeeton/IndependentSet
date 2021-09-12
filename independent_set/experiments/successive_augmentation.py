@@ -73,7 +73,7 @@ def successive_augmentation(n, num_trials, verbose, transient):
         click.secho("Unable to run experiment without a positive number of trials", fg="red")
         sys.exit(1)
     
-    results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose, transient)
+    results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose)
 
     if not transient: 
         store_results("independent_set", results)
