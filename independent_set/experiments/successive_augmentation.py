@@ -24,7 +24,7 @@ EPSILON: int = 1
 HEADSTART_SIZE: int = 5
 
 
-def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugResults:
+def run_successive_augmentation(n, num_trials, verbose) -> SuccAugResults:
     #? Run the heuristic, then persist results
     results: SuccAugResults = SuccAugResults(
         n, planted_ind_set_size(n), EPSILON, num_trials, HEADSTART_SIZE
@@ -79,13 +79,3 @@ def successive_augmentation(n, num_trials, verbose, transient):
         store_results("independent_set", results)
     elif verbose:
         print(f"[V] Skipping store step because transient was set to true.")
-
-
-@click.command()
-def profile_successive_augmentation():
-    profiler = cProfile.Profile()
-    profiler.enable()
-    profiler.runctx("run_successive_augmentation(1000, 1, False, True)", globals(), locals())
-    profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats('cumtime')
-    stats.print_stats()
