@@ -2,11 +2,11 @@ import itertools
 from datetime import date
 from typing import Callable, List, Tuple, Union
 
-import networkx as nx
 import numpy as np
 
 from util.misc import validate
 from util.models.result import Result
+from util.new_graph.models.graph import Graph
 from util.results.result_tensor import ResultTensor
 from util.tensor import tensor
 
@@ -15,9 +15,9 @@ class SADistributionResults(Result):
 
     result_identifier: str = "sa-distribution"
 
-    def __init__(self, G: nx.Graph, planted_ind_set: set[int], epsilon: int, num_trials: int, headstart_size: int):
+    def __init__(self, G: Graph, planted_ind_set: set[int], epsilon: int, num_trials: int, headstart_size: int):
         # Store metadata
-        self.G: nx.Graph = G
+        self.G: Graph = G
         self.planted_ind_set = planted_ind_set
         self.epsilon: int = epsilon
         self.num_trials: int = num_trials
@@ -28,7 +28,7 @@ class SADistributionResults(Result):
         self.final_intersections: List[int] = [None] * self.num_trials
         self.final_solutions: List[set] = [None] * self.num_trials
         # Mapping from node -> # of times it appears in the final solutions
-        self.final_solution_appearances: List[int] = [0] * len(self.G.nodes)
+        self.final_solution_appearances: List[int] = [0] * G.size
 
     def add_result(self, trial_num: int, vertex_permutation: List[int], solution: set):
         self.vertex_permutations[trial_num] = vertex_permutation

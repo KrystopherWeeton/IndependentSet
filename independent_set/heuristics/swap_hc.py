@@ -1,5 +1,6 @@
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
+from util.models.graph_subset_tracker import GraphSubsetTracker
 
 """
     Description: IndependentSetHeuristic which takes an initial set in it's solution, then proceeds
@@ -11,16 +12,18 @@ class SwapHillClimbing(IndependentSetHeuristic):
         super().__init__(expected_metadata_keys=[], verbose=verbose, debug=debug)
     
     def _run_heuristic(self):
-        rem, rem_deg = self.solution.max_internal_degree(self.solution.subset)
-        add, add_deg = self.solution.min_internal_degree(self.solution.subset_complement)
+        solution = GraphSubsetTracker(self.G, self.solution if self.solution is not None else set())
+        rem, rem_deg = self.solution.max_internal_degree(solution.subset)
+        add, add_deg = self.solution.min_internal_degree(solution.subset_complement)
         while rem_deg > add_deg:
             # While we are able to reduce density
-            self.solution.remove_node(rem_deg)
-            self.solution.add_node(add_deg)
+            solution.remove_node(rem_deg)
+            solution.add_node(add_deg)
             self.verbose_print([
                 f"Swapping ({rem}, {add})\t Degrees ({rem_deg}, {add_deg})",
-                f"# Edges = {self.solution.num_edges()}"
+                f"# Edges = {solution.num_edges()}"
             ])
-            rem, rem_deg = self.solution.max_internal_degree(self.solution.subset)
-            add, add_deg = self.solution.min_internal_degree(self.solution.subset_complement)
+            rem, rem_deg = solution.max_internal_degree(solution.subset)
+            add, add_deg = solution.min_internal_degree(solution.subset_complement)
+        self.solution = solution.subset
         

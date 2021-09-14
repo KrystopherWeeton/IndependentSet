@@ -1,10 +1,10 @@
 import random
-from typing import List
+from typing import List, Set
 
 from independent_set.heuristics.independent_set_heuristic import \
     IndependentSetHeuristic
-from util.graph import count_edge_boundary
 from util.models.graph_subset_tracker import GraphSubsetTracker, get_density
+from util.new_graph.util import uniformly_sample_subset
 
 
 class GWW(IndependentSetHeuristic):
@@ -28,8 +28,7 @@ class GWW(IndependentSetHeuristic):
         given size
     """
     def __select_initial_subset(self, size: int) -> GraphSubsetTracker:
-        subset = set(random.sample(list(self.G.nodes), size))
-        return GraphSubsetTracker(self.G, subset)
+        return GraphSubsetTracker(self.G, uniformly_sample_subset(self.G, size))
 
 
     """
@@ -43,7 +42,7 @@ class GWW(IndependentSetHeuristic):
             if size == min_size:
                 subset.add_random_node()
                 size += 1
-            elif size == len(self.G.nodes):
+            elif size == self.G.size:
                 subset.remove_random_node()
                 size -= 1
             else:
@@ -55,29 +54,13 @@ class GWW(IndependentSetHeuristic):
                     size -= 1
         return subset
 
-    
-    """
-        Pulls an independent set from the provided subset, by sorting the vertices
-        by degree, then greedily adding vertices based on connections to all
-        vertices in the set.
-    """
-    def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
-        return_value: set = set()
 
-        for node in sorted_vertices:
-            # Check if the node connects to anything in the set.
-            if count_edge_boundary(self.G, node, return_value) == 0:
-                return_value.add(node)
-        
-        return return_value
-
-    def __get_best_subset(self, subsets: List[GraphSubsetTracker]) -> GraphSubsetTracker:
-        return min(subsets, key = lambda t: t.num_edges())
+    def _get_best_subset(self, subsets: List[GraphSubsetTracker]) -> Set[int]:
+        return min(subsets, key = lambda t: t.num_edges()).subset
 
     def _run_heuristic(self, num_particles, min_subset_size, threshold_added_change, random_walk_steps, min_threshold):
         #? Pull metadata
-        n: int = len(self.G.nodes)
+        n: int = self.G.size
         num_particles: int = num_particles(n)
         random_walk_steps: int = random_walk_steps(n)
 
@@ -118,7 +101,7 @@ class GWW(IndependentSetHeuristic):
             
             # Check if subsets is empty
             if len(temp_subsets) == 0:
-                self.solution = self.__get_best_subset(subsets)
+                self.solution = self._get_best_subset(subsets)
                 self.verbose_print(f"WARNING: Unable to replicate points because no subsets survived.")
                 return
             while len(temp_subsets) < num_particles:
@@ -132,7 +115,7 @@ class GWW(IndependentSetHeuristic):
         
         #? Greedily pull largest independent set from each subset, then
         #? return the largest independent set found.
-        self.solution = self.__get_best_subset(subsets)
+        self.solution = self._get_best_subset(subsets)
 
 
 TESTING_METADATA_GWW: dict = {

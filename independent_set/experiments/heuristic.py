@@ -4,10 +4,9 @@ import cProfile
 import math
 import pstats
 import sys
-from typing import List
+from typing import List, Set, Tuple
 
 import click
-import networkx as nx
 
 from independent_set.heuristics.fixed_gww import FixedGWW
 from independent_set.heuristics.independent_set_heuristic import \
@@ -16,7 +15,7 @@ from independent_set.heuristics.phase_heuristic import PhaseHeuristic
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.heuristic_results import HeuristicResults
-from util.graph import generate_planted_independent_set_graph
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 ##########################################
@@ -65,25 +64,6 @@ HEURISTIC_METADATA = {
     ]
 }
 
-"""
-HEURISTIC_METADATA: dict = {
-    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
-    "subset_size":              lambda n: int(n ** (2/3)),
-    "threshold_added_change":   0.0,
-    "random_walk_steps":        lambda n: int(math.log(n, 2)),
-    "min_threshold":            0.1,
-}
-
-HEURISTIC: IndependentSetHeuristic = GWW()
-
-HEURISTIC_METADATA: dict = {
-    "num_particles":            lambda n: 2 * int(math.sqrt(n)),
-    "min_subset_size":          30,
-    "threshold_added_change":   0.01,
-    "random_walk_steps":        lambda n: int(math.log(n, 2)),
-    "min_threshold":            0.1,
-}
-"""
 
 ##########################################
 #       Commands / Experiments
@@ -102,7 +82,7 @@ def run_heuristic(n: List[int], num_trials, verbose) -> HeuristicResults:
             print(f"Running experiment for n={n_value} with planted_size={planted_size}")
         for t in range(num_trials):
             # Generate a random graph
-            (G, B) = generate_planted_independent_set_graph(n_value, EDGE_PROBABILITY, planted_size, 'planted')
+            (G, B) = generate_planted_ind_set_graph(n_value, EDGE_PROBABILITY, planted_size)
             # Run the heuristic
             HEURISTIC.clear()
 
@@ -112,10 +92,9 @@ def run_heuristic(n: List[int], num_trials, verbose) -> HeuristicResults:
             HEURISTIC.run_heuristic(G, HEURISTIC_METADATA)
 
             # Take the results, collect data, store the results
-            solution: set = HEURISTIC.solution.subset
-            intersection_size: int = len(solution.intersection(B))
-            density: float = nx.density(G.subgraph(solution))
-            subset_size: int = len(solution)
+            intersection_size: int = len(HEURISTIC.solution.intersection(B))
+            density: float = G.density(HEURISTIC.solution)
+            subset_size: int = len(HEURISTIC.solution)
             if verbose:
                 print(f"Collected results for n={n_value}, t={t}, with results {intersection_size}, {density}, {subset_size}")
             results.add_result(n_value, t, intersection_size, density, subset_size)

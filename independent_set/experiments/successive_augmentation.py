@@ -11,8 +11,10 @@ import click
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.sa_results import SuccAugResults
-from util.graph import generate_planted_independent_set_graph
 from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.models.graph import generate_planted_ind_set_graph
+from util.new_graph.models.ind_boundary_ind_set_graph import \
+    generate_planted_ind_set_model
 from util.storage import store_results
 
 
@@ -24,7 +26,7 @@ EPSILON: int = 1
 HEADSTART_SIZE: int = 5
 
 
-def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugResults:
+def run_successive_augmentation(n, num_trials, verbose) -> SuccAugResults:
     #? Run the heuristic, then persist results
     results: SuccAugResults = SuccAugResults(
         n, planted_ind_set_size(n), EPSILON, num_trials, HEADSTART_SIZE
@@ -35,7 +37,7 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
             print(f"[V] Running trial {t + 1} / {num_trials}")
 
         # Construct graph and run experiment
-        (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n), "planted")
+        (G, B) = generate_planted_ind_set_model(n, EDGE_PROBABILITY, planted_ind_set_size(n))
         sa.clear()
 
         def post_step_hook(subset: set, step: int):
@@ -47,12 +49,12 @@ def run_successive_augmentation(n, num_trials, verbose, transient) -> SuccAugRes
                 "intersection_oracle": lambda x : len(x.intersection(B)),
                 "epsilon": EPSILON
             }, 
-            seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))), 
+            seed=set(random.sample(B, k=HEADSTART_SIZE)), 
             post_step_hook=post_step_hook
         )
         #? Gather final results and store
-        intersection_size: int = len(sa.solution.subset.intersection(B))
-        size: int = len(sa.solution.subset)
+        intersection_size: int = len(sa.solution.intersection(B))
+        size: int = len(sa.solution)
         if verbose:
             print(f"[V] Size={size}, Intersection Size={intersection_size}")
         results.add_final_results(size, intersection_size)
@@ -73,19 +75,9 @@ def successive_augmentation(n, num_trials, verbose, transient):
         click.secho("Unable to run experiment without a positive number of trials", fg="red")
         sys.exit(1)
     
-    results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose, transient)
+    results: SuccAugResults = run_successive_augmentation(n, num_trials, verbose)
 
     if not transient: 
         store_results("independent_set", results)
     elif verbose:
         print(f"[V] Skipping store step because transient was set to true.")
-
-
-@click.command()
-def profile_successive_augmentation():
-    profiler = cProfile.Profile()
-    profiler.enable()
-    profiler.runctx("run_successive_augmentation(1000, 1, False, True)", globals(), locals())
-    profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats('cumtime')
-    stats.print_stats()

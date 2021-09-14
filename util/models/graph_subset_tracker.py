@@ -1,11 +1,11 @@
 import copy
 import random as random
-
-import networkx as nx
+from typing import List, Tuple
 
 import util.formulas as formulas
 from util.graph import count_edge_boundary
 from util.models.solution import Solution
+from util.new_graph.models.graph import Graph
 
 """
     Tracks a subset of a provided graph along with some relevant meetadata, allowing limited
@@ -13,7 +13,7 @@ from util.models.solution import Solution
 """
 class GraphSubsetTracker(Solution):
 
-    def __init__(self, G: nx.Graph = None, initial_subset: set = set()):
+    def __init__(self, G: Graph = None, initial_subset: set = set()):
         #? If passed relevant context, proceed otherwise mark as
         #? not initialized and wait for initialize call.
         if G is None:
@@ -23,26 +23,25 @@ class GraphSubsetTracker(Solution):
             self.initialize(G, initial_subset)
     
 
-    def initialize(self, G: nx.Graph, initial_subset: set):
+    def initialize(self, G: Graph, initial_subset: set):
         """ Initializes the graph subset tracker if not already initialized """
         #? Check arguments
         if not isinstance(initial_subset, set):
             raise Exception("Graph subset tracker passed non-set argument")
         #? Set metadata
-        self.G: nx.Graph = G
-        self.__graph_size: int = len(G.nodes)
+        self.G: Graph = G
+        self.__graph_size: int = G.size
         self.set_subset(initial_subset)
         self.initialized = True
 
 
     def set_subset(self, subset: set):
         """ Manually sets all subset information for the provided subset """
-        self.subset: set = copy.copy(subset)
-        self.subset_complement = set(self.G.nodes).difference(self.subset)
-        self.__internal_degrees: [int] = [
-            count_edge_boundary(self.G, v, self.subset) for v in self.G.nodes
+        self.subset, self.subset_complement = self.G.partition_vertices(copy.copy(subset))
+        self.__internal_degrees: List[int] = [
+            self.G.edge_boundary(v, self.subset) for v in self.G.vertex_list()
         ]
-        self.__num_edges: int = self.G.subgraph(subset).number_of_edges()
+        self.__num_edges: int = self.G.edges(subset)
 
 
     def add_node(self, node: int):
@@ -149,12 +148,12 @@ class GraphSubsetTracker(Solution):
         return self.__internal_degrees[node]
 
 
-    def max_internal_degree(self, S: set) -> (int, int):
+    def max_internal_degree(self, S: set) -> Tuple[int, int]:
         """ Returns the node within S with the max internal degree, and it's degree"""
         n: int = max(S, key = lambda j : self.internal_degree(j))
         return (n, self.internal_degree(n))
 
-    def min_internal_degree(self, S: set) -> (int, int):
+    def min_internal_degree(self, S: set) -> Tuple[int, int]:
         """ Returns the node within S with the minimum internal degree, and it's degree"""
         n: int = min(S, key = lambda j : self.internal_degree(j))
         return(n, self.internal_degree(n))
@@ -223,7 +222,7 @@ class GraphSubsetTracker(Solution):
 """
     Returns min, avg, and max density for the provided graph subset trackers.
 """
-def get_density(subsets: [GraphSubsetTracker]) -> (float, float, float):
+def get_density(subsets: List[GraphSubsetTracker]) -> Tuple[float, float, float]:
     if len(subsets) == 0:
         return (None, None, None)
     densities = sorted([S.density() for S in subsets])

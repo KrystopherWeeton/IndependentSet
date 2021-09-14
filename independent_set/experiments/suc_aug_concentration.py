@@ -14,7 +14,7 @@ from independent_set.result_models.suc_aug_concentration_results import \
     SucAugConcentrationResults
 from util.graph import generate_planted_independent_set_graph
 from util.misc import validate
-from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 
@@ -29,7 +29,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
     if verbose:
         print(f"[V] Running trial {trial_num+1}")
 
-    (G, B) = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_size, "planted")
+    (G, B) = generate_planted_ind_set_graph(n, EDGE_PROBABILITY, planted_size)
 
     # ? For each epsilon value, run the experiment on the SAME Graph provided above
     for epsilon in result.epsilon_values:
@@ -46,7 +46,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
                 "intersection_oracle": lambda x : len(x.intersection(B)),
                 "epsilon": epsilon,
             },
-            seed=GraphSubsetTracker(G, set(random.sample(B, k=HEADSTART_SIZE))),
+            seed=set(random.sample(B, k=HEADSTART_SIZE)),
             post_step_hook=post_step_hook
         )
 
@@ -64,7 +64,7 @@ def _run_trial(n: int, planted_size: int, trial_num: int, verbose: bool, result:
 def suc_aug_concentration(n, min_epsilon, max_epsilon, num_trials, verbose, transient):
     #? Validate arguments
     validate(num_trials > 0, f"Cannot run experiment with ({num_trials} < 1) trials")
-    validate(min_epsilon < max_epsilon, f"min_epsilon cannot be less than max_epsilon")
+    validate(min_epsilon <= max_epsilon, f"min_epsilon cannot be less than max_epsilon")
     validate(n > 0, f"n={n} must be positive.")
     planted_size: int = planted_ind_set_size(n)
     result: SucAugConcentrationResults = SucAugConcentrationResults(n, min_epsilon, max_epsilon, num_trials, HEADSTART_SIZE, planted_size)

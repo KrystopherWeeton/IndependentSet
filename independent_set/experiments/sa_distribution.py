@@ -9,12 +9,11 @@ import sys
 import click
 
 from independent_set.heuristics.successive_augmentation import \
-    SuccessiveAugmentation
+    PruningSuccessiveAugmentation
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
-from util.graph import generate_planted_independent_set_graph
 from util.misc import validate
-from util.models.graph_subset_tracker import GraphSubsetTracker
+from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.storage import store_results
 
 
@@ -39,8 +38,8 @@ def sa_distribution(n, num_trials, verbose, transient):
     validate(n > 0, f"Unable to run experiment with non-postivie 0")
 
     #? Generate graph and then create results object
-    G, I = generate_planted_independent_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n), "planted")
-    sa: SuccessiveAugmentation = SuccessiveAugmentation(prune_final_solution=True, permute_vertices=True)
+    G, I = generate_planted_ind_set_graph(n, EDGE_PROBABILITY, planted_ind_set_size(n))
+    sa: PruningSuccessiveAugmentation = PruningSuccessiveAugmentation(permute_vertices=True)
     results: SADistributionResults = SADistributionResults(G, I, EPSILON, num_trials, HEADSTART_SIZE)
 
     for t in range(num_trials):
@@ -52,9 +51,9 @@ def sa_distribution(n, num_trials, verbose, transient):
                 "intersection_oracle": lambda x : len(x.intersection(I)),
                 "epsilon": EPSILON,
             },
-            seed=GraphSubsetTracker(G, set(random.sample(I, k=HEADSTART_SIZE)))
+            seed=set(random.sample(I, k=HEADSTART_SIZE))
         )
-        results.add_result(t, sa.node_list, sa.solution.subset)
+        results.add_result(t, sa.node_list, sa.solution)
 
     if not transient: 
         store_results("independent_set", results)
