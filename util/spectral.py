@@ -1,3 +1,5 @@
+from typing import Set
+
 import numpy as np
 
 from util.new_graph.models.graph import Graph
@@ -24,9 +26,9 @@ def adjacency_matrix_eigenvector(A: np.array, t: int) -> np.array:
     assert shape[0] == shape[1], f"Matrix provided is not square, {shape[0]} != {shape[1]}"
     assert is_symmetric(A), f"Non-symmetric matrix provided"
     w, v = np.linalg.eig(A)
-    tuples = [(w[i], v[i]) for i in range(len(w))]
-    tuples = sorted(tuples, key=lambda x: -x[0])
-    assert len(tuples) >= t, f"Not enough eigenvalues to access {t}'th eigenvector. Only {len(tuples)}"
+    seen: Set = set()
+    tuples = sorted([(w[i], v[i]) for i in range(len(w)) if w[i] not in seen and not seen.add(w[i])], key=lambda x: -x[0])
+    assert len(tuples) >= t, f"Only {len(tuples)} unique eigenvalues. Cannot access the {t}'th"
     return tuples[t][1]
 
 
