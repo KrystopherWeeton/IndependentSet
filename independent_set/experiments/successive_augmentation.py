@@ -22,8 +22,8 @@ def planted_ind_set_size(n: int) -> int:
 EDGE_PROBABILITY: float = 0.5
 EPSILON: int = 1
 HEADSTART_SIZE: int = 5
-RESTART_THRESHOLD: float = float('inf')
-RESTART_CHECKPOINT: float = float('inf')
+RESTART_THRESHOLD: int = -1
+RESTART_CHECKPOINT: int = -1
 RESTARTS_ALLOWED: int = 0
 
 

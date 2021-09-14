@@ -36,16 +36,22 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         by degree, then greedily adding vertices based on connections to all
         vertices in the set.
     """
+
     def __greedily_get_ind_subset(self, subset: GraphSubsetTracker) -> set:
-        sorted_vertices: List[int] = sorted(subset.subset, key= lambda x: subset.internal_degree(x))
+        sorted_vertices: List[int] = sorted(subset.subset, key=lambda x: subset.internal_degree(x))
         return_value: set = set()
 
         for node in sorted_vertices:
             # Check if the node connects to anything in the set.
             if count_edge_boundary(self.G, node, return_value) == 0:
                 return_value.add(node)
-        
+
         return return_value
+
+    def _reset(self):
+        # ? Do we want to restart from beginning or restart from the "headstart" if it was given?
+        if self.solution is None:
+            self.solution: GraphSubsetTracker = GraphSubsetTracker(self.G, set())
 
     def _run_heuristic(self, intersection_oracle, epsilon, restart_threshold, restart_checkpoint, restarts_allowed):
         # ? Set initial solution to empty value
@@ -69,10 +75,11 @@ class SuccessiveAugmentation(IndependentSetHeuristic):
         while i < len(self.node_list):
             # If we get to the restart checkpoint, and we're not doing better than the restart threshold, repermute the
             # vertices and start over.
-            if restarts < restarts_allowed and i >= restart_checkpoint and restart_threshold < self.solution.density():
+            if restarts < restarts_allowed and i == restart_checkpoint and restart_threshold < self.solution.density():
                 random.shuffle(self.node_list)
                 i = 0
                 restarts += 1
+                self._reset()
             v = self.node_list[i]
             if v in self.solution.subset:
                 continue
