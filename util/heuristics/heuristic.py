@@ -117,7 +117,9 @@ class Heuristic:
         Private function to actually run the heuristic which can be overwritten to 
         implement different independent_set_heuristics for improvement.
     """
+
     def _run_heuristic(self):
         raise RuntimeError("This is an abstract function. Implement in subclass.")
 
-
+    def _reset(self):
+        pass
