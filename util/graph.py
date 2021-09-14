@@ -532,3 +532,92 @@ def plant_random_hole_in_graph(G: nx.Graph, hole_size: int, anti_hole: int = -1)
             G.add_edge(h[i], h[i + 1])
         else:
             G.remove_edge(h[i], h[i + 1])
+
+
+def generate_hard_to_color_graph(n: int, construction: str = 'spinrad', make_perfect: bool = False,
+                                 verbose: bool = False) -> nx.Graph:
+    assert n > 2, "Graph needs to be larger than 2"
+
+    W = [str(v) for v in range(n - 2)]
+    W_p = [str(v) + '\'' for v in range(n - 1)]
+    W_pp = [str(v) + '\'\'' for v in range(1, n)]
+
+    # # Phase 2: Add sinks for W' and W''
+    # W_p_sink_1 = [str(v) + '\'_sink1' for v in range(n + 1)]
+    # W_p_sink_2 = [str(v) + '\'_sink2' for v in range(n + 1)]
+    # W_p_sink_3 = [str(v) + '\'_sink3' for v in range(n + 1)]
+    # W_pp_sink_1 = [str(v) + '\'\'_sink1' for v in range(n)]
+    # W_pp_sink_2 = [str(v) + '\'\'_sink2' for v in range(n)]
+    # W_pp_sink_3 = [str(v) + '\'\'_sink3' for v in range(n)]
+
+    W_p_sink_counter: int = 0
+    W_pp_sink_counter: int = 0
+
+    G: nx.Graph = nx.Graph()
+
+    for i in range(n - 1):
+        G.add_edge(W_p[i], W_pp[i])
+        for j in range(n - 1):
+            if i >= n - 2:
+                continue
+            if j < n - 1 and i != j:
+                G.add_edge(W[i], W_p[j])
+                # G.add_edge(W_pp[j], f'W_pp_sink_{W_pp_sink_counter}')
+                # W_pp_sink_counter += 1
+                # G.add_edge(W_pp[j], W_pp_sink_1[i])
+            if i <= j:
+                G.add_edge(W[i], W_pp[j])
+                # G.add_edge(W_p[j], f'W_p_sink_{W_p_sink_counter}')
+                # W_p_sink_counter += 1
+                # G.add_edge(W_p[j], W_p_sink_1[i])
+
+            # G.add_edge(W_p[j], W_p_sink_2[j])
+            # G.add_edge(W_p[j], f'W_p_sink_{W_p_sink_counter}')
+            # W_p_sink_counter += 1
+    for i in range(n - 2):
+        while nx.degree(G, W_pp[i]) < nx.degree(G, W[i]):
+            G.add_edge(W_pp[i], f'W_pp_sink_{W_pp_sink_counter}')
+            W_pp_sink_counter += 1
+
+    for i in range(n - 1):
+        while nx.degree(G, W_p[i]) < nx.degree(G, W_pp[i]):
+            G.add_edge(W_p[i], f'W_p_sink_{W_p_sink_counter}')
+            W_p_sink_counter += 1
+
+    #
+    # # build the required sequence
+    # s = [W_p[0], W_pp[0]]
+    # for i, v in enumerate(W):
+    #     s.append(v)
+    #     s.append(W_p[i])
+    #     s.append(W_pp[i])
+    #
+    # for i in range(0, len(s) - 2, 3):
+    #     v_p = s[i]
+    #     v_pp = s[i + 1]
+    #     v = s[i + 2]
+    #
+    #     while nx.degree(G, v_p) < nx.degree(G, v_pp):
+    #         G.add_edge(v_p, f'W_p_sink_{W_p_sink_counter}')
+    #         W_p_sink_counter += 1
+    #
+    #     while nx.degree(G, v_pp) < nx.degree(G, v):
+    #         G.add_edge(v_pp, f'W_pp_sink_{W_pp_sink_counter}')
+    #         W_pp_sink_counter += 1
+
+    if not make_perfect:
+        return G
+
+    for i in W_p:
+        for j in W_pp:
+            G.add_edge(i, j)
+    for i in range(n - 2):
+        while nx.degree(G, W_pp[i]) < nx.degree(G, W[i]):
+            G.add_edge(W_pp[i], f'W_pp_sink_{W_pp_sink_counter}')
+            W_pp_sink_counter += 1
+
+    for i in range(n - 1):
+        while nx.degree(G, W_p[i]) < nx.degree(G, W_pp[i]):
+            G.add_edge(W_p[i], f'W_p_sink_{W_p_sink_counter}')
+            W_p_sink_counter += 1
+    return G
