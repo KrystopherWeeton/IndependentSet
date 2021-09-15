@@ -29,14 +29,14 @@ def planted_ind_set_size(n: int) -> int:
 class CONSTANTS:
     p: int = 0.5
     headstart_size: int = 5
-    max_iterations: int = 5
-    init_epsilon: int = 3
+    max_iterations: int = 6
+    init_epsilon: int = 8
     next_epsilon: Callable = lambda x: x - 1 if x > 0 else x
 
 
 def _v_print(condition: bool, message: str):
     if condition:
-        print(f"[V]{message}")
+        print(f"[V] {message}")
 
 @click.command()
 @click.option("-n", required=True, multiple=False, type=int)
