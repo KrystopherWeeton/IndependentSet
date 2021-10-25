@@ -6,7 +6,7 @@ from util.new_graph.models.graph import Graph
 
 class RepeatedSucAugResults(Result):
 
-    result_identifier: str = "sa-distribution"
+    result_identifier: str = "rep-suc-aug"
 
     def __init__(self, n: int, num_trials: int):
         self.n = n
