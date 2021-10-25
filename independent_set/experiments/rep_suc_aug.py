@@ -18,7 +18,9 @@ from independent_set.result_models.repeated_suc_aug_results import \
 from independent_set.result_models.sa_distribution_results import \
     SADistributionResults
 from util.misc import validate
+from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.new_graph.models.graph import generate_planted_ind_set_graph
+from util.new_graph.util import greedily_recover_ind_subset
 from util.storage import store_results
 
 
@@ -29,9 +31,9 @@ def planted_ind_set_size(n: int) -> int:
 class CONSTANTS:
     p: int = 0.5
     headstart_size: int = 5
-    max_iterations: int = 6
-    init_epsilon: int = 8
-    next_epsilon: Callable = lambda x: x - 1 if x > 0 else x
+    max_iterations: int = 20
+    init_epsilon: int = 12
+    next_epsilon: Callable = lambda x: x - 2 if x > 0 else x
 
 
 def _v_print(condition: bool, message: str):
@@ -65,6 +67,7 @@ def repeated_suc_aug(n, num_trials, verbose, transient):
 
         # Define post step hook
         def post_step_hook(S: Set[int], step: int):
+            print(f"+++ {len(S.intersection(I))}/{len(S)}")
             pass
 
         alg.clear()

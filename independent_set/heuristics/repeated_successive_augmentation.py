@@ -50,7 +50,8 @@ class RepeatedSuccessiveAugmentation(IndependentSetHeuristic):
                 {"intersection_oracle": intersection_oracle, "epsilon": epsilon},
                 seed=self.solution,
             )
-            self.solution = self.successive_augmentation.solution
+            # self.solution = self.successive_augmentation.solution
+            self.solution = greedily_recover_ind_subset(self.G, GraphSubsetTracker(self.G, self.successive_augmentation.solution))
             # * Call post_step_hook
             self.call_post_step_hook(self.solution, completed_iterations)
             # * Update and prepare for next iteration
