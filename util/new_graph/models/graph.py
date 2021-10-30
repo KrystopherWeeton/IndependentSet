@@ -104,9 +104,9 @@ def add_planted_set(g: Graph, size: int, clique: bool) -> Tuple[Graph, Set[int]]
     return Graph(new_graph), planted
 
 
-def generate_planted_ind_set_graph(n: int, p: float, planted_size: int) -> Tuple[Graph, set[int]]:
+def generate_planted_ind_set_graph(n: int, p: float, planted_size: int) -> Tuple[Graph, Set[int]]:
     return add_planted_set(generate_erdos_renyi_graph(n, p), size=planted_size, clique=False)
 
 
-def generate_planted_clique_graph(n: int, p: float, planted_size: int) -> Tuple[Graph, set[int]]:
+def generate_planted_clique_graph(n: int, p: float, planted_size: int) -> Tuple[Graph, Set[int]]:
     return add_planted_set(generate_erdos_renyi_graph(n, p), size=planted_size, clique=True)

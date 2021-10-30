@@ -1,6 +1,6 @@
 import itertools
 from datetime import date
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Set, Tuple, Union
 
 import numpy as np
 
@@ -15,7 +15,7 @@ class SADistributionResults(Result):
 
     result_identifier: str = "sa-distribution"
 
-    def __init__(self, G: Graph, planted_ind_set: set[int], epsilon: int, num_trials: int, headstart_size: int):
+    def __init__(self, G: Graph, planted_ind_set: Set[int], epsilon: int, num_trials: int, headstart_size: int):
         # Store metadata
         self.G: Graph = G
         self.planted_ind_set = planted_ind_set
