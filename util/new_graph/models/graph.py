@@ -89,7 +89,7 @@ def generate_erdos_renyi_graph(n: int, p: float) -> Graph:
     return Graph(nx.erdos_renyi_graph(n=n, p=p))
 
 
-def add_planted_set(g: Graph, size: int, clique: bool) -> Tuple[Graph, set[int]]:
+def add_planted_set(g: Graph, size: int, clique: bool) -> Tuple[Graph, Set[int]]:
     """
     Returns a copy of the graph with a planted set that is either a clique
     or an independent set, controlled by the `clique` flag.
