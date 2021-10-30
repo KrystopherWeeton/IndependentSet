@@ -32,13 +32,13 @@ many runs hit a certain threshold at this point, and what happens to the runs
 which hit this threshold.
 """
 def random_restart_point(n: int) -> int:
-    return int(n/math.log2(n))
+    return int(n/4)
 
 """
 The threshold, under which we 'throw away' results
 """
 def random_restart_threshold(s: int) -> int:
-    return int(math.sqrt(s))
+    return 2 * int(math.sqrt(s))
 
 
 @click.command()
