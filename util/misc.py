@@ -1,5 +1,7 @@
 import inspect
-from typing import Callable, List
+from typing import Callable, List, Tuple
+
+import numpy as np
 
 
 def round_all_values(M: List[List[float]], num_points: int) -> List[List[float]]:
@@ -9,6 +11,19 @@ def round_all_values(M: List[List[float]], num_points: int) -> List[List[float]]
         ]
         for row in M
     ]
+
+
+def guess_timing(recorded: List[float], num_trials: int) -> Tuple[float, float, float, float]:
+    """
+    Guesses the timing for an iterated experiment. Returns (completed, remaining, upper_remaining, total) as
+    four integers, where the last three are guessed (upper_remaining is remaining +2 std. dev of the completed as a rough
+    upper bound).
+    """
+    assert num_trials >= len(recorded), "Can not guess timing with more recorded trials than num_trials"
+    trial_avg: float = np.mean(recorded)
+    std_dev: float = np.std(recorded)
+    remaining_trials: int = num_trials - len(recorded)
+    return (sum(recorded), trial_avg * remaining_trials, trial_avg * remaining_trials + 2 * std_dev, trial_avg * num_trials)
 
 
 def source_code(callable: Callable, skip_header: bool = True, strip_lines: bool = True) -> List[str]:

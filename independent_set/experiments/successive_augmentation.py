@@ -5,12 +5,15 @@ import math
 import pstats
 import random
 import sys
+import time
+from typing import List
 
 import click
 
 from independent_set.heuristics.successive_augmentation import \
     SuccessiveAugmentation
 from independent_set.result_models.sa_results import SuccAugResults
+from util.misc import guess_timing
 from util.models.graph_subset_tracker import GraphSubsetTracker
 from util.new_graph.models.graph import generate_planted_ind_set_graph
 from util.new_graph.models.ind_boundary_ind_set_graph import \
@@ -32,9 +35,9 @@ def run_successive_augmentation(n, num_trials, verbose) -> SuccAugResults:
         n, planted_ind_set_size(n), EPSILON, num_trials, HEADSTART_SIZE
     )
     sa: SuccessiveAugmentation = SuccessiveAugmentation(verbose=True)
+    timings: List[float] = []
     for t in results:
-        if verbose:
-            print(f"[V] Running trial {t + 1} / {num_trials}")
+        start: float = time.time()
 
         # Construct graph and run experiment
         (G, B) = generate_planted_ind_set_model(n, EDGE_PROBABILITY, planted_ind_set_size(n))
@@ -55,9 +58,12 @@ def run_successive_augmentation(n, num_trials, verbose) -> SuccAugResults:
         #? Gather final results and store
         intersection_size: int = len(sa.solution.intersection(B))
         size: int = len(sa.solution)
-        if verbose:
-            print(f"[V] Size={size}, Intersection Size={intersection_size}")
         results.add_final_results(size, intersection_size)
+        end: float = time.time()
+        timings.append(end - start)
+        completed, remaining, upper_bound, total = guess_timing(timings, num_trials)
+        if verbose:
+            print(f"[V] {t+1} / {num_trials}\tElapsed: {completed:.2f}\tRemaining: {remaining:.2f} ({upper_bound:.2f})\tTotal: {total:.2f}\tSize: {size}\tIntersection: {intersection_size}")
     return results
 
 
