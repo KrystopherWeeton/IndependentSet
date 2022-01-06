@@ -27,13 +27,3 @@ class Instance:
     def neighbors(self, v: Solution) -> List[Solution]:
         raise NotImplementedError("Create instance subclass")
     
-    def __hash__(self):
-        raise NotImplementedError("Create instance subclass")
-
-    def __eq__(self, other):
-        raise NotImplementedError("Create instance subclass")
-
-    @staticmethod
-    def generate_random_instance(n: int) -> "Instance":
-        raise NotImplementedError("Create instance subclass")
-
