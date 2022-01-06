@@ -4,6 +4,7 @@ from copy import copy, deepcopy
 from typing import Iterator, List, Set, Tuple
 
 import networkx as nx
+import numpy as np
 
 from util.new_graph.models.abstract_graph import AbstractGraph
 
@@ -82,6 +83,9 @@ class Graph(AbstractGraph):
     def neighbors(self, v: int) -> Iterator:
         return self._graph.neighbors(v)
 
+
+    def adjacency_matrix(self) -> np.array:
+        return nx.adjacency_matrix(self._graph).toarray()
 
 
 def generate_erdos_renyi_graph(n: int, p: float) -> Graph:

@@ -2,6 +2,7 @@ import itertools
 from typing import Iterator, List, Set, Tuple
 
 import networkx as nx
+import numpy as np
 
 
 class AbstractGraph(object):
@@ -64,4 +65,7 @@ class AbstractGraph(object):
 
     def neighbors(self, v: int) -> Iterator:
         raise NotImplementedError()
-    
+
+
+    def adjacency_matrix(self) -> np.array: 
+        raise NotImplementedError()
