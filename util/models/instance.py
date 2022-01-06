@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 from util.models.solution import Solution
 
