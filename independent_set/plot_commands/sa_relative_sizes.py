@@ -2,6 +2,7 @@ import inspect
 import math
 import os
 import sys
+from dataclasses import dataclass
 from decimal import *
 from typing import Callable, List, Set, Tuple
 
@@ -41,45 +42,7 @@ def random_restart_threshold(s: int) -> int:
     return 2 * int(math.sqrt(s))
 
 
-@click.command()
-@click.option(
-    "--today",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Flag to set file name to load to today's file name.",
-)
-@click.option(
-    "--file-name",
-    required=False,
-    help="The file name to save the graph as. Prompt will be provided if option not provided.",
-)
-@click.option(
-    "--transient",
-    required=False,
-    is_flag=True,
-    default=False,
-    help="Shows the plot instead of saving.",
-)
-@click.option(
-    "--directory-name",
-    required=True,
-    is_flag=False,
-    help="The directory to store the plots in"
-)
-def plot_relative_sizes(today, file_name, transient, directory_name):
-    validate(transient or (directory_name is not None), 
-        f"The transient flag should be passed, or a valid directory name should be provided.")
-    """
-    Plots a graph of the sizes / intersections of successive augmentation algorithm, along with an optional
-    graph for some function of the size. Can be useful to compare whether the intersection maintains this
-    function on average (can be used for inductive w.h.p proof potentially?)
-    """
-    # ? Load results and generate file name if not set
-    results: SuccAugResults = verify_and_load_results_v2(SuccAugResults, "independent_set", today)
-    if not transient:
-        directory_name = file_util.create_dir_in_experiment_results_directory(directory_name, "independent_set")
-
+def plot_overview(transient: bool, directory_name: str, results: SuccAugResults):
     #* (PLOT 1) All runs overlayed onto a graph. Every piece of information
     plot.initialize_figure("Step", "Subset / Intersection Size", "Relative Intersection / Size", (40, 16))
     # ? Plot lines for actual results
@@ -88,6 +51,7 @@ def plot_relative_sizes(today, file_name, transient, directory_name):
         plot_series(results.step_values, sizes, SIZE_FORMATTING)
         plot_series(results.step_values, intersection_sizes, INTERSECTION_FORMATTING)
     results.for_each_trial_results(f)
+    plot_series(results.step_values, [3 * math.sqrt(x) for x in results.step_values], Formatting("orange", 1))
     plot.add_notes(
         f"Graph Size: {results.n}\nPlanted Size: {results.planted_size}\n",
         0.05,
@@ -106,6 +70,8 @@ def plot_relative_sizes(today, file_name, transient, directory_name):
     plot_series(results.step_values, mean_invariant, LINE_FORMATTING)
     plot.show_or_save(transient, f"{directory_name}/mean-case", "independent_set")
 
+
+def plot_fixed_threshold(transient: bool, directory_name: str, results: SuccAugResults):
     #* (ANALYSIS) A bit of simple calculations on the portions
     #* (Plot 3) All the 'good' runs, those that hit the threshold
     #* (Plot 4) All the 'bad' runs, those that didn't hit the threshold
@@ -172,3 +138,113 @@ def plot_relative_sizes(today, file_name, transient, directory_name):
     add_runs_to_plot(non_threshold_runs)
     plot.add_notes(note, 0.05, 0.8)
     plot.show_or_save(transient, f"{directory_name}/non-threshold-runs", "independent_set")
+
+
+def plot_varied_threshold(transient: bool, directory_name: str, results: SuccAugResults):
+    #* PLOT 4 (Fixed random restart point, vary the threshold and see, at that threshold, how many runs are ultimately successful)
+    def threshold_metric(s: int, intersection: int) -> float:
+        # We are using the intersection as the thing we want to measure for the threshold, may try
+        # to adjust to size to see if that can fix at least 1/2 of our issues requiring oracles.
+        return intersection
+    
+    def threshold_range() -> List[int]:
+        # The values that the threshold can take
+        return list(range(100))
+
+    @dataclass
+    class RestartData:
+        size: int
+        intersection: int
+        trial_number: int
+
+    restart_cache: List[RestartData] = []
+    restart_point: int = random_restart_point(results.n)
+    invariant_runs: Set[int] = set()
+    def parse_run(trial_num: int, sizes: List[int], intersection_sizes: List[int]):
+        nonlocal restart_cache, invariant_runs
+        restart_cache.append(RestartData(size=sizes[restart_point], intersection=intersection_sizes[restart_point], trial_number=trial_num))
+        invariant_data: List[int] = [invariant(x) for x in sizes]
+        maintains_invariant: bool = all([intersection_sizes[i] >= invariant_data[i] for i in range(len(sizes))])
+        if maintains_invariant:
+            invariant_runs.add(trial_num)
+    results.for_each_trial_results(parse_run)
+    
+    def get_threshold_runs(threshold: int) -> Set[int]:
+        good_runs: List[RestartData] = [x.trial_number for x in restart_cache if threshold_metric(x.size, x.intersection) >= threshold]
+        return set(good_runs)
+
+    plot.initialize_figure("Threshold", "# Runs", "# of runs satisfying invariant from those with metric above threshold and below", (40, 16))
+    threshold_values: List[int] = threshold_range()
+    threshold_runs_series: List[int] = []
+    not_threshold_runs_series: List[int] = []
+    threshold_runs_satisfing_invariant_series: List[int] = []
+    not_threshold_runs_satisfying_invariant_series: List[int] = []
+
+    trial_values_set: Set[int] = set(results.trial_values)
+    for threshold in threshold_values:
+        threshold_runs: List[int] = get_threshold_runs(threshold)
+        not_threshold_runs: Set[int] = trial_values_set.difference(threshold_runs)
+        threshold_runs_series.append(len(threshold_runs))
+        not_threshold_runs_series.append(len(not_threshold_runs))
+        threshold_runs_satisfing_invariant_series.append(len(threshold_runs.intersection(invariant_runs)))
+        not_threshold_runs_satisfying_invariant_series.append(len(not_threshold_runs.intersection(invariant_runs)))
+    
+    note: str =  f"""
+                    Threshold Range: {source_code(threshold_range)}\n
+                    Threshold Metric: {source_code(threshold_metric)}\n
+                    Invariant: {source_code(invariant)[0]}\n
+                    Random restart point: {source_code(random_restart_point)[0]}\n
+                """
+                
+    plot.add_notes(note, 0.05, 0.8)
+    plot_series(threshold_values, threshold_runs_series, Formatting("green", 0.5, None, False, None, "Runs satisfying threshold", 1))
+    plot_series(threshold_values, not_threshold_runs_series, Formatting("red", 0.5, None, False, None, "Runs not satisfying threshold", 1))
+    plot_series(threshold_values, threshold_runs_series, Formatting("blue", 0.5, None, False, None, "Runs satisfying threshold and invariant", 1))
+    plot_series(threshold_values, threshold_runs_series, Formatting("yellow", 0.5, None, False, None, "Runs not satisfying threshold, but satisfying invariant", 1))
+    plot.draw_legend()
+    plot.show_or_save(transient, f"{directory_name}/varying-threshold", "independent_set")
+
+
+@click.command()
+@click.option(
+    "--today",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Flag to set file name to load to today's file name.",
+)
+@click.option(
+    "--file-name",
+    required=False,
+    help="The file name to save the graph as. Prompt will be provided if option not provided.",
+)
+@click.option(
+    "--transient",
+    required=False,
+    is_flag=True,
+    default=False,
+    help="Shows the plot instead of saving.",
+)
+@click.option(
+    "--directory-name",
+    required=True,
+    is_flag=False,
+    help="The directory to store the plots in"
+)
+def plot_relative_sizes(today, file_name, transient, directory_name):
+    validate(transient or (directory_name is not None), 
+        f"The transient flag should be passed, or a valid directory name should be provided.")
+    """
+    Plots a graph of the sizes / intersections of successive augmentation algorithm, along with an optional
+    graph for some function of the size. Can be useful to compare whether the intersection maintains this
+    function on average (can be used for inductive w.h.p proof potentially?)
+    """
+    # ? Load results and generate file name if not set
+    results: SuccAugResults = verify_and_load_results_v2(SuccAugResults, "independent_set", today)
+    if not transient:
+        directory_name = file_util.create_dir_in_experiment_results_directory(directory_name, "independent_set")
+
+    #plot_overview(transient, directory_name, results)
+    #plot_fixed_threshold(transient, directory_name, results)
+    # Skip these for noew for testing.
+    plot_varied_threshold(transient, directory_name, results)
