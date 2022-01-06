@@ -10,13 +10,10 @@ from util.new_graph.models.graph import Graph
 
 
 def map_entire_search_space(instance: Instance, seed: Solution) -> Graph:
-    q: SimpleQueue = SimpleQueue()
-    q.put()
-    pass
+    return bfs(instance, None)
 
 def bfs_map_search_space(instance: Instance, max_steps: int) -> Graph:
-    pass
-
+    return bfs(instance, max_steps)
 
 
 def bfs(instance: Instance, seed: Solution, max_steps: int) -> Graph:
@@ -26,7 +23,8 @@ def bfs(instance: Instance, seed: Solution, max_steps: int) -> Graph:
     explored: Set = set()
     validate(instance.validate_solution_type(seed), "Solution provided has the incorrect type")
     q.put(seed)
-    while not q.empty():
+    steps: int = 0
+    while not q.empty() and (max_steps is None or steps < max_steps):
         s: Solution = q.get()
         # Add s if not already present in (in memory) graph
         if s not in graph_map:
@@ -41,4 +39,6 @@ def bfs(instance: Instance, seed: Solution, max_steps: int) -> Graph:
             g.add_edge(graph_map[n], graph_map[s])
             if n not in explored:
                 q.put(n)
+        steps += 1
         explored.add(s) 
+    return Graph(g)
