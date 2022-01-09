@@ -4,9 +4,11 @@
 using namespace std;
 
 int main() {
-    std::ofstream os("out.cereal", std::ios::binary);
-    cereal::BinaryOutputArchive archive = cereal::BinaryOutputArchive(os);
-    std::string s1 = "Hello World!";
-    archive(s1);
+    {
+        std::ofstream os("out.cereal", std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        int x = 1;
+        archive(x);
+    }
     return 0;
 }

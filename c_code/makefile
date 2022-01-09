@@ -1,4 +1,4 @@
-CCX=gcc 
+CCX=g++ 
 
 # Include lib/ folder for library imports in files and use c++11
 FLAGS=-I lib -std=c++11
@@ -16,3 +16,6 @@ serialization: utility/serialization.cpp
 
 clean:
 	rm -r build/*.out
+
+clean_cereal:
+	rm -r *.cereal
