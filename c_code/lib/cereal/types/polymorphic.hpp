@@ -38,7 +38,7 @@
 #include "cereal/details/traits.hpp"
 #include "cereal/details/polymorphic_impl.hpp"
 
-#if defined(_MSC_VER) && _MSC_VER < 1916
+#ifdef _MSC_VER
 #define CEREAL_STATIC_CONSTEXPR static
 #else
 #define CEREAL_STATIC_CONSTEXPR static constexpr

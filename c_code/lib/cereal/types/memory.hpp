@@ -263,7 +263,7 @@ namespace cereal
   {
     auto & ptr = wrapper.ptr;
 
-    uint32_t id = ar.registerSharedPointer( ptr );
+    uint32_t id = ar.registerSharedPointer( ptr.get() );
     ar( CEREAL_NVP_("id", id) );
 
     if( id & detail::msb_32bit )

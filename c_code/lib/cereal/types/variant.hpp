@@ -54,24 +54,25 @@ namespace cereal
     };
 
     //! @internal
-    template<int N, class Variant, class Archive>
+    template<int N, class Variant, class ... Args, class Archive>
     typename std::enable_if<N == std::variant_size_v<Variant>, void>::type
     load_variant(Archive & /*ar*/, int /*target*/, Variant & /*variant*/)
     {
       throw ::cereal::Exception("Error traversing variant during load");
     }
     //! @internal
-    template<int N, class Variant, class Archive>
+    template<int N, class Variant, class H, class ... T, class Archive>
     typename std::enable_if<N < std::variant_size_v<Variant>, void>::type
     load_variant(Archive & ar, int target, Variant & variant)
     {
       if(N == target)
       {
-        variant.template emplace<N>();
-        ar( CEREAL_NVP_("data", std::get<N>(variant)) );
+        H value;
+        ar( CEREAL_NVP_("data", value) );
+        variant = std::move(value);
       }
       else
-        load_variant<N+1>(ar, target, variant);
+        load_variant<N+1, Variant, T...>(ar, target, variant);
     }
 
   } // namespace variant_detail
@@ -97,7 +98,7 @@ namespace cereal
     if(index >= static_cast<std::int32_t>(std::variant_size_v<variant_t>))
       throw Exception("Invalid 'index' selector when deserializing std::variant");
 
-    variant_detail::load_variant<0>(ar, index, variant);
+    variant_detail::load_variant<0, variant_t, VariantTypes...>(ar, index, variant);
   }
 
   //! Serializing a std::monostate

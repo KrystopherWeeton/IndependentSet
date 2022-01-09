@@ -1,4 +1,15 @@
-CCX=clang++ 
+CCX=gcc 
+FLAGS=-I lib/
 
-all: cpu memory network
-#this depends on the rul cpu_funcs and file cpu/main.cpp
+all: main utility
+
+utility: serialization
+
+main: main.cpp
+	$(CCX) $(FLAGS) main.cpp -o build/main.out
+
+serialization: utility/serialization.cpp
+	$(CCX) $(FLAGS) utility/serialization.cpp -o build/serialization.out
+
+clean:
+	rm -r build/*.out

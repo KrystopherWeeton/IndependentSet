@@ -44,7 +44,7 @@
     License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
     http://www.boost.org/LICENSE_1_0.txt) */
 
-#if defined(_MSC_VER) && !defined(__clang__)
+#ifdef _MSC_VER
 #   define CEREAL_DLL_EXPORT __declspec(dllexport)
 #   define CEREAL_USED
 #else // clang or gcc
@@ -94,8 +94,7 @@ namespace cereal
             std::unique_lock<std::mutex> lock;
           #else
           public:
-            LockGuard() = default;
-            LockGuard(LockGuard const &) = default; // prevents implicit copy ctor warning
+	          LockGuard(LockGuard const &) = default; // prevents implicit copy ctor warning
             ~LockGuard() CEREAL_NOEXCEPT {} // prevents variable not used
           #endif
         };
