@@ -1,5 +1,8 @@
 CCX=gcc 
-FLAGS=-I lib/
+
+# Include lib/ folder for library imports in files and use c++11
+FLAGS=-I lib -std=c++11
+
 
 all: main utility
 
