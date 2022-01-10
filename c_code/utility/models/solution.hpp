@@ -1,4 +1,5 @@
-
+#ifndef _SOLUTION_
+#define _SOLUTION_
 
 /*[markdown]
 * The *abstract* parent class for a problem "solution", which defines the expected format for
@@ -22,3 +23,5 @@ class Solution {
         virtual bool equal_to(const Solution& s) const;
 
 };
+
+#endif

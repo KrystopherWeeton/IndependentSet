@@ -1,6 +1,10 @@
+#ifndef _INSTANCE_
+#define _INSTANCE_
+
 #include "solution.hpp"
 
 #include <set>
+
 
 /*[markdown]
 * The *abstract* parent class for a problem "instance", which defines generation, and search space
@@ -23,6 +27,9 @@ class Instance {
 
         virtual void generate_instance();
         virtual bool seed();
-        virtual std::set<S> neighbors(S vertex);
+        virtual std::set<S> neighbors(S s);
+        virtual std::iterator<std::output_iterator_tag, S> neighbors_iterator(S s);
 
 };
+
+#endif

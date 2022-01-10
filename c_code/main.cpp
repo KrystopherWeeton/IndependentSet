@@ -6,6 +6,8 @@
 #include <algorithm>
 
 #include "utility/models/solution.hpp"
+#include "utility/models/instance.hpp"
+#include "utility/models/solution_space.hpp"
 
 using namespace std;
 

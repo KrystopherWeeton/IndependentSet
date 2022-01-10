@@ -4,13 +4,8 @@ CCX=g++
 FLAGS=-I lib -std=c++11
 
 
-main: main.cpp utility
+main: main.cpp
 	$(CCX) $(FLAGS) main.cpp -o build/main.o
-
-utility: serialization
-
-serialization: utility/serialization.cpp
-	$(CCX) $(FLAGS) -c utility/serialization.cpp -o build/serialization.o
 
 clean:
 	rm -r build/*.o
