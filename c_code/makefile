@@ -4,18 +4,20 @@ CCX=g++
 FLAGS=-I lib -std=c++11
 
 
-all: main utility
+main: main.cpp utility
+	$(CCX) $(FLAGS) main.cpp -o build/main.o
 
 utility: serialization
 
-main: main.cpp
-	$(CCX) $(FLAGS) main.cpp -o build/main.out
-
 serialization: utility/serialization.cpp
-	$(CCX) $(FLAGS) utility/serialization.cpp -o build/serialization.out
+	$(CCX) $(FLAGS) -c utility/serialization.cpp -o build/serialization.o
 
 clean:
-	rm -r build/*.out
+	rm -r build/*.o
 
 clean_cereal:
 	rm -r *.cereal
+
+reset:
+	make clean
+	make
