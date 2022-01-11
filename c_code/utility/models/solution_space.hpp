@@ -75,9 +75,9 @@ class SolutionSpace {
             try {
                 return this->neighborhood_cache.query(v);
             } catch (CacheMissException& e) {
-                neighbors = v.neighbors();
-                this->neighborhood_cache.add(v, neighbors);
-                return neighbors;
+                set<S> N = v.neighbors();
+                this->neighborhood_cache.add(v, N);
+                return N;
             }
         }
 

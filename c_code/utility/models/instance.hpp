@@ -25,8 +25,7 @@ class Instance {
             static_assert(std::is_base_of<Solution, S>::value, "template S is not subclass of Solution");
         }
 
-        virtual void generate_instance();
-        virtual bool seed();
+        static Instance generate_instance();
 
 
         /*
