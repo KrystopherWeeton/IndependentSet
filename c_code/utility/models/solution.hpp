@@ -22,6 +22,9 @@ class Solution {
         /* Function to determine equality of Solutions */
         virtual bool equal_to(const Solution& s) const;
 
+        virtual std::set<Solution> neighbors();
+        virtual std::iterator<std::output_iterator_tag, Solution> neighbors_begin();
+        virtual std::iterator<std::output_iterator_tag, Solution> neighbors_end();
 };
 
 #endif

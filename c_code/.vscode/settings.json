@@ -75,6 +75,26 @@
         "utility": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "clocale": "cpp",
+        "codecvt": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "future": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "strstream": "cpp",
+        "thread": "cpp",
+        "*.ipp": "cpp",
+        "*.tcc": "cpp",
+        "concepts": "cpp",
+        "memory_resource": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp"
     }
 }

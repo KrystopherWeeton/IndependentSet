@@ -27,9 +27,17 @@ class Instance {
 
         virtual void generate_instance();
         virtual bool seed();
-        virtual std::set<S> neighbors(S s);
-        virtual std::iterator<std::output_iterator_tag, S> neighbors_iterator(S s);
 
+
+        /*
+        * Queries an edge from source to dest.
+        *   WARNING: Very inefficient implementation for most solution spaces. Overwrite
+        *   with more efficient implementation in most cases.
+        */
+        bool edge(S source, S dest) {
+            std::set<S> neighbors = source.neighbors();
+            return neighbors.find(dest) != neighbors.end();
+        }
 };
 
 #endif
