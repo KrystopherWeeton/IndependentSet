@@ -4,6 +4,7 @@
 #include <string>
 #include <set>
 #include <stdexcept>
+#include <stdio.h>
 
 using namespace std;
 
@@ -13,28 +14,59 @@ using namespace std;
 class Subset {
     private:
         int N;
-        int* indicator_arr;
-        int* element_arr;
+        int* indicator_arr = nullptr;
+        int* element_arr = nullptr;
         int size;
+
+        void free() {
+            delete[] indicator_arr;
+            delete[] element_arr;
+            indicator_arr = nullptr;
+            element_arr = nullptr;
+        }
+
+        void alloc(int N) {
+            this->N = N;
+            indicator_arr = new int[ N ];
+            element_arr = new int [ N ];
+        }
 
     public:
 
 
         Subset(int N) {
-            this->N = N;
-            this->size = 0;
-            this->indicator_arr = new int[ N ];
-            this->element_arr = new int[ N ];
+            alloc(N);
+            empty();
         }
 
         ~Subset() {
-            delete this->indicator_arr;
-            delete this->element_arr;
+            free();
+        }
+
+        Subset(const Subset &old_obj) {
+            alloc(N);
+            for (int i = 0; i < this->N; i++) {
+                this->indicator_arr[i] = old_obj.indicator_arr[i];
+                this->element_arr[i] = old_obj.element_arr[i];
+            }
+            this->size = old_obj.size;
+        }
+
+        Subset& operator=(const Subset &other) {
+            if (this == &other) return *this;
+            free();
+            alloc(N);
+            for (int i = 0; i < this->N; i++) {
+                this->indicator_arr[i] = other.indicator_arr[i];
+                this->element_arr[i] = other.element_arr[i];
+            }
+            this->size = other.size;
+            return *this;
         }
 
         /* Testing / query functions */
         int is_empty() { return this->size == 0; }
-        int get_size() { return this -> size; } 
+        int get_size() { return this->size; } 
         bool is_in_subset(int i);
 
         /* Modification functions */
@@ -48,8 +80,11 @@ class Subset {
 
 void Subset::empty() {
     /* Zero out entire memory segment for appropriate arrays */
-    fill(this->indicator_arr, this->indicator_arr + N, -1);
-    fill(this->element_arr, this->indicator_arr + N, -1);
+    for (int i = 0; i < N; i++) {
+        this->indicator_arr[i] = -1;
+        this->element_arr[i] = -1;
+    }
+    this->size = 0;
 }
 
 void Subset::set_value(set<int> subset) {

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+make tests
+./build/tests.o --detect_memory_leaks=1
