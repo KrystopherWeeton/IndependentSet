@@ -76,6 +76,7 @@ bool Subset::add(int i) {
     this->element_arr[this->size] = i;      // Add to list of elements
     this->indicator_arr[i] = this->size;    // Indicate position in list in ind-arr
     this->size++;                           // Update appropriate size
+    return true;
 }
 
 
@@ -89,7 +90,7 @@ bool Subset::remove(int j) {
     if (this->size == 1) {
         // This is the last element, 
         // lazily clear out list by just setting size
-        this->size == 0;
+        this->size = 0;
     } else {
         // Move element at end of list to j's location in list
         // then update indicator arr for last element and lazily
@@ -99,12 +100,12 @@ bool Subset::remove(int j) {
         this->indicator_arr[last_element] = j_loc;
         this->size--;
     }
+    return true;
 }
 
 
 bool Subset::swap(int to_add, int to_remove) {
-    this->add(to_add);
-    this->remove(to_remove);
+    return this->add(to_add) && this->remove(to_remove);
 }
 
 #endif

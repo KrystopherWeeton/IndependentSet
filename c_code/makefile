@@ -14,7 +14,7 @@ random: utility/random.cpp
 
 
 tests: tests/utility_tests/*.cpp
-	$(CCX) $(LDFLAGS) -DBOOST_TEST_DYN_LINK -lboost_unit_test_framework tests/utility_tests/*.cpp -o build/tests.o
+	$(CCX) $(FLAGS) $(LDFLAGS) -DBOOST_TEST_DYN_LINK -lboost_unit_test_framework tests/utility_tests/*.cpp -o build/tests.o
 
 clean:
 	rm -r build/*.o
