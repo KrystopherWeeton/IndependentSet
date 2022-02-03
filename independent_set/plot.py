@@ -1,6 +1,7 @@
 #!env/bin/python3
 import click
 
+from independent_set.plot_commands.convergence_plot import convergence_plot
 from independent_set.plot_commands.heuristic_graph import \
     plot_heuristics_graphs
 from independent_set.plot_commands.sa_concentration import \
@@ -23,6 +24,7 @@ ind_set.add_command(plot_sa_triangles)
 ind_set.add_command(plot_sa_concentration)
 ind_set.add_command(sa_dist)
 ind_set.add_command(plot_relative_sizes)
+ind_set.add_command(convergence_plot)
 
 if __name__ == "__main__":
     ind_set()

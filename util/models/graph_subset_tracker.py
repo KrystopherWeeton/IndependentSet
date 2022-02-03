@@ -1,6 +1,6 @@
 import copy
 import random as random
-from typing import List, Tuple
+from typing import List, Set, Tuple
 
 import util.formulas as formulas
 from util.graph import count_edge_boundary
@@ -23,7 +23,7 @@ class GraphSubsetTracker(Solution):
             self.initialize(G, initial_subset)
     
 
-    def initialize(self, G: Graph, initial_subset: set):
+    def initialize(self, G: Graph, initial_subset: Set[int]):
         """ Initializes the graph subset tracker if not already initialized """
         #? Check arguments
         if not isinstance(initial_subset, set):

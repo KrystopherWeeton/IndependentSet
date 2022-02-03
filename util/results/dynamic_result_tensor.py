@@ -15,9 +15,9 @@ def next_power_of_2(x):
 
 class DynamicResultTensor:
     def __init__(self):
-        self.__dimension_names: [str] = []
-        self.__dimension_sizes: [int] = []
-        self.__dimension_keys: [[int]] = []
+        self.__dimension_names: List[str] = []
+        self.__dimension_sizes: List[int] = []
+        self.__dimension_keys: List[List[int]] = []
         self.__dimension_indices: dict = {}
         self.__num_dimensions = 0
 
