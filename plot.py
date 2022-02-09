@@ -1,8 +1,10 @@
 #!env/bin/python3
 import click
 
-from independent_set.plot import ind_set
+from error_correcting_codes.plot import ecc
 from graph_coloring.plot import coloring
+from independent_set.plot import ind_set
+
 
 @click.group()
 def run():
@@ -10,6 +12,7 @@ def run():
 
 run.add_command(ind_set)
 run.add_command(coloring)
+run.add_command(ecc)
 
 if __name__ == "__main__":
     run()
