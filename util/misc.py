@@ -1,5 +1,5 @@
 import inspect
-from typing import Callable, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 
@@ -51,3 +51,10 @@ def pull_values(d: dict, *args) -> List:
     """
     validate(all([key in d.keys() for key in args]), f"Can't pull {args} from {d} because a key wasn't found.")
     return [d[key] for key in args]
+
+
+def construct_list_map(list: List) -> Dict:
+    """
+    Constructs a map from value -> index for the list provided
+    """
+    return { list[i]: i for i in range(len(list))}

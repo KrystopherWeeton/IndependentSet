@@ -7,10 +7,14 @@ from error_correcting_codes.models.algorithms.algorithm import Algorithm
 from error_correcting_codes.models.algorithms.greedy import Greedy
 from error_correcting_codes.models.ldpc import LDPC
 from error_correcting_codes.models.message_tracker import MessageTracker
+from error_correcting_codes.models.results.correction_heatmap_results import \
+    CorrectionHeatmapResults
 from util.random import coin_flip
+from util.storage import store_results
 
 # min, max, step
 P_RANGE = np.arange(0.00, 1, 0.05)
+D_RANGE = np.arange(1, 6, 3)
 NUM_TRIALS: int = 10
 N: int = 100
 D: int = 6
@@ -42,11 +46,25 @@ def run_trial(n: int, m: int, d: int, p: float, t: int):
 
     # See how long the greedy algorithm took / how close it got (hamming distance)
     sol: MessageTracker = ALG.get_solution()
-    print(f"p={p:.2f}\tt={t}: {sol.get_num_parities_satisifed()} / {sol.get_num_parities()}")
+    return sol.get_num_parities_satisifed()
 
 
 @click.command()
-def run_correction_heatmap():
-    for p in P_RANGE:
-        for t in range(NUM_TRIALS):
-            run_trial(N, N // 2, D, p, t)
+@click.option("--transient", required=False, default=False, is_flag=True)
+@click.option("--verbose", required=False, is_flag=True, default=False)
+def run_correction_heatmap(transient, verbose):
+    p_values = list(P_RANGE)
+    d_values = list(D_RANGE)
+    results: CorrectionHeatmapResults = CorrectionHeatmapResults(N, d_values, p_values, NUM_TRIALS)
+
+    for p in p_values:
+        for d in d_values:
+            for t in range(NUM_TRIALS):
+                parities_satisfied = run_trial(N, N // 2, d, p, t)
+                results.add_result(d, p, t, parities_satisfied)
+                if verbose:
+                    print(f"[V] {results.collected_results} / {results.total_results}")
+    
+
+    if not transient:
+        store_results("error_correcting_codes", results)

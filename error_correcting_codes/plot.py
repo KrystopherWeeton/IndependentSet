@@ -1,5 +1,7 @@
 import click
-from commands.correction_heatmap.plot import plot_correction_heatmap
+
+from error_correcting_codes.commands.correction_heatmap.plot import \
+    plot_correction_heatmap
 
 
 @click.group()

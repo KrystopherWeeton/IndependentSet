@@ -32,7 +32,7 @@ Draws a heatmap of results.
 def graph_heatmap(
     x: List[int], 
     y: List[int], 
-    z: List[int], 
+    z: List[List[int]], 
     min: int = None, 
     max: int = None, 
     color: HeatMapColor = HeatMapColor.REDS,
