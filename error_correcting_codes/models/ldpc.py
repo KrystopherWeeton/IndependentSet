@@ -33,7 +33,9 @@ class LDPC:
             Returns an array of length self.num_parities as 
             an indicator for whether parities are satisfied
         """
-        return np.mod(np.matmul(self._ldpc_matrix, msg), 2)
+        # Use Steven shortcut to fix the indicator array, as without it 0's are used to indicate
+        # satisfied parities
+        return np.array([1] * self.num_parities) - np.mod(np.matmul(self._ldpc_matrix, msg), 2)
     
 
     def num_parities_satisfied(self, msg: np.array) -> int:

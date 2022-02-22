@@ -70,7 +70,6 @@ class MessageTracker(Solution):
         # Calculate swap parity count list
         self._satisfied_change_list: np.array = np.array([0] * self._msg_len)
         for c in self.code.get_constraints():
-            print(self._satisfied_indicator[c])
             if self._satisfied_indicator[c] == 1:
                 # If satisfied, swapping would remove a satisfied parity constraint
                 for j in self.code.get_indices_in_constraint(c):
@@ -81,7 +80,13 @@ class MessageTracker(Solution):
                     self._satisfied_change_list[j] += 1
 
     def get_message(self) -> List[int]:
-        return copy(self._message)
+        return copy(self._message.tolist())
+    
+    def get_message_string(self) -> str:
+        return "".join([str(x) for x in self.get_message()])
+    
+    def msg_len(self) -> int:
+        return len(self._message)
 
     def get_num_parities_satisfied_by_swap(self, index: int) -> int:
         if index < 0 or index >= self._msg_len:
