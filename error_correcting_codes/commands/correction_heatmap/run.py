@@ -13,10 +13,10 @@ from util.random import coin_flip
 from util.storage import store_results
 
 # min, max, step
-P_RANGE = np.arange(0.00, 1, 0.05)
-D_RANGE = np.arange(1, 6, 3)
-NUM_TRIALS: int = 10
-N: int = 100
+P_RANGE = np.arange(0.00, 1, 0.01)
+D_RANGE = np.arange(1, 12, 1)
+NUM_TRIALS: int = 25
+N: int = 1000
 D: int = 6
 
 ALG: Algorithm = Greedy(verbose=False, debug=False)

@@ -35,7 +35,7 @@ def plot_correction_heatmap(today, file_name, transient):
     matrix = results.get_heatmap_data()
     d_values: List[int] = results.d_values
     p_values: List[float] = results.p_values
-    heatmap.graph_heatmap([f"{x:.2f}" for x in p_values], d_values, matrix)
+    heatmap.graph_heatmap([f"{x:.2f}" for x in p_values], d_values, matrix, include_annotation=False)
 
     if transient:
         plot.show_plot()
