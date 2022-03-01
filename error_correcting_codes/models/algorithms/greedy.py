@@ -2,7 +2,7 @@ from email.message import Message
 from typing import List, Union
 
 from error_correcting_codes.models.algorithms.algorithm import Algorithm
-from error_correcting_codes.models.ldpc import LDPC
+from error_correcting_codes.models.codes.ldpc import LDPC
 from error_correcting_codes.models.message_tracker import MessageTracker
 
 

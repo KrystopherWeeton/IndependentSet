@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import numpy as np
 
-from error_correcting_codes.models.ldpc import LDPC
+from error_correcting_codes.models.codes.ldpc import LDPC
 from util.misc import validate
 from util.models.solution import Solution
 

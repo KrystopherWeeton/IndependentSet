@@ -2,7 +2,7 @@ import unittest
 from subprocess import CompletedProcess, run
 from typing import List
 
-from error_correcting_codes.models.ldpc import LDPC
+from error_correcting_codes.models.codes.ldpc import LDPC
 from error_correcting_codes.models.message_tracker import MessageTracker
 
 
