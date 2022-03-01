@@ -9,66 +9,85 @@ from error_correcting_codes.models.algorithms.greedy import Greedy
 from error_correcting_codes.models.codes.ldpc import (LDPC, GallagerLDPC,
                                                       TannerLDPC)
 from error_correcting_codes.models.message_tracker import MessageTracker
-from error_correcting_codes.models.results.correction_heatmap_results import \
-    CorrectionHeatmapResults
+from error_correcting_codes.models.results.correction_heatmap_results import (
+    GallagerHeatmapResults, TannerHeatmapResults)
 from util.random import coin_flip
 from util.storage import store_results
 
-# min, max, step
-P_RANGE = np.arange(0.00, 0.25, 0.01)
-D_RANGE = np.arange(3, 9, 1)
-NUM_TRIALS: int = 25
-N: int = 500
-
 ALG: Algorithm = Greedy(verbose=False, debug=False)
-
-"""
-    n = message length
-    m = number of parities
-    d = edge count (with replacement)
-"""
 
 def flip_message(msg_tracker: MessageTracker, p: float) -> List[int]:
     for i in range(msg_tracker.msg_len()):
         if coin_flip(p):
             msg_tracker.swap_index(i)
 
-def run_trial(n: int, m: int, d: int, p: float, t: int, code: LDPC):
-    # Verify valid code was passed in
-    if code.msg_len != n or code.num_parities != m:
-        raise ArgumentError(f"Bad inputs to run-trial, n={n}, msg_len={code.msg_len}, m={m}, code.num_parities={code.num_parities}")
+def run_trial(p: float, code: LDPC):
     # Construct code randomly
-    message: List[int] = [0] * n
+    message: List[int] = [0] * code.msg_len
     msg_tracker: MessageTracker = MessageTracker(code, message)
-
     # Flip message
     flip_message(msg_tracker, p)
-
     # Run greedy algorithm to fix up
     ALG.run(msg=msg_tracker)
-
     # See how long the greedy algorithm took / how close it got (hamming distance)
     sol: MessageTracker = ALG.get_solution()
     return sol.get_num_parities_satisifed()
 
 
+#?Hyper paramters for tanner exp.
+# min, max, step
+P_RANGE = np.arange(0.00, 0.25, 0.01)
+D_RANGE = np.arange(3, 9, 1)
+NUM_TRIALS: int = 25
+N: int = 500
+
+"""
+    n = message length
+    m = number of parities
+    d = edge count (with replacement)
+"""
+#? -------------------------------------
 @click.command()
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def run_correction_heatmap(transient, verbose):
+def run_correction_heatmap_tanner(transient, verbose):
     p_values = list(P_RANGE)
     d_values = list(D_RANGE)
-    results: CorrectionHeatmapResults = CorrectionHeatmapResults(N, d_values, p_values, NUM_TRIALS)
-
+    results: TannerHeatmapResults = TannerHeatmapResults(N, d_values, p_values, NUM_TRIALS)
     for p in p_values:
         for d in d_values:
             for t in range(NUM_TRIALS):
                 code: LDPC = TannerLDPC(msg_len=N, num_parities = N // 2, edge_count = d)
-                parities_satisfied = run_trial(N, N // 2, d, p, t, code)
-                results.add_result(d, p, t, parities_satisfied)
+                results.add_result(run_trial(p, code), d, p, t)
                 if verbose:
                     print(f"[V] {results.collected_results} / {results.total_results}")
-    
+    if not transient:
+        store_results("error_correcting_codes", results)
 
+
+#?Hyper paramters for gallager exp.
+P_RANGE = np.arange(0.00, 0.25, 0.01)
+NUM_TRIALS: int = 25
+N: int = 500
+K: int = 5    # of bits in each parity check
+J_RANGE = np.arange(1, 20, 1)
+"""
+    See Galalger LDPC for notes on params
+"""
+#? -------------------------------------
+@click.command()
+@click.option("--transient", required=False, default=False, is_flag=True)
+@click.option("--verbose", required=False, is_flag=True, default=False)
+def run_correction_heatmap_gallager(transient, verbose):
+    p_values = list(P_RANGE)
+    j_values = list(J_RANGE)
+    results: GallagerHeatmapResults = GallagerHeatmapResults(N, K, j_values, p_values, NUM_TRIALS)
+    for p in p_values:
+        for j in j_values:
+            for t in range(NUM_TRIALS):
+                code: LDPC = GallagerLDPC(N, j, K)
+                results.add_result(run_trial(p, code), j, p, t)
+                if verbose:
+                    print(f"[V] {results.collected_results} / {results.total_results}")
     if not transient:
         store_results("error_correcting_codes", results)
