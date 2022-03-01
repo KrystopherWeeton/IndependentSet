@@ -17,15 +17,12 @@ class Dimension:
 
 class GeneralTensorResults(Result):
 
-    result_identifier: str = None
-
-    def __init__(self, identifier: str, **args):
+    def __init__(self, *args):
         # Validate arguments
-        if any([not isinstance(Dimension, x) for x in args]):
+        if any([not isinstance(x, Dimension) for x in args]):
             raise ArgumentError()
-        self.result_identifier = identifier
         self._dimensions: List[Dimension] = args
-        self._dimension_maps: Dict[Dict] = {d.name: construct_list_map(d) for d in self._dimensions}
+        self._dimension_maps: Dict[Dict] = {d.name: construct_list_map(d.values) for d in self._dimensions}
         self.total_results: int = np.prod([len(d.values) for d in self._dimensions])
         self.collected_results: int = 0
 
@@ -47,14 +44,16 @@ class GeneralTensorResults(Result):
 
 class HeatmapResults(GeneralTensorResults):
 
-    def __init__(self, identifier: str, dim1: Dimension, dim2: Dimension, num_trials: int):
-        super().__init__(identifier, dim1, dim2, Dimension("t", range(num_trials)))
+    def __init__(self, dim1: Dimension, dim2: Dimension, num_trials: int):
+        super().__init__(dim1, dim2, Dimension("t", range(num_trials)))
 
 
 class TannerHeatmapResults(HeatmapResults):
 
+    result_identifier: str = "tanner-heatmap-results"
+
     def __init__(self, n: int, d_values: List[int], p_values: List[float], num_trials: int):
-        super().__init__("tanner-heatmap-results", Dimension("d", d_values), Dimension("p", p_values), num_trials)
+        super().__init__(Dimension("d", d_values), Dimension("p", p_values), num_trials)
         self.n = n
     
     def add_result(self, value: int, d: int, p: float, t: int):
@@ -62,8 +61,11 @@ class TannerHeatmapResults(HeatmapResults):
 
 
 class GallagerHeatmapResults(HeatmapResults):
+
+    result_identifier: str = "gallager-heatmap-results"
+
     def __init__(self, n: int, k: int, j_values: List[int], p_values: List[float], num_trials: int):
-        super().__init__("gallager-heatmap-results", Dimension("j", j_values), Dimension("p", p_values, num_trials))
+        super().__init__(Dimension("j", j_values), Dimension("p", p_values), num_trials)
         self.n = n
         self.k = k
     

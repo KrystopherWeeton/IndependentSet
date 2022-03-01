@@ -34,10 +34,16 @@ class BipartiteGraph(Graph):
     def add_edge(self, l: int, r: int):
         if self.__VERIFY_STRUCTURE:
             if not self.is_left(l) or self.is_left(r):
-                raise Exception("Bad edge in bipartite graph")
+                raise Exception(f"Bad edge in bipartite graph, l={l}, r={r}, L={self.L}, R={self.R}")
         self._graph.add_edge(l, r)
 
-
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        return nx.is_isomorphic(self._graph, other._graph)
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class BipartiteGenerator:
     def __init__(self):

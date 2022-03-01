@@ -34,23 +34,25 @@ def run_trial(p: float, code: LDPC):
     return sol.get_num_parities_satisifed()
 
 
-#?Hyper paramters for tanner exp.
-# min, max, step
-P_RANGE = np.arange(0.00, 0.25, 0.01)
-D_RANGE = np.arange(3, 9, 1)
-NUM_TRIALS: int = 25
-N: int = 500
 
-"""
-    n = message length
-    m = number of parities
-    d = edge count (with replacement)
-"""
-#? -------------------------------------
 @click.command()
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
 def run_correction_heatmap_tanner(transient, verbose):
+    #?Hyper paramters for tanner exp.
+    # min, max, step
+    P_RANGE = np.arange(0.00, 0.25, 0.05)
+    D_RANGE = np.arange(3, 9, 3)
+    NUM_TRIALS: int = 10
+    N: int = 500
+
+    """
+        n = message length
+        m = number of parities
+        d = edge count (with replacement)
+    """
+    #? -------------------------------------
+
     p_values = list(P_RANGE)
     d_values = list(D_RANGE)
     results: TannerHeatmapResults = TannerHeatmapResults(N, d_values, p_values, NUM_TRIALS)
@@ -65,20 +67,21 @@ def run_correction_heatmap_tanner(transient, verbose):
         store_results("error_correcting_codes", results)
 
 
-#?Hyper paramters for gallager exp.
-P_RANGE = np.arange(0.00, 0.25, 0.01)
-NUM_TRIALS: int = 25
-N: int = 500
-K: int = 5    # of bits in each parity check
-J_RANGE = np.arange(1, 20, 1)
-"""
-    See Galalger LDPC for notes on params
-"""
-#? -------------------------------------
+
 @click.command()
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
 def run_correction_heatmap_gallager(transient, verbose):
+    #?Hyper paramters for gallager exp.
+    P_RANGE = np.arange(0.00, 0.25, 0.05)
+    NUM_TRIALS: int = 5
+    N: int = 500
+    K: int = 5    # of bits in each parity check
+    J_RANGE = np.arange(1, 10, 4)
+    """
+        See Galalger LDPC for notes on params
+    """
+    #? -------------------------------------
     p_values = list(P_RANGE)
     j_values = list(J_RANGE)
     results: GallagerHeatmapResults = GallagerHeatmapResults(N, K, j_values, p_values, NUM_TRIALS)

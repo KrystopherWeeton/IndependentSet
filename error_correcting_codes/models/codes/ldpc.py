@@ -31,8 +31,15 @@ class LDPC:
     def _construct_equiv_bipartite_graph(self) -> BipartiteGraph:
         if self._ldpc_matrix is None:
             raise Exception("Bad input to construct equiv bipartite graph")
-        # TODO: Figure out how to construct graph from matrix
-
+        G: BipartiteGraph = BipartiteGenerator.empty_graph(l_size = self.msg_len, r_size = self.num_parities)
+        for c in range(self.msg_len):
+            for r in range(self.num_parities):
+                # Skip over 0 entries
+                if self._ldpc_matrix[r][c] == 0:
+                    continue
+                # Hacky indexing here
+                G.add_edge(l=c, r=self.msg_len + r)
+        return G
     
     def calculate_parities(self, msg: np.array) -> np.array:
         """ 
@@ -96,7 +103,7 @@ class GallagerLDPC(LDPC):
         indices_to_skip: int = 0
         rows: List[List[int]] = []
         while indices_to_skip < self._n-1:
-            rows.append(([0] * indices_to_skip) + ([1] * self.k) + ([0] * (self._n - indices_to_skip - self._k)))
+            rows.append(([0] * indices_to_skip) + ([1] * self._k) + ([0] * (self._n - indices_to_skip - self._k)))
             indices_to_skip += self._k
         return np.array(rows)
 
@@ -113,6 +120,6 @@ class GallagerLDPC(LDPC):
         seed_matrix: np.array = self.__construct_seed_matrix()       
         self._ldpc_matrix: np.array = copy(seed_matrix)
         for i in range(1, self._j):
-            np.vstack([self._ldpc_matrix, randomly_permute_columns(copy(seed_matrix))])
-
-        self._G: BipartiteGraph = self.__constrict_equiv_bipartite_graph()
+            self._ldpc_matrix = np.vstack([self._ldpc_matrix, randomly_permute_columns(copy(seed_matrix))])
+        
+        self._G: BipartiteGraph = self._construct_equiv_bipartite_graph()
