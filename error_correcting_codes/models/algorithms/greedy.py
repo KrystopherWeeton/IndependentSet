@@ -11,7 +11,7 @@ class Greedy(Algorithm):
 
     def __init__(self, verbose=False, debug=False, step_hook = None):
         super().__init__(MessageTracker, verbose, debug)
-        self.step_hook = step_hook
+        self._step_hook = step_hook
 
 
     def _clear(self):

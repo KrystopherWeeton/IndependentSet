@@ -20,6 +20,7 @@ ALG: Algorithm = Greedy(verbose=False, debug=False)
 class TrialResult:
     parities: int
     hamming_dist: int
+    message: str
 
 
 def run_trial(p: float, code: LDPC) -> TrialResult:
@@ -28,7 +29,7 @@ def run_trial(p: float, code: LDPC) -> TrialResult:
     flip_message(msg_tracker, p)
     ALG.run(msg=msg_tracker)
     sol: MessageTracker = ALG.get_solution()
-    return TrialResult(parities=sol.get_num_parities_satisifed(), hamming_dist=hamming_dist(message, sol.get_message()))
+    return TrialResult(parities=sol.get_num_parities_satisifed(), hamming_dist=hamming_dist(message, sol.get_message()), message=sol.get_message_string())
 
 
 @click.command()
@@ -38,7 +39,7 @@ def run_correction_series(transient, verbose):
     #?Hyper paramters for gallager exp.
     P_RANGE = np.arange(0.00, 0.25, 0.03)
     NUM_TRIALS: int = 10
-    N: int = 2000
+    N: int = 1000
     K: int = 4    # of bits in each parity check
     J: int = 3
     """
