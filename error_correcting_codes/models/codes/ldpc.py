@@ -96,6 +96,8 @@ class TannerLDPC(LDPC):
     k: Number of bits in each parity check
     j: (kind of) number of parity checks. In actuality it's j * num of rows in each sub-matrix which is
         based on k, so it's j * (n / k)
+
+        rate is 1 - j/k
 """
 class GallagerLDPC(LDPC):
 

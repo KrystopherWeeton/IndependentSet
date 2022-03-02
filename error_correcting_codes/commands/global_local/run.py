@@ -32,9 +32,9 @@ def flip_message(msg_tracker: MessageTracker, p: float) -> List[int]:
 def run_global_local(transient, verbose):
     #?Hyper paramters for gallager exp.
     n: int = 1000
-    k: int = 5
-    j: int = 11
-    P_RANGE = np.arange(0.00, 0.5, 0.05)
+    k: int = 3
+    j: int = 3
+    P_RANGE = np.arange(0.00, 0.25, 0.05)
     """
         See Galalger LDPC for notes on params
     """
