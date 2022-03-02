@@ -54,6 +54,9 @@ class TannerHeatmapResults(HeatmapResults):
 
     def __init__(self, n: int, d_values: List[int], p_values: List[float], num_trials: int):
         super().__init__(Dimension("d", d_values), Dimension("p", p_values), num_trials)
+        self.p_values = p_values
+        self.d_values = d_values
+        self.num_trials = num_trials
         self.n = n
     
     def add_result(self, value: int, d: int, p: float, t: int):
@@ -68,6 +71,9 @@ class GallagerHeatmapResults(HeatmapResults):
         super().__init__(Dimension("j", j_values), Dimension("p", p_values), num_trials)
         self.n = n
         self.k = k
+        self.j_values = j_values
+        self.p_values = p_values
+        self.num_trials = num_trials
     
     def add_result(self, value: int, j: int, p: float, t: int):
         super().add_result(value, j=j, p=p, t=t)

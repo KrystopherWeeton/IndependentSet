@@ -41,7 +41,7 @@ def run_trial(p: float, code: LDPC):
 def run_correction_heatmap_tanner(transient, verbose):
     #?Hyper paramters for tanner exp.
     # min, max, step
-    P_RANGE = np.arange(0.00, 0.25, 0.05)
+    P_RANGE = np.arange(0.00, 0.26, 0.05)
     D_RANGE = np.arange(3, 9, 3)
     NUM_TRIALS: int = 10
     N: int = 500
@@ -73,11 +73,11 @@ def run_correction_heatmap_tanner(transient, verbose):
 @click.option("--verbose", required=False, is_flag=True, default=False)
 def run_correction_heatmap_gallager(transient, verbose):
     #?Hyper paramters for gallager exp.
-    P_RANGE = np.arange(0.00, 0.25, 0.05)
-    NUM_TRIALS: int = 5
+    P_RANGE = np.arange(0.00, 0.26, 0.025)
+    NUM_TRIALS: int = 10
     N: int = 500
     K: int = 5    # of bits in each parity check
-    J_RANGE = np.arange(1, 10, 4)
+    J_RANGE = np.arange(1, 11, 3)
     """
         See Galalger LDPC for notes on params
     """
