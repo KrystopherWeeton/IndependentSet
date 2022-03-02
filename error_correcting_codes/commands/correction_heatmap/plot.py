@@ -34,12 +34,10 @@ def plot_tanner_heatmap(today, dir_name, transient):
     results: TannerHeatmapResults = verify_and_load_results_v2(TannerHeatmapResults, "error_correcting_codes", today)
     plot.initialize_figure("Bit Flip Probability", "Edge Count in Tanner Graph", f"Average Parities Satisfied (total_parities={results.n // 2}")
     heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.d_values, results.get_parity_matrix(), include_annotation=True)
-    # TODO: Add axis and graph titles
     plot.show_or_save(transient, f"{dir_name}/parities", "error_correcting_codes")
 
     plot.initialize_figure("Bit Flip Probability", "Edge Count in Tanner Graph", f"Average Hamming Distance of Solution (n={results.n})")
     heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.d_values, results.get_hamming_matrix(), include_annotation=True)
-    # TODO: Add axis and graph titles
     plot.show_or_save(transient, f"{dir_name}/hamming", "error_correcting_codes")
 
 @click.command()
@@ -65,10 +63,8 @@ def plot_gallager_heatmap(today, dir_name, transient):
     results: GallagerHeatmapResults = verify_and_load_results_v2(GallagerHeatmapResults, "error_correcting_codes", today)
     plot.initialize_figure("Bit Flip Probability", "J value in gallager construction", f"Average Parities Satisfied (total_parities={results.n // 2}")
     heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.j_values, results.get_parity_matrix(), include_annotation=True)
-    # TODO: Add axis and graph titles
     plot.show_or_save(transient, f"{dir_name}/parities", "error_correcting_codes")
 
     plot.initialize_figure("Bit Flip Probability", "J value in gallager construction", f"Average Hamming Distance of Solution (n={results.n})")
     heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.j_values, results.get_hamming_matrix(), include_annotation=True)
-    # TODO: Add axis and graph titles
     plot.show_or_save(transient, f"{dir_name}/hamming", "error_correcting_codes")
