@@ -31,12 +31,18 @@ def plot_correction_series(today, dir_name, transient):
     if not transient:
         dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, "error_correcting_codes")
     results: CorrectionSeriesResults = verify_and_load_results_v2(CorrectionSeriesResults, "error_correcting_codes", today)
-    plot.initialize_figure("Bit Flip Probability", f"Parities Satisfied (out of {(results.n * results.j) // results.k})", f"Average Parities Satisfied by Final Solution (n={results.n}")
-    series.plot_series(results.p_values, results.get_parity_series(), plot.Formatting(color="blue"))
+    plot.initialize_figure("Bit Flip Probability", f"Parities Satisfied (out of {(results.n * results.j) // results.k})", f"Average Parities Satisfied by Final Solution (n={results.n})")
+    series.plot_series(results.p_values, results.get_parity_series(), plot.Formatting(color="orange"))
     plot.show_or_save(transient, f"{dir_name}/parities", "error_correcting_codes")
 
 
-    results: CorrectionSeriesResults = verify_and_load_results_v2(CorrectionSeriesResults, "error_correcting_codes", today)
-    plot.initialize_figure("Bit Flip Probability", f"Hamming Dist.", f"Average Hamming Dist of Sol. to Original (n={results.n}")
+    plot.initialize_figure("Bit Flip Probability", f"Hamming Dist.", f"Average Hamming Dist of Sol. to Original (n={results.n})")
     series.plot_series(results.p_values, results.get_hamming_series(), plot.Formatting(color="blue"))
     plot.show_or_save(transient, f"{dir_name}/hamming", "error_correcting_codes")
+
+    plot.initialize_figure("Bit Flip Probability", f"Normalized 'Score' of Final Solution", f"Average Global vs. Local score of Final Solution (n={results.n})")
+    series.plot_series(results.p_values, [x / results.n for x in results.get_hamming_series()], plot.Formatting(color="blue", label="Hamming Dist. to Original Message"))
+    num_parities: int = results.n * results.j / results.k
+    series.plot_series(results.p_values, [(num_parities - x) / num_parities for x in results.get_parity_series()], plot.Formatting(color="orange", label="Number of Unsatisfied Parities of Final Sol."))
+    plot.draw_legend()
+    plot.show_or_save(transient, f"{dir_name}/normalized", "error_correcting_codes")
