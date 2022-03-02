@@ -55,7 +55,7 @@ class TannerHeatmapResults(Result):
     def __init__(self, n: int, d_values: List[int], p_values: List[float], num_trials: int):
         self._parity_result: HeatmapResults = HeatmapResults(Dimension("d", d_values), Dimension("p", p_values), num_trials)
         self._hamming_result: HeatmapResults = HeatmapResults(Dimension("d", d_values), Dimension("p", p_values), num_trials)
-        self.total_results = self._parity_result.total_results + self._hamming_result.total_results
+        self.total_results = self._parity_result.total_results
         self.collected_results = 0
         self.p_values = p_values
         self.d_values = d_values
@@ -80,7 +80,7 @@ class GallagerHeatmapResults(Result):
     def __init__(self, n: int, k: int, j_values: List[int], p_values: List[float], num_trials: int):
         self._parity_result: HeatmapResults = HeatmapResults(Dimension("j", j_values), Dimension("p", p_values), num_trials)
         self._hamming_result: HeatmapResults = HeatmapResults(Dimension("j", j_values), Dimension("p", p_values), num_trials)
-        self.total_results = self._parity_result.total_results + self._hamming_result.total_results
+        self.total_results = self._parity_result.total_results
         self.collected_results = 0
         self.n = n
         self.k = k

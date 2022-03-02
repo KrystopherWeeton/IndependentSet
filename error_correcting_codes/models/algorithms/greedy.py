@@ -4,6 +4,7 @@ from typing import List, Union
 from error_correcting_codes.models.algorithms.algorithm import Algorithm
 from error_correcting_codes.models.codes.ldpc import LDPC
 from error_correcting_codes.models.message_tracker import MessageTracker
+from util.array import hamming_dist
 
 
 class Greedy(Algorithm):
@@ -33,6 +34,7 @@ class Greedy(Algorithm):
             msg.swap_index(to_swap)
             self.verbose_print(f"Satisfied = {msg.get_num_parities_satisifed()} / {num_parities}")
             self.verbose_print(f"New Message = '{msg.get_message_string()}'")
+            self.step_hook(msg.get_message(), msg.get_num_parities_satisifed())
             last_index = to_swap
         
 
