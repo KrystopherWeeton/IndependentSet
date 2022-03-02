@@ -2,6 +2,7 @@ from typing import List
 
 import click
 
+import util.file_util as file_util
 import util.plot.heatmap as heatmap
 import util.plot.plot as plot
 from error_correcting_codes.models.results.correction_heatmap_results import (
@@ -15,25 +16,29 @@ from util.commands import prompt_file_name, verify_and_load_results_v2
     required=False,
     is_flag=True,
     default=False,
-    help="Flag to set file name to load to today's file name.",
 )
 @click.option(
-    "--file-name",
+    "--dir-name",
     required=False,
-    help="The file name to save the graph as. Prompt will be provided if option not provided.",
 )
 @click.option(
     "--transient",
     required=False,
     is_flag=True,
     default=False,
-    help="Shows the plot instead of saving.",
 )
-def plot_tanner_heatmap(today, file_name, transient):
+def plot_tanner_heatmap(today, dir_name, transient):
+    if not transient:
+        file_util.create_dir_in_experiment_results_directory(dir_name, "independent_set")
+
     results: TannerHeatmapResults = verify_and_load_results_v2(TannerHeatmapResults, "error_correcting_codes", today)
-    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.d_values, results.get_matrix_data(), include_annotation=False)
+    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.d_values, results.get_parity_matrix(), include_annotation=True)
     # TODO: Add axis and graph titles
-    plot.show_or_save(transient, prompt_file_name(file_name), "error_correcting_codes")
+    plot.show_or_save(transient, f"{dir_name}/parities", "error_correcting_codes")
+
+    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.d_values, results.get_hamming_matrix(), include_annotation=True)
+    # TODO: Add axis and graph titles
+    plot.show_or_save(transient, f"{dir_name}/hamming", "error_correcting_codes")
 
 @click.command()
 @click.option(
@@ -41,22 +46,25 @@ def plot_tanner_heatmap(today, file_name, transient):
     required=False,
     is_flag=True,
     default=False,
-    help="Flag to set file name to load to today's file name.",
 )
 @click.option(
-    "--file-name",
+    "--dir-name",
     required=False,
-    help="The file name to save the graph as. Prompt will be provided if option not provided.",
 )
 @click.option(
     "--transient",
     required=False,
     is_flag=True,
     default=False,
-    help="Shows the plot instead of saving.",
 )
-def plot_gallager_heatmap(today, file_name, transient):
+def plot_gallager_heatmap(today, dir_name, transient):
+    if not transient:
+        file_util.create_dir_in_experiment_results_directory(dir_name, "independent_set")
     results: GallagerHeatmapResults = verify_and_load_results_v2(GallagerHeatmapResults, "error_correcting_codes", today)
-    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.j_values, results.get_matrix_data(), include_annotation=True)
+    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.j_values, results.get_parity_matrix(), include_annotation=True)
     # TODO: Add axis and graph titles
-    plot.show_or_save(transient, prompt_file_name(file_name), "error_correcting_codes")
+    plot.show_or_save(transient, f"{dir_name}/parities", "error_correcting_codes")
+
+    heatmap.graph_heatmap([f"{x:.2f}" for x in results.p_values], results.j_values, results.get_hamming_matrix(), include_annotation=True)
+    # TODO: Add axis and graph titles
+    plot.show_or_save(transient, f"{dir_name}/hamming", "error_correcting_codes")

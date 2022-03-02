@@ -48,32 +48,53 @@ class HeatmapResults(GeneralTensorResults):
         super().__init__(dim1, dim2, Dimension("t", range(num_trials)))
 
 
-class TannerHeatmapResults(HeatmapResults):
+class TannerHeatmapResults(Result):
 
     result_identifier: str = "tanner-heatmap-results"
 
     def __init__(self, n: int, d_values: List[int], p_values: List[float], num_trials: int):
-        super().__init__(Dimension("d", d_values), Dimension("p", p_values), num_trials)
+        self._parity_result: HeatmapResults = HeatmapResults(Dimension("d", d_values), Dimension("p", p_values), num_trials)
+        self._hamming_result: HeatmapResults = HeatmapResults(Dimension("d", d_values), Dimension("p", p_values), num_trials)
+        self.total_results = self._parity_result.total_results + self._hamming_result.total_results
+        self.collected_results = 0
         self.p_values = p_values
         self.d_values = d_values
         self.num_trials = num_trials
         self.n = n
     
-    def add_result(self, value: int, d: int, p: float, t: int):
-        super().add_result(value, d=d, p=p, t=t)
+    def add_result(self, parity: int, hamming_dist: int, d: int, p: float, t: int):
+        self._parity_result.add_result(parity, d=d, p=p, t=t)
+        self._hamming_result.add_result(hamming_dist, d=d, p=p, t=t)
+        self.collected_results += 1
+    
+    def get_parity_matrix(self) -> List[List[float]]:
+        return self._parity_result.get_matrix_data()
 
+    def get_hamming_matrix(self) -> List[List[float]]:
+        return self._hamming_result.get_matrix_data()
 
-class GallagerHeatmapResults(HeatmapResults):
+class GallagerHeatmapResults(Result):
 
     result_identifier: str = "gallager-heatmap-results"
 
     def __init__(self, n: int, k: int, j_values: List[int], p_values: List[float], num_trials: int):
-        super().__init__(Dimension("j", j_values), Dimension("p", p_values), num_trials)
+        self._parity_result: HeatmapResults = HeatmapResults(Dimension("j", j_values), Dimension("p", p_values), num_trials)
+        self._hamming_result: HeatmapResults = HeatmapResults(Dimension("j", j_values), Dimension("p", p_values), num_trials)
+        self.total_results = self._parity_result.total_results + self._hamming_result.total_results
+        self.collected_results = 0
         self.n = n
         self.k = k
         self.j_values = j_values
         self.p_values = p_values
         self.num_trials = num_trials
     
-    def add_result(self, value: int, j: int, p: float, t: int):
-        super().add_result(value, j=j, p=p, t=t)
+    def add_result(self, parity: int, hamming_dist: int, j: int, p: float, t: int):
+        self._parity_result.add_result(parity, j=j, p=p, t=t)
+        self._hamming_result.add_result(hamming_dist, j=j, p=p, t=t)
+        self.collected_results += 1
+
+    def get_parity_matrix(self) -> List[List[float]]:
+        return self._parity_result.get_matrix_data()
+
+    def get_hamming_matrix(self) -> List[List[float]]:
+        return self._hamming_result.get_matrix_data()

@@ -1,4 +1,6 @@
 from argparse import ArgumentError
+from collections import namedtuple
+from dataclasses import dataclass
 from typing import List, Tuple
 
 import click
@@ -11,6 +13,7 @@ from error_correcting_codes.models.codes.ldpc import (LDPC, GallagerLDPC,
 from error_correcting_codes.models.message_tracker import MessageTracker
 from error_correcting_codes.models.results.correction_heatmap_results import (
     GallagerHeatmapResults, TannerHeatmapResults)
+from util.array import hamming_dist
 from util.random import coin_flip
 from util.storage import store_results
 
@@ -21,9 +24,14 @@ def flip_message(msg_tracker: MessageTracker, p: float) -> List[int]:
         if coin_flip(p):
             msg_tracker.swap_index(i)
 
-def run_trial(p: float, code: LDPC):
+@dataclass
+class TrialResult:
+    parities: int
+    hamming_dist: int
+
+def run_trial(p: float, code: LDPC) -> TrialResult:
     # Construct code randomly
-    message: List[int] = [0] * code.msg_len
+    message: List[int] = np.array([0] * code.msg_len)
     msg_tracker: MessageTracker = MessageTracker(code, message)
     # Flip message
     flip_message(msg_tracker, p)
@@ -31,7 +39,7 @@ def run_trial(p: float, code: LDPC):
     ALG.run(msg=msg_tracker)
     # See how long the greedy algorithm took / how close it got (hamming distance)
     sol: MessageTracker = ALG.get_solution()
-    return sol.get_num_parities_satisifed()
+    return TrialResult(parities=sol.get_num_parities_satisifed(), hamming_dist=hamming_dist(message, sol.get_message()))
 
 
 
@@ -60,7 +68,8 @@ def run_correction_heatmap_tanner(transient, verbose):
         for d in d_values:
             for t in range(NUM_TRIALS):
                 code: LDPC = TannerLDPC(msg_len=N, num_parities = N // 2, edge_count = d)
-                results.add_result(run_trial(p, code), d, p, t)
+                r: TrialResult = run_trial(p, code)
+                results.add_result(r.parities, r.hamming_dist, d, p, t)
                 if verbose:
                     print(f"[V] {results.collected_results} / {results.total_results}")
     if not transient:
@@ -89,7 +98,8 @@ def run_correction_heatmap_gallager(transient, verbose):
         for j in j_values:
             for t in range(NUM_TRIALS):
                 code: LDPC = GallagerLDPC(N, j, K)
-                results.add_result(run_trial(p, code), j, p, t)
+                r: TrialResult = run_trial(p, code)
+                results.add_result(r.parities, r.hamming_dist, j, p, t)
                 if verbose:
                     print(f"[V] {results.collected_results} / {results.total_results}")
     if not transient:

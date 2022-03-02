@@ -19,7 +19,7 @@ OOB = Exception("Out of bounds access")
 
 class MessageTracker(Solution):
 
-    def __init__(self, code: LDPC, message: List[int]):
+    def __init__(self, code: LDPC, message: np.array):
         self.code: LDPC = code
         self.set_message(message)
 
@@ -55,8 +55,8 @@ class MessageTracker(Solution):
                 else:                                   # 1 -> 0 case
                     self._satisfied_change_list[u] += 2
 
-    def set_message(self, message: List[int]):
-        self._message: np.array = np.array(message)
+    def set_message(self, message: np.array):
+        self._message: np.array = message
         self._msg_len: int = len(self._message)
         # Verify structure
         validate(self._msg_len == self.code.msg_len, "Invalid message length provided.")
@@ -79,8 +79,8 @@ class MessageTracker(Solution):
                 for j in self.code.get_indices_in_constraint(c):
                     self._satisfied_change_list[j] += 1
 
-    def get_message(self) -> List[int]:
-        return copy(self._message.tolist())
+    def get_message(self) -> np.array:
+        return copy(self._message)
     
     def get_message_string(self) -> str:
         return "".join([str(x) for x in self.get_message()])
