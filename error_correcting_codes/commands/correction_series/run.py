@@ -37,7 +37,7 @@ def run_trial(p: float, code: LDPC) -> TrialResult:
 def _run_exp(transient: bool, verbose: bool):
     #?Hyper paramters for gallager exp.
         P_RANGE = np.arange(0.00, 0.25, 0.03)
-        NUM_TRIALS: int = 10
+        NUM_TRIALS: int = 1
         N: int = 1000
         K: int = 4    # of bits in each parity check
         J: int = 3

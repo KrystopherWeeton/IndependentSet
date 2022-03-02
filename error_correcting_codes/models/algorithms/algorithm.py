@@ -10,9 +10,9 @@ class Algorithm:
         self._solution: solution_class = None
     
     def __print(self, msg: Union[str, List[str]], condition):
-        if isinstance(msg, List):
-            msg = "\n".join(msg)
         if condition:
+            if isinstance(msg, List):
+                msg = "\n".join(msg)
             print(f"[V] {msg}")
 
     def verbose_print(self, msg: Union[str, List[str]]):
@@ -22,12 +22,10 @@ class Algorithm:
         self.__print(msg, self._debug)
 
     def step_hook(self, *args):
-        self.debug_print(f"Step Hook - args={args}")
         if self._step_hook is not None:
             self._step_hook(**args)
     
     def phase_hook(self, *args):
-        self.debug_print(f"Phase Hook - args={args}")
         if self._phase_hook is not None:
             self._phase_hook(**args)
     

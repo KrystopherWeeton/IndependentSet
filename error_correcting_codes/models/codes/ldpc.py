@@ -32,13 +32,11 @@ class LDPC:
         if self._ldpc_matrix is None:
             raise Exception("Bad input to construct equiv bipartite graph")
         G: BipartiteGraph = BipartiteGenerator.empty_graph(l_size = self.msg_len, r_size = self.num_parities)
-        for c in range(self.msg_len):
-            for r in range(self.num_parities):
-                # Skip over 0 entries
-                if self._ldpc_matrix[r][c] == 0:
-                    continue
-                # Hacky indexing here
-                G.add_edge(l=c, r=self.msg_len + r)
+        rows, cols = np.nonzero(self._ldpc_matrix)
+        for i in range(len(rows)):
+            r = rows[i]
+            c = cols[i]
+            G.add_edge(l=c, r=self.msg_len + r)
         return G
     
     def calculate_parities(self, msg: np.array) -> np.array:
@@ -103,11 +101,15 @@ class GallagerLDPC(LDPC):
 
     def __construct_seed_matrix(self) -> np.array:
         indices_to_skip: int = 0
-        rows: List[List[int]] = []
-        while indices_to_skip < self._n-1:
-            rows.append(([0] * indices_to_skip) + ([1] * self._k) + ([0] * (self._n - indices_to_skip - self._k)))
-            indices_to_skip += self._k
-        return np.array(rows)
+        matrix: np.array = np.zeros([self._n // self._k, self._n])
+        start: int = 0
+        row: int = 0
+        while start < self._n - 1:
+            for i in range(self._k):
+                matrix[row][start + i] = 1
+            start += self._k
+            row += 1
+        return matrix
 
 
     def __init__(self, n: int, j: int, k: int):
