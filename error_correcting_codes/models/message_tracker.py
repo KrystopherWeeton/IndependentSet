@@ -21,7 +21,7 @@ class MessageTracker(Solution):
 
     def __init__(self, code: LDPC, message: np.array):
         self.code: LDPC = code
-        self.set_message(message)
+        self.set_message(copy(message))
 
     def swap_index(self, index: int):
         if index < 0 or index >= self._msg_len:
