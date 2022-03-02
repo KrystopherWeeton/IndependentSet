@@ -32,8 +32,8 @@ class Greedy(Algorithm):
                 break
             self.debug_print(f"Chose {to_swap} which will satisfy {msg.get_num_parities_satisfied_by_swap(to_swap)}")
             msg.swap_index(to_swap)
-            self.verbose_print(f"Satisfied = {msg.get_num_parities_satisifed()} / {num_parities}")
-            self.verbose_print(f"New Message = '{msg.get_message_string()}'")
+            #self.verbose_print(f"Satisfied = {msg.get_num_parities_satisifed()} / {num_parities}")
+            #self.verbose_print(f"New Message = '{msg.get_message_string()}'")
             self.step_hook(msg.get_message(), msg.get_num_parities_satisifed())
             last_index = to_swap
         
