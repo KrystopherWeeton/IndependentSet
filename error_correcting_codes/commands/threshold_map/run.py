@@ -30,7 +30,7 @@ def score(v: Tuple, code: LDPC) -> int:
     return msg.get_num_parities_satisifed()
 
 
-
+@profile
 def _run_exp(transient: bool, verbose: bool):
     #?Hyper paramters for gallager exp.
     p: float = GALLAGHER_PARAMS.difficult_p
@@ -38,7 +38,7 @@ def _run_exp(transient: bool, verbose: bool):
     k: int = GALLAGHER_PARAMS.k
     j: int = GALLAGHER_PARAMS.j
     
-    min_threshold: int = 4
+    min_threshold: int = 6
     max_threshold: int = 13
     #? -------------------------------------
     results: ThresholdMap = ThresholdMap(n, k, j, p)
@@ -51,6 +51,9 @@ def _run_exp(transient: bool, verbose: bool):
 
     if verbose:
         print(f"[V] Done Scoring")
+    
+    for v in g.nodes:
+        g.nodes[v]['score'] = scores[v]
 
     # Adjust graph for each threshold
     for threshold in range(min_threshold, max_threshold):
@@ -58,7 +61,7 @@ def _run_exp(transient: bool, verbose: bool):
         for v in nodes:
             if scores[v] < threshold:
                 g.remove_node(v)
-        results.add_search_space(threshold, deepcopy(g))
+        results.add_search_space(threshold, g.copy())
 
     store_results("error_correcting_codes", results)
 
