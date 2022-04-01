@@ -22,7 +22,7 @@ def score(v: Tuple, code: LDPC) -> int:
 def _run_exp(transient: bool, verbose: bool):
     #?Hyper paramters for gallager exp.
     p: float = GALLAGHER_PARAMS.difficult_p
-    n: int = 20
+    n: int = 16
     k: int = GALLAGHER_PARAMS.k
     j: int = GALLAGHER_PARAMS.j
     
