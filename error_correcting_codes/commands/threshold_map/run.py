@@ -28,7 +28,7 @@ def _run_exp(transient: bool, verbose: bool):
     j: int = GALLAGHER_PARAMS.j
     
     min_threshold: int = 6
-    max_threshold: int = 13
+    max_threshold: int = 9
     #? -------------------------------------
     results: ThresholdMap = ThresholdMap(n, k, j, p)
     code: LDPC = GallagerLDPC(n, j, k)
