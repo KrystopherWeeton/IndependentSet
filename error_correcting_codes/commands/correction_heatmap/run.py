@@ -6,7 +6,6 @@ from typing import List, Tuple
 import click
 import numpy as np
 
-from error_correcting_codes.models.algorithms.algorithm import Algorithm
 from error_correcting_codes.models.algorithms.greedy import Greedy
 from error_correcting_codes.models.codes.ldpc import (LDPC, GallagerLDPC,
                                                       TannerLDPC)
@@ -14,6 +13,7 @@ from error_correcting_codes.models.message_tracker import MessageTracker
 from error_correcting_codes.models.results.correction_heatmap_results import (
     GallagerHeatmapResults, TannerHeatmapResults)
 from util.array import hamming_dist
+from util.models.algorithms.algorithm import Algorithm
 from util.random import coin_flip
 from util.storage import store_results
 

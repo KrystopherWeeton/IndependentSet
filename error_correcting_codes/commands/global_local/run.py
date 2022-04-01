@@ -7,16 +7,17 @@ from typing import List, Tuple
 import click
 import numpy as np
 
-from error_correcting_codes.models.algorithms.algorithm import Algorithm
 from error_correcting_codes.models.algorithms.greedy import Greedy
 from error_correcting_codes.models.codes.ldpc import (LDPC, GallagerLDPC,
                                                       TannerLDPC)
+from error_correcting_codes.models.constants import GALLAGHER_PARAMS
 from error_correcting_codes.models.message_tracker import MessageTracker
 from error_correcting_codes.models.results.correction_heatmap_results import (
     GallagerHeatmapResults, TannerHeatmapResults)
 from error_correcting_codes.models.results.global_local_results import \
     GlobalLocalResults
 from util.array import hamming_dist
+from util.models.algorithms.algorithm import Algorithm
 from util.random import coin_flip
 from util.storage import store_results
 
@@ -31,19 +32,20 @@ def flip_message(msg_tracker: MessageTracker, p: float) -> List[int]:
 @click.option("--verbose", required=False, is_flag=True, default=False)
 def run_global_local(transient, verbose):
     #?Hyper paramters for gallager exp.
-    n: int = 1000
-    k: int = 3
-    j: int = 3
-    P_RANGE = np.arange(0.00, 0.25, 0.05)
+    n: int = 2500
+    k: int = GALLAGHER_PARAMS.k
+    j: int = GALLAGHER_PARAMS.j
+    p: float = GALLAGHER_PARAMS.difficult_p
+    num_trials: int = 10
     """
         See Galalger LDPC for notes on params
     """
     #? -------------------------------------
 
-    code: LDPC = GallagerLDPC(n, j, k)
-    results: GlobalLocalResults = GlobalLocalResults(n, k, j, list(P_RANGE))
+    results: GlobalLocalResults = GlobalLocalResults(n, k, j, p, num_trials)
 
-    for p in list(P_RANGE):
+    for t in range(num_trials):
+        code: LDPC = GallagerLDPC(n, j, k)
         series: List[Tuple[int, int]] = []
         message: List[int] = np.array([0] * code.msg_len)
         msg_tracker: MessageTracker = MessageTracker(code, message)

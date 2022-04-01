@@ -8,39 +8,21 @@ from error_correcting_codes.commands.correction_series.results import \
     CorrectionSeriesResults
 from error_correcting_codes.models.algorithms.greedy import Greedy
 from error_correcting_codes.models.codes.ldpc import LDPC, GallagerLDPC
-from error_correcting_codes.models.constants import GALLAGHER_PARAMS
 from error_correcting_codes.models.message_tracker import MessageTracker
 from error_correcting_codes.util import flip_message
 from util.array import hamming_dist
-from util.models.algorithms.algorithm import Algorithm
 from util.profile import profile
 from util.storage import store_results
 
-ALG: Algorithm = Greedy(verbose=False, debug=False)
-
-@dataclass
-class TrialResult:
-    parities: int
-    hamming_dist: int
-    message: str
-
-
-def run_trial(p: float, code: LDPC) -> TrialResult:
-    message: List[int] = np.array([0] * code.msg_len)
-    msg_tracker: MessageTracker = MessageTracker(code, message)
-    flip_message(msg_tracker, p)
-    ALG.run(msg=msg_tracker)
-    sol: MessageTracker = ALG.get_solution()
-    return TrialResult(parities=sol.get_num_parities_satisifed(), hamming_dist=hamming_dist(message, sol.get_message()), message=sol.get_message_string())
-
 
 def _run_exp(transient: bool, verbose: bool):
+    pass
     #?Hyper paramters for gallager exp.
-        P_RANGE = np.arange(0.00, GALLAGHER_PARAMS.max_p + 0.02, 0.01)
+        P_RANGE = np.arange(0.00, 0.25, 0.03)
         NUM_TRIALS: int = 10
         N: int = 2500
-        K: int = GALLAGHER_PARAMS.k
-        J: int = GALLAGHER_PARAMS.j
+        K: int = 4    # of bits in each parity check
+        J: int = 3
         """
             See Galalger LDPC for notes on params
         """

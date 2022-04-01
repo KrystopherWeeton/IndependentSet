@@ -4,6 +4,7 @@ from typing import Dict, List
 import numpy as np
 
 from error_correcting_codes.models.codes.ldpc import LDPC
+from util.array import hamming_dist
 from util.misc import validate
 from util.models.solution import Solution
 
@@ -57,6 +58,7 @@ class MessageTracker(Solution):
 
     def set_message(self, message: np.array):
         self._message: np.array = message
+        self._original_message: np.array = copy(message)
         self._msg_len: int = len(self._message)
         # Verify structure
         validate(self._msg_len == self.code.msg_len, "Invalid message length provided.")
@@ -78,6 +80,9 @@ class MessageTracker(Solution):
                 # If not satified, swapping would add a satisfied parity constraint
                 for j in self.code.get_indices_in_constraint(c):
                     self._satisfied_change_list[j] += 1
+
+    def get_hamming_dist_to_original_message(self) -> int:
+        return hamming_dist(self._message, self._original_message)
 
     def get_message(self) -> np.array:
         return copy(self._message)

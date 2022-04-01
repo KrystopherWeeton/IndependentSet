@@ -15,44 +15,34 @@ from util.results.result_tensor import ResultTensor
 
 class GlobalLocalResults(Result):
 
-    def __init__(self, n: int, k: int, j: int, p_values: List[float]):
-        self.n: int = n
-        self.k: int= k
-        self.j: int= j
-        self.p_values: List[float] = p_values
+    result_identifier: str = "global-local-results"
 
-        self.results: Dict[float, List[Tuple[int, int]]] = {}
-        self.total_results: int = len(p_values)
+    def __init__(self, n: int, k: int, j: int, p: float, num_trials: int):
+        self.n: int = n
+        self.k: int = k
+        self.j: int = j
+        self.p: float = p
+        self.num_trials: int = num_trials
+
+        self.results: List[List[Tuple[int, int]]] = []
+        self.total_results = num_trials
         self.collected_results: int = 0
 
-    def add_result(self, values: List[Tuple[int, int]], p: float):
+    def add_result(self, values: List[Tuple[int, int]], trial: int):
         """
             Adds results, interpreting tuples as (global, local) for each step in the alg.
         """
-        if p not in self.p_values:
-            raise ArgumentError(f"Bad p value of p={p} provided.")
-        if p in self.results.keys():
-            raise ArgumentError("Can't set a value which has already been set.")
-        self.results[p] = values
+        self.results.append(values)
         self.collected_results += 1
         
+    def get_results(self, t: int):
+        return copy(self.results[t])
 
-    def get_results(self, p: float):
-        if p not in self.p_values:
-            raise ArgumentError(f"Bad p value of p={p} provided.")
-        return copy(self.results[p])
+    def get_global_series(self, t: int):
+        return [x[0] for x in self.get_results(t)]
 
-    def get_global_series(self, p: float):
-        if p not in self.p_values:
-            raise ArgumentError(f"Bad p value of p={p} provided.")
-        return [x[0] for x in self.get_results(p)]
+    def get_local_series(self, t: int):
+        return [x[1] for x in self.get_results(t)]
 
-    def get_local_series(self, p: float):
-        if p not in self.p_values:
-            raise ArgumentError(f"Bad p value of p={p} provided.")
-        return [x[1] for x in self.get_results(p)]
-
-    def get_steps(self, p: float):
-        if p not in self.p_values:
-            raise ArgumentError(f"Bad p value of p={p} provided.")
-        return range(len(self.get_results(p)))
+    def get_steps(self, t: int):
+        return range(len(self.get_results(t)))

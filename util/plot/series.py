@@ -2,13 +2,14 @@ from typing import Callable, List
 
 import matplotlib.pyplot as plt
 
-from util.plot.plot import DEFAULT_FORMATTING, Formatting
+from util.plot.plot import DEFAULT_FORMATTING, Formatting, annotate_all_points
 
 
 def plot_series(
     x_points: List[float],
     y_points: List[float],
-    formatting: Formatting = DEFAULT_FORMATTING
+    formatting: Formatting = DEFAULT_FORMATTING,
+    annotate_points: bool = False
 ):
     if formatting.include_markers:
         plt.plot(x_points, y_points, 
@@ -16,7 +17,7 @@ def plot_series(
             label=formatting.label, 
             color=formatting.color,
             linestyle=formatting.style,
-            alpha=formatting.alpha
+            alpha=formatting.alpha,
         )
     else:
         plt.plot(x_points, y_points, 
@@ -24,7 +25,15 @@ def plot_series(
             color=formatting.color,
             alpha=formatting.alpha,
             linestyle=formatting.style,
-            linewidth=formatting.width
+            linewidth=formatting.width,
+        )
+    if annotate_points:
+        annotate_all_points(
+            x_points=x_points, 
+            y_points=y_points,
+            annotations=[f"{y:.1f}" for y in y_points],
+            x_offset=20,
+            y_offset=0
         )
 
 

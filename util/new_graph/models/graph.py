@@ -45,7 +45,11 @@ class Graph(AbstractGraph):
     def edge_boundary(self, v: int, subset: Set[int]) -> int:
         """Returns the number of edges between v and set"""
         return len(set(self._graph.neighbors(v)).intersection(subset))
-    
+
+
+    def connected_vertices(self, v: int, subset: Set[int]) -> Set[int]:
+        return set(self._graph.neighbors(v)).intersection(subset)
+
 
     def max_degree(self) -> Tuple[int, int]:
         """Returns (v, deg(v)) where v has the maximum degree and deg(v) is it's degree"""
