@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 import click
 
@@ -8,7 +8,8 @@ import util.plot.plot as plot
 import util.plot.series as series
 from error_correcting_codes.models.results.global_local_results import \
     GlobalLocalResults
-from util.commands import prompt_file_name, verify_and_load_results_v2
+from util.commands import (dir_plot_command, prompt_file_name,
+                           verify_and_load_results_v2)
 
 
 @click.command()
@@ -29,9 +30,10 @@ from util.commands import prompt_file_name, verify_and_load_results_v2
     default=False,
 )
 def plot_global_local(today, dir_name, transient):
-    if not transient:
-        dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, "error_correcting_codes")
-    results: GlobalLocalResults = verify_and_load_results_v2(GlobalLocalResults, "error_correcting_codes", today)
+    _plot(today, dir_name, transient)
+
+@dir_plot_command("error_correcting_codes", GlobalLocalResults)
+def _plot(results: GlobalLocalResults, save: Callable):
     for t in range(results.num_trials):
         steps: List[int] = results.get_steps(t)
         local: List[int] = results.get_local_series(t)
@@ -59,9 +61,8 @@ def plot_global_local(today, dir_name, transient):
             [x / max_global for x in glob],
             plot.Formatting(color="blue", alpha=0.75, label="Hamming Distance to Transmitted Message"),
         )
-        plot.draw_legend()
-        plot.show_or_save(transient, f"{dir_name}/normalized-run({t})", "error_correcting_codes")
+        save(f"normalized-run({t})")
 
         plot.initialize_figure("Step", "Hamming Distance", "Hamming Distance to Transmitted Message")
         series.plot_series(steps, glob, plot.Formatting(color="blue", alpha=0.75, label=f"Global Progress (out of {max_local})"))
-        plot.show_or_save(transient, f"{dir_name}/global-progress({t})", "error_correcting_codes")
+        save(f"global-progress({t})")

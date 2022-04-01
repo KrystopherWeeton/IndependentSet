@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 import click
 import networkx as nx
@@ -11,7 +11,7 @@ from error_correcting_codes.commands.correction_series.results import \
     CorrectionSeriesResults
 from error_correcting_codes.commands.search_space_map.results import \
     SearchSpaceMap
-from util.commands import verify_and_load_results_v2
+from util.commands import dir_plot_command, verify_and_load_results_v2
 from util.plot.color import generate_red_range
 
 
@@ -33,10 +33,11 @@ from util.plot.color import generate_red_range
     default=False,
 )
 def search_space_map(today, dir_name, transient):
-    if not transient:
-        dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, "error_correcting_codes")
-    results: SearchSpaceMap = verify_and_load_results_v2(SearchSpaceMap, "error_correcting_codes", today)
+    _plot(today, dir_name, transient)
 
+
+@dir_plot_command("error_correcting_codes", SearchSpaceMap)
+def _plot(results: SearchSpaceMap, save: Callable)
     for t in range(results.num_trials):
         G: nx.Graph = results.get_search_space(t)
         #print([G.nodes[n]['attr']['local'] for n in G.nodes])
@@ -50,5 +51,4 @@ def search_space_map(today, dir_name, transient):
             get_color=lambda x: gradient[int(x['attr']['local'])],
             iterations=10
         )
-    
-    plot.show_or_save(transient, f"{dir_name}/normalized", "error_correcting_codes")
+    save("normalized")
