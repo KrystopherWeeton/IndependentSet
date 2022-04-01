@@ -22,7 +22,7 @@ def draw_graph(g: nx.Graph, labels = None, colorings: Dict = {}, default_color="
     if labels is not None:
         nx_draw.draw(g, pos=pos, with_labels=True, labels=labels, node_size=30, node_color=colors)
     else:
-        nx_draw.draw(g, pos=pos, with_labels=False, node_size=30, node_color=colors)
+        nx_draw.draw(g, pos=pos, with_labels=False, node_size=15, node_color=colors)
 
 def draw_gradient_graph(g: nx.Graph, get_color: Callable, get_label: Callable=None, iterations=10000):
     pos = nx.circular_layout(g)

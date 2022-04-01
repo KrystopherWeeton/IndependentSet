@@ -26,7 +26,7 @@ def _run_exp(transient: bool, verbose: bool):
     k: int = GALLAGHER_PARAMS.k
     j: int = GALLAGHER_PARAMS.j
     
-    min_threshold: int = 6
+    min_threshold: int = 8
     #? -------------------------------------
     results: ThresholdMap = ThresholdMap(n, k, j, p)
     code: LDPC = GallagerLDPC(n, j, k)
@@ -44,7 +44,7 @@ def _run_exp(transient: bool, verbose: bool):
         g.nodes[v]['score'] = scores[v]
 
     # Adjust graph for each threshold
-    for threshold in range(min_threshold, max_threshold):
+    for threshold in range(min_threshold, max_threshold + 1):
         nodes: List = deepcopy(g.nodes)
         for v in nodes:
             if scores[v] < threshold:
