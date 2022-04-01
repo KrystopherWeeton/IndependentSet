@@ -28,10 +28,10 @@ def _run_exp(transient: bool, verbose: bool):
     j: int = GALLAGHER_PARAMS.j
     
     min_threshold: int = 6
-    max_threshold: int = 9
     #? -------------------------------------
     results: ThresholdMap = ThresholdMap(n, k, j, p)
     code: LDPC = GallagerLDPC(n, j, k)
+    max_threshold: int = code.num_parities
     N: int = 2**n
 
     # Construct complete search space graph, score each vertex
