@@ -1,4 +1,3 @@
-
 import click
 import networkx as nx
 
@@ -9,7 +8,6 @@ from error_correcting_codes.commands.threshold_map.results import ThresholdMap
 from util.commands import verify_and_load_results_v2
 
 
-# @profile
 def _plot(today, dir_name, transient):
     if not transient:
         dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, "error_correcting_codes")
