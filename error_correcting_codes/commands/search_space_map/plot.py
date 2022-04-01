@@ -37,7 +37,7 @@ def search_space_map(today, dir_name, transient):
 
 
 @dir_plot_command("error_correcting_codes", SearchSpaceMap)
-def _plot(results: SearchSpaceMap, save: Callable)
+def _plot(results: SearchSpaceMap, save: Callable):
     for t in range(results.num_trials):
         G: nx.Graph = results.get_search_space(t)
         #print([G.nodes[n]['attr']['local'] for n in G.nodes])
