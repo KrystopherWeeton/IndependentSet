@@ -19,11 +19,10 @@ def score(v: Tuple, code: LDPC) -> int:
     return msg.get_num_parities_satisifed()
 
 
-@profile
 def _run_exp(transient: bool, verbose: bool):
     #?Hyper paramters for gallager exp.
     p: float = GALLAGHER_PARAMS.difficult_p
-    n: int = 16
+    n: int = 20
     k: int = GALLAGHER_PARAMS.k
     j: int = GALLAGHER_PARAMS.j
     
