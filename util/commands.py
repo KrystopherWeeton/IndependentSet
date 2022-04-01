@@ -5,7 +5,7 @@ from typing import Callable
 import click
 
 import util.file_util as file_util
-import util.plot as plot
+import util.plot.plot as plot
 from util.config import get_experiment_results_directory
 from util.models.result import Result
 from util.storage import load
@@ -87,26 +87,30 @@ def prompt_file_name(file_name: str) -> str:
     created. The wrapper also takes in `project_name, results_class` for validation
     and saving. 
 """
-def dir_plot_command(f, project_name: str, results_class):
-    def wrapped(today, dir_name, transient):
-        if not transient:
-            dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, project_name)
-        def save(file_name: str):
-            plot.show_or_save(transient, f"{dir_name}/{file_name}", project_name)
-        results = verify_and_load_results_v2(results_class, project_name, today)
-        f(results, save)
-    return wrapped
+def dir_plot_command(project_name: str = None, results_class = None):
+    def decorator(f):
+        def wrapped(today, dir_name, transient):
+            if not transient:
+                dir_name = file_util.create_dir_in_experiment_results_directory(dir_name, project_name)
+            def save(file_name: str):
+                plot.show_or_save(transient, f"{dir_name}/{file_name}", project_name)
+            results = verify_and_load_results_v2(results_class, project_name, today)
+            f(results, save)
+        return wrapped
+    return decorator
 
 
-def single_plot_command(f, project_name: str, results_class):
+def single_plot_command(project_name: str, results_class):
     """ Wrapper which loads results / saves a single plot """
-    def wrapped(today, file_name, transient):
-        results = verify_and_load_results_v2(results_class, project_name, today)
-        if not transient:
-            file_name = prompt_file_name(file_name)
-        f(results)
-        if transient:
-            plot.show_plot()
-        else:
-            plot.save_plot(file_name, project_name)
-    return wrapped
+    def decorator(f):
+        def wrapped(today, file_name, transient):
+            results = verify_and_load_results_v2(results_class, project_name, today)
+            if not transient:
+                file_name = prompt_file_name(file_name)
+            f(results)
+            if transient:
+                plot.show_plot()
+            else:
+                plot.save_plot(file_name, project_name)
+        return wrapped
+    return decorator
