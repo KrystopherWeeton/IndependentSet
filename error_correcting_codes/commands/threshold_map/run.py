@@ -51,6 +51,8 @@ def _run_exp(transient: bool, verbose: bool):
             if scores[v] < threshold:
                 g.remove_node(v)
         results.add_search_space(threshold, g.copy())
+        if verbose:
+            print(f"[V] Threshold {threshold} out of {max_threshold} done.")
 
     store_results("error_correcting_codes", results)
 
