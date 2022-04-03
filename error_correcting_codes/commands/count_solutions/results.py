@@ -16,7 +16,7 @@ from util.results.result_series import ResultSeries
 class SolutionCount(Result):
     """ Tracks the number of solutions in the search space above the parity threshold """
 
-    result_identifier: str = "threshold-map"
+    result_identifier: str = "solution-count"
 
     def __init__(self, n_values: List[int], k: int, j: int, p: float, parity_thresholds: List[int]):
         self.n_values: List[int] = n_values

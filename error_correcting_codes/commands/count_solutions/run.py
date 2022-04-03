@@ -31,26 +31,24 @@ def _run_exp(transient: bool, verbose: bool):
     j: int = GALLAGHER_PARAMS.j
 
     n_values: List[int] = list(range(k, 21, k))
-    parity_threshold: List[int] = [n * j // k for n in n_values]
+    parity_thresholds: List[int] = [n * j // k for n in n_values]
     #? -------------------------------------
-    results: SolutionCount = SolutionCount(n_values, k, j, p, parity_threshold)
+    results: SolutionCount = SolutionCount(n_values, k, j, p, parity_thresholds)
 
-
-    for n in n_values:
+    for i in range(len(n_values)):
+        n: int = n_values[i]
+        threshold: int = parity_thresholds[i]
         code: LDPC = GallagerLDPC(n, j, k)
-        threshold: int = parity_threshold
 
         vectors: List = list(itertools.product([0, 1], repeat=n))
         with Pool(4) as p:
-            count = (
-                p.starmap(score_above_threshold, [(v, code, threshold) for v in vectors])
-            )
-            results.add_result(n, count)
+            count = sum(p.starmap(score_above_threshold, [(v, code, threshold) for v in vectors]))
+        results.add_result(n, count)
         
         if verbose:
             print(f"[V] n={n} complete")
     
-    #store_results("error_correcting_codes", results)
+    store_results("error_correcting_codes", results)
 
 
 @click.command()

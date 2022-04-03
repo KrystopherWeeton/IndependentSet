@@ -1,24 +1,33 @@
-from typing import Callable
+from typing import Callable, List
 
 import click
 import networkx as nx
 
-import util.file_util as file_util
 import util.plot.graph as graph
 import util.plot.plot as plot
-from error_correcting_codes.commands.threshold_map.results import ThresholdMap
-from util.commands import dir_plot_command, verify_and_load_results_v2
+import util.plot.series as series
+from error_correcting_codes.commands.count_solutions.results import \
+    SolutionCount
+from util.commands import dir_plot_command
 
 
-@dir_plot_command("error_correcting_codes", ThresholdMap)
-def _plot(results, save: Callable):
-    for threshold in results.get_all_thresholds():
-        g: nx.Graph = results.get_search_space(threshold)
-        #labels = nx.get_node_attributes(g, "score")
-        labels = None
-        colorings = {tuple([0] * results.n): "red"}
-        graph.draw_graph(g, iterations=50, labels=labels, colorings=colorings)
-        save(f"threshold-{threshold}")
+@dir_plot_command("error_correcting_codes", SolutionCount)
+def _plot(results: SolutionCount, save: Callable):
+    n_values, num_solutions = results.get_series()
+    print(num_solutions)
+    percentage_of_solutions: List[int] = [
+        num_solutions[i] / (2**n_values[i]) for i in range(len(n_values))
+    ]
+    plot.initialize_figure(
+        "n", "num solutions", f"Number of solutions with all parities satisfied"
+    )
+    series.plot_series(n_values, num_solutions, annotate_points=True)
+    save("num-solutions")
+    plot.initialize_figure(
+        "n", "Percentage of Solutions", "Percentage of solutions with all parities satisfied"
+    )
+    series.plot_series(n_values, percentage_of_solutions, annotate_points=True)
+    save("perc-solutions")
 
 @click.command()
 @click.option(
