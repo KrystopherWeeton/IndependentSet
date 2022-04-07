@@ -6,6 +6,8 @@ from error_correcting_codes.commands.correction_series.run import \
     run_correction_series
 from error_correcting_codes.commands.count_solutions.run import count_solutions
 from error_correcting_codes.commands.global_local.run import run_global_local
+from error_correcting_codes.commands.global_structure.run import \
+    global_structure
 from error_correcting_codes.commands.search_space_map.run import \
     search_space_map
 from error_correcting_codes.commands.threshold_map.run import threshold_map
@@ -22,6 +24,7 @@ ecc.add_command(run_correction_series)
 ecc.add_command(search_space_map)
 ecc.add_command(threshold_map)
 ecc.add_command(count_solutions)
+ecc.add_command(global_structure)
 
 if __name__ == "__main__":
     ecc()

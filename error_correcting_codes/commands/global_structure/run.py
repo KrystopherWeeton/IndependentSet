@@ -59,5 +59,5 @@ def _run_exp(transient: bool, verbose: bool):
 @click.command()
 @click.option("--transient", required=False, default=False, is_flag=True)
 @click.option("--verbose", required=False, is_flag=True, default=False)
-def threshold_map(transient, verbose):
+def global_structure(transient, verbose):
     _run_exp(transient, verbose)

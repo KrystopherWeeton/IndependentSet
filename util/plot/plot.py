@@ -51,7 +51,8 @@ def initialize_figure(x_label: str, y_label: str, title: str, figsize: Tuple = N
 """
     Shows the plot to the user and then clears it. Can be used for testing / short term results.
 """
-def show_plot():
+def show_plot(title: str = None):
+    plt.title(title)
     plt.tight_layout()
     plt.autoscale(enable=True)
     plt.show()
@@ -142,6 +143,6 @@ def show_or_save(transient: bool, file_name: str, project_name: str):
         appropriate folder in project name's configured directory for exp. results.
     """
     if transient:
-        show_plot()
+        show_plot(file_name)
     else:
         save_plot(file_name, project_name)
