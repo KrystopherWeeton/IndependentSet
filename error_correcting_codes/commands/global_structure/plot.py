@@ -4,38 +4,50 @@ from typing import Callable
 import click
 import networkx as nx
 
-import util.plot.graph as graph
+import util.plot.plot as plot
+import util.plot.series as series
 from error_correcting_codes.commands.global_structure.results import \
     GlobalStructure
-from util.commands import dir_plot_command
+from util.commands import dir_plot_command, single_plot_command
 
 
 @dir_plot_command("error_correcting_codes", GlobalStructure)
-def _plot(results, save: Callable):
-    for threshold in results.get_all_thresholds():
-        g: nx.Graph = results.get_search_space(threshold)
-        #labels = nx.get_node_attributes(g, "score")
-        labels = None
-        colorings = {}
-        for x in g.nodes:
-            if g.nodes[x]['score'] >= 11:
-                colorings[x] = "green"
-        colorings[tuple([0] * results.n)] = "red"
-        graph.draw_graph(g, results.n, iterations=50, labels=labels, colorings=colorings)
-        save(f"threshold-{threshold}")
+def _plot(results: GlobalStructure, save: Callable):
+    num_parities: int = results.n * results.j // results.k
+    plot.initialize_figure(
+        x_label="Avg. Inverse Hamming Distance in GWW Pop (Number of matching bits)", 
+        y_label=f"Parities Satisfied (out of {results.n * results.j // results.k}",
+        title="Global vs. Local Progress in GWW Population"
+    )
+    series.plot_series(
+        results.pop_inv_ham, 
+        results.pop_parities,
+        plot.Formatting(color="blue", label="Average. Parities Satisfied vs. Hamming Distance of GWW Pop.")
+    )
+    series.plot_series(
+        results.pop_inv_ham,
+        results.exp_parities,
+        plot.Formatting(color="gray", label="Expected Parities Satisfied conditioned on Hamming Dist. of GWW Pop.")
+    )
+    plot.draw_legend()
+    save("average-expected")
+    
+    data = []
+    for i in range(len(results.pop_parities)):
+        data.append((results.pop_parities[i], results.max_matching_bits[i]))
+    data = sorted(data, key = lambda x: x[0])
 
-        g2: nx.Graph = deepcopy(g)
-        for x in g.nodes:
-            if x == tuple([0] * results.n):
-                print('considering', x)
-                print(len(g.edges(x)))
-                print(len(g.edges(x)) == 0)
-            if len(g.edges(x)) == 0:
-                g2.remove_node(x)
-        colorings = {x: "green" for x in g2.nodes if g2.nodes[x]['score'] >= 11}
-        colorings[tuple([0] * results.n)] = "red"
-        graph.draw_graph(g2, results.n, labels=None, colorings=colorings)
-        save(f"threshold-isolated-removed-{threshold}")
+    plot.initialize_figure(
+        x_label="Prities Satisfied",
+        y_label=f"Max Inverse Hamming Distance in GWW Pop (Number of matching bits)",
+        title="Max Matching Bits with Original Message vs. Parities. (Is a particle close to original message?)"
+    )
+    series.plot_series(
+        [x[0] for x in data],
+        [x[1] for x in data]
+    )
+    save("max-matching-bits")
+
 
 @click.command()
 @click.option(
@@ -46,7 +58,7 @@ def _plot(results, save: Callable):
 )
 @click.option(
     "--dir-name",
-    required=False,
+    required=True,
 )
 @click.option(
     "--transient",

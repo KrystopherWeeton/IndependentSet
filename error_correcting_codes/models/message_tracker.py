@@ -84,6 +84,9 @@ class MessageTracker(Solution):
     def get_hamming_dist_to_original_message(self) -> int:
         return hamming_dist(self._message, self._original_message)
 
+    def get_num_bits_matching_original_msg(self) -> int:
+        return self.msg_len() - self.get_hamming_dist_to_original_message()
+
     def get_message(self) -> np.array:
         return copy(self._message)
     

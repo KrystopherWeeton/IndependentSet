@@ -17,21 +17,23 @@ class GlobalStructure(Result):
 
     result_identifier: str = "global-structure"
 
-    def __init__(self, n: int, k: int, j: int, p: float):
+    def __init__(self, n: int, k: int, j: int, p: float, ):
         self.n = n
         self.k = k
         self.j = j
         self.p = p
+        self._data = {}
 
-        self.search_spaces = {}
+    def add_phase(self, pop_inv_ham, pop_parities, exp_parities, max_matching_bits):
+        self._data[pop_inv_ham] = {
+            "pop_parities": pop_parities,
+            "exp_parities": exp_parities,
+            "max_matching_bits": max_matching_bits
+        }
+    
+    def finalize(self):
+        self.pop_inv_ham = sorted(self._data.keys())
+        self.pop_parities = [self._data[x]['pop_parities'] for x in self.pop_inv_ham]
+        self.exp_parities = [self._data[x]['exp_parities'] for x in self.pop_inv_ham]
+        self.max_matching_bits = [self._data[x]['max_matching_bits'] for x in self.pop_inv_ham]
 
-
-    def add_search_space(self, threshold: int, g: nx.graph):
-        self.search_spaces[threshold] = g
-
-
-    def get_search_space(self, threshold: int) -> nx.graph:
-        return self.search_spaces[threshold]
-
-    def get_all_thresholds(self) -> List[int]:
-        return list(self.search_spaces.keys())
